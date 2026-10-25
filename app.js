@@ -110,10 +110,17 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         .maybeSingle();
 
       if (error || !socio) {
-        message("Sua conta ainda não tem acesso à loja.");
-        nav.classList.add("hidden");
-        return;
-      }
+  console.error("Erro ao consultar sócio:", error);
+
+  message(
+    error
+      ? "Erro Supabase: " + error.message
+      : "Usuário conectado, mas não foi encontrado na tabela de sócios."
+  );
+
+  nav.classList.add("hidden");
+  return;
+}
 
       const { data: produtos, error: produtosError } = await db
         .from("produtos")
