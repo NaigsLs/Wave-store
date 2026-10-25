@@ -58,9 +58,11 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let atualizarRecebimentos = null;
+    let atualizarInvestimentos = null;
 
     function showLogin(error = "") {
       atualizarRecebimentos = null;
+      atualizarInvestimentos = null;
       nav.classList.add("hidden");
 
       sections.forEach(id => {
@@ -146,6 +148,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
       const carrinho = new Map();
       const kitsSelecionados = new Map();
+
+      // ======================================
+      // ESTOQUE
+      // ======================================
 
       const stockSection = document.getElementById("stock");
 
@@ -309,6 +315,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           .textContent = "";
       }
 
+      // ======================================
+      // VENDAS E CARRINHO
+      // ======================================
+
       const sellSection = document.getElementById("sell");
 
       sellSection.innerHTML = `
@@ -432,9 +442,6 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
       function kitsPayload() {
         const kits = [];
-
-        // Controla o uso de cada produto entre
-        // todas as promoções selecionadas.
         const restantesGerais = new Map(carrinho);
 
         for (const [id, quantidadeKits] of kitsSelecionados) {
@@ -682,6 +689,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           finalizarBotao.disabled = true;
         }
       }
+
+      // ======================================
+      // PAINEL INICIAL
+      // ======================================
 
       async function carregarPainel() {
         const { data: vendas, error } = await db
@@ -1348,25 +1359,264 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
       await carregarPainel();
 
       // ======================================
-      // MINHA CONTA
+      // MINHA CONTA E INVESTIMENTOS
       // ======================================
 
       document.getElementById("more").innerHTML = `
-        <h2>Minha conta</h2>
+        <h2>Investimentos dos sócios</h2>
 
         <div class="card">
-          <p>
+          <h3>Registrar investimento</h3>
+
+          <p class="tiny muted">
+            Sócio responsável:
             <strong>${safe(socio.nome)}</strong>
           </p>
 
-          <p class="muted">
-            ${safe(user.email)}
-          </p>
+          <form id="investimentoForm">
+            <label>Valor investido (R$)</label>
+            <input
+              id="investimentoValor"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+            >
+
+            <label>Conta que recebeu o dinheiro</label>
+            <select id="investimentoConta" required>
+              <option value="banco">Banco</option>
+              <option value="dinheiro">Dinheiro</option>
+            </select>
+
+            <label>Forma do investimento</label>
+            <select id="investimentoForma" required>
+              <option value="pix">Pix</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="transferencia">
+                Transferência
+              </option>
+              <option value="cartao">Cartão</option>
+            </select>
+
+            <label>Observação (opcional)</label>
+            <input
+              id="investimentoObservacao"
+              placeholder="Ex.: Capital inicial da loja"
+            >
+
+            <p class="tiny muted">
+              Registre somente dinheiro que já entrou
+              na conta escolhida. O valor será lançado
+              automaticamente no caixa e não será
+              considerado faturamento de vendas.
+            </p>
+
+            <button
+              type="submit"
+              id="salvarInvestimento">
+              Registrar investimento
+            </button>
+
+            <p id="investimentoMensagem" class="tiny"></p>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Total investido por sócio</h3>
+
+          <button
+            type="button"
+            id="atualizarInvestimentos"
+            class="secondary">
+            Atualizar investimentos
+          </button>
+
+          <div id="resumoInvestimentos">
+            Carregando...
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Minha conta</h3>
+
+          <p><strong>${safe(socio.nome)}</strong></p>
+          <p class="muted">${safe(user.email)}</p>
 
           <button id="logout" class="secondary">
             Sair da conta
           </button>
         </div>`;
+
+      async function carregarInvestimentos() {
+        const resumo = document.getElementById(
+          "resumoInvestimentos"
+        );
+
+        resumo.textContent = "Consultando investimentos...";
+
+        const [
+          { data: socios, error: erroSocios },
+          { data: investimentos, error: erroInvestimentos }
+        ] = await Promise.all([
+          db.from("socios")
+            .select("usuario_id,nome")
+            .eq("loja_id", socio.loja_id),
+
+          db.from("investimentos")
+            .select("socio_id,valor")
+            .eq("loja_id", socio.loja_id)
+        ]);
+
+        if (erroSocios || erroInvestimentos) {
+          resumo.textContent =
+            "Erro ao consultar investimentos: " +
+            (erroSocios || erroInvestimentos).message;
+          return;
+        }
+
+        const totais = new Map();
+
+        for (const s of socios || []) {
+          totais.set(s.usuario_id, {
+            nome: s.nome,
+            totalCentavos: 0
+          });
+        }
+
+        for (const investimento of investimentos || []) {
+          const registro = totais.get(
+            investimento.socio_id
+          );
+
+          if (registro) {
+            registro.totalCentavos += cents(
+              investimento.valor
+            );
+          }
+        }
+
+        const registros = [...totais.values()];
+
+        const totalGeral = registros.reduce(
+          (soma, item) => soma + item.totalCentavos,
+          0
+        );
+
+        resumo.innerHTML = registros.map(item => `
+          <div class="item">
+            <strong>${safe(item.nome)}</strong>
+            <div class="accent">
+              ${money(item.totalCentavos / 100)}
+            </div>
+          </div>
+        `).join("") + `
+          <div class="item">
+            <strong>Total investido na loja</strong>
+            <div class="accent">
+              ${money(totalGeral / 100)}
+            </div>
+          </div>
+        `;
+      }
+
+      atualizarInvestimentos =
+        carregarInvestimentos;
+
+      document.getElementById(
+        "atualizarInvestimentos"
+      ).onclick = carregarInvestimentos;
+
+      document.getElementById(
+        "investimentoForm"
+      ).onsubmit = async e => {
+        e.preventDefault();
+
+        const form = e.currentTarget;
+        const botao = document.getElementById(
+          "salvarInvestimento"
+        );
+
+        const mensagem = document.getElementById(
+          "investimentoMensagem"
+        );
+
+        const valor = Number(
+          document.getElementById(
+            "investimentoValor"
+          ).value
+        );
+
+        const valorCentavos = cents(valor);
+
+        const conta = document.getElementById(
+          "investimentoConta"
+        ).value;
+
+        const forma = document.getElementById(
+          "investimentoForma"
+        ).value;
+
+        const observacao = document.getElementById(
+          "investimentoObservacao"
+        ).value.trim();
+
+        if (
+          !Number.isFinite(valor) ||
+          valorCentavos <= 0
+        ) {
+          mensagem.textContent =
+            "Informe um valor válido maior que zero.";
+          return;
+        }
+
+        if (!confirm(
+          `Confirmar investimento de ${money(
+            valorCentavos / 100
+          )} realizado por ${socio.nome} na conta ${conta}?`
+        )) {
+          return;
+        }
+
+        botao.disabled = true;
+        mensagem.textContent =
+          "Registrando investimento...";
+
+        try {
+          const { error } = await db
+            .from("investimentos")
+            .insert({
+              loja_id: socio.loja_id,
+              socio_id: user.id,
+              valor: valorCentavos / 100,
+              conta,
+              forma,
+              observacao: observacao || null
+            });
+
+          if (error) {
+            mensagem.textContent =
+              "Erro ao registrar: " + error.message;
+            return;
+          }
+
+          form.reset();
+
+          mensagem.textContent =
+            "Investimento registrado com sucesso!";
+
+          await carregarInvestimentos();
+          await carregarPainel();
+
+        } catch (err) {
+          mensagem.textContent =
+            "Erro: " + err.message;
+        } finally {
+          botao.disabled = false;
+        }
+      };
+
+      await carregarInvestimentos();
 
       document.getElementById("logout")
         .onclick = async () => {
@@ -1390,6 +1640,13 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             atualizarRecebimentos
           ) {
             await atualizarRecebimentos();
+          }
+
+          if (
+            tab === "more" &&
+            atualizarInvestimentos
+          ) {
+            await atualizarInvestimentos();
           }
         };
       });
