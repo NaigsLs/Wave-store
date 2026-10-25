@@ -220,20 +220,34 @@ async function carregarProdutos() {
     return;
   }
 
-  listaProdutos.innerHTML = data.length
-    ? data.map(p => `
-      <div class="item">
-        <strong>${safe(p.nome)}</strong>
-        <div class="tiny muted">
-          ${safe(p.codigo)} • ${safe(p.categoria)}
-          ${p.variacao ? " • " + safe(p.variacao) : ""}
-        </div>
-        <div class="accent">${money(p.preco)}</div>
-        <small>Estoque inicial: ${p.estoque_inicial}</small>
-      </div>
-    `).join("")
-    : "<p>Nenhum produto cadastrado.</p>";
+  
+const { data: movimentos, error: erroMovimentos } = await db
+  .from("movimentos_estoque")
+  .select("produto_id,tipo,quantidade")
+  .eq("loja_id", socio.loja_id);
+
+if (erroMovimentos) {
+  listaProdutos.textContent =
+    "Erro ao consultar estoque: " + erroMovimentos.message;
+  return;
 }
+
+const saldos = {};
+
+for (const p of data) {
+  saldos[p.id] = Number(p.estoque_inicial || 0);
+}
+
+for (const m of movimentos || []) {
+  if (saldos[m.produto_id] === undefined) continue;
+
+  if (m.tipo === "entrada") {
+    saldos[m.produto_id] += Number(m.quantidade);
+  } else if (m.tipo === "saida") {
+    saldos[m.produto_id] -= Number(m.quantidade);
+  }
+}
+
 
 await carregarProdutos();
 
