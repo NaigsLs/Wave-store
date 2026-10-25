@@ -14,6 +14,7 @@
       color: #f0f7ff;
       background: #07101e;
       color-scheme: dark;
+
       --bg: #07101e;
       --panel: #11223a;
       --border: #254362;
@@ -22,35 +23,52 @@
       --muted: #a8bed7;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 12px;
+    }
 
     body {
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(180deg, #0b1c33 0%, #07101e 42%);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      background: linear-gradient(
+        180deg,
+        #0b1c33 0%,
+        #07101e 42%
+      );
     }
 
+    /* CABEÇALHO */
+
     header {
-      background: rgba(8, 20, 38, .97);
+      background: rgba(8, 20, 38, .98);
       padding: 13px 16px;
-      position: sticky;
-      top: 0;
+      position: relative;
       z-index: 3;
       border-bottom: 1px solid #1d4773;
       box-shadow: 0 5px 22px #0004;
     }
 
     header strong {
+      display: block;
       font-size: 20px;
       letter-spacing: .4px;
       color: #fff;
+      line-height: 1.2;
     }
 
     header small {
       display: block;
       color: #91b6d8;
-      margin-top: 3px;
+      margin-top: 5px;
       font-size: 11px;
+      line-height: 1.4;
     }
 
     .brand {
@@ -58,11 +76,13 @@
       align-items: center;
       gap: 12px;
       min-width: 0;
+      flex: 1;
     }
 
     .brand-logo {
       width: 54px;
       height: 54px;
+      min-width: 54px;
       object-fit: contain;
       border-radius: 12px;
       background: #000;
@@ -76,7 +96,9 @@
       font-size: 30px;
     }
 
-    .brand-name { min-width: 0; }
+    .brand-name {
+      min-width: 0;
+    }
 
     .brand-status {
       display: inline-flex;
@@ -90,6 +112,7 @@
       font-size: 10px;
       font-weight: 700;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .brand-status::before {
@@ -100,13 +123,33 @@
       border-radius: 50%;
     }
 
+    /* CONTEÚDO */
+
     .wrap {
+      width: 100%;
       max-width: 750px;
-      margin: auto;
-      padding: 19px 14px 115px;
+      margin: 0 auto;
+      padding:
+        24px
+        14px
+        calc(125px + env(safe-area-inset-bottom));
     }
 
-    .muted { color: var(--muted); }
+    main > section {
+      min-width: 0;
+    }
+
+    #home {
+      padding-top: 4px;
+    }
+
+    #home > h2:first-child {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
 
     .pill {
       background: #183a5b;
@@ -123,16 +166,23 @@
     }
 
     .card {
-      background: linear-gradient(145deg, #142b46, #102137);
+      background: linear-gradient(
+        145deg,
+        #142b46,
+        #102137
+      );
       border: 1px solid var(--border);
       border-radius: 17px;
       padding: 17px;
       margin-bottom: 13px;
       box-shadow: 0 5px 18px #0002;
       min-width: 0;
+      overflow-wrap: anywhere;
     }
 
-    .card small { color: #aec9e2; }
+    .card small {
+      color: #aec9e2;
+    }
 
     .num {
       font-size: 25px;
@@ -142,17 +192,26 @@
       color: #fff;
     }
 
-    .full { grid-column: 1 / -1; }
-    .accent { color: #45d6ff; }
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .accent {
+      color: #45d6ff;
+    }
 
     h2 {
       font-size: 20px;
       margin: 12px 0 17px;
       color: #fff;
       letter-spacing: -.3px;
+      line-height: 1.3;
     }
 
-    h3 { color: #f0f7ff; }
+    h3 {
+      color: #f0f7ff;
+      line-height: 1.3;
+    }
 
     label {
       display: block;
@@ -162,7 +221,9 @@
       font-weight: 600;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       width: 100%;
       background: #09182a;
       color: #fff;
@@ -173,20 +234,28 @@
       font-size: 16px;
       outline: none;
       min-height: 47px;
+      max-width: 100%;
     }
 
-    input:focus, select:focus, textarea:focus {
+    input:focus,
+    select:focus,
+    textarea:focus {
       border-color: var(--cyan);
       box-shadow: 0 0 0 3px #00cfff20;
     }
 
-    input::placeholder, textarea::placeholder {
+    input::placeholder,
+    textarea::placeholder {
       color: #7993ae;
     }
 
     button {
       border: 0;
-      background: linear-gradient(135deg, #007bff, #00a7ff);
+      background: linear-gradient(
+        135deg,
+        #007bff,
+        #00a7ff
+      );
       color: white;
       border-radius: 12px;
       padding: 14px 16px;
@@ -197,9 +266,12 @@
       margin-top: 13px;
       min-height: 47px;
       box-shadow: 0 4px 12px #006dff20;
+      touch-action: manipulation;
     }
 
-    button:active { transform: scale(.99); }
+    button:active {
+      transform: scale(.99);
+    }
 
     button.secondary {
       background: #203b59;
@@ -213,6 +285,8 @@
       cursor: not-allowed;
     }
 
+    /* NAVEGAÇÃO INFERIOR */
+
     .nav {
       position: fixed;
       bottom: 0;
@@ -222,13 +296,14 @@
       border-top: 1px solid #24517d;
       display: flex;
       justify-content: center;
-      z-index: 4;
+      z-index: 20;
       padding-bottom: env(safe-area-inset-bottom);
       box-shadow: 0 -5px 22px #0005;
     }
 
     .nav button {
       flex: 1;
+      min-width: 0;
       background: transparent;
       color: #91aac5;
       border-radius: 0;
@@ -245,7 +320,11 @@
     .nav button.active {
       color: #35cfff;
       border-top-color: #00bfff;
-      background: linear-gradient(180deg, #10345a, transparent);
+      background: linear-gradient(
+        180deg,
+        #10345a,
+        transparent
+      );
     }
 
     .nav-icon {
@@ -255,13 +334,17 @@
       margin-bottom: 3px;
     }
 
+    /* ELEMENTOS DO SISTEMA */
+
     .item {
       padding: 14px 0;
       border-bottom: 1px solid #294560;
       overflow-wrap: anywhere;
     }
 
-    .item:last-child { border: 0; }
+    .item:last-child {
+      border: 0;
+    }
 
     .flex {
       display: flex;
@@ -270,89 +353,187 @@
       align-items: center;
     }
 
-    .hidden { display: none !important; }
-    .tiny { font-size: 12px; }
-    .tag { font-size: 11px; color: #91b9db; }
-    section { min-width: 0; }
+    .hidden {
+      display: none !important;
+    }
 
-    /* PAINEL COM ATALHOS */
+    .tiny {
+      font-size: 12px;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: #91b9db;
+    }
+
+    section {
+      min-width: 0;
+    }
+
+    /* PAINEL PRINCIPAL */
+
+    .wave-inicio {
+      width: 100%;
+      margin: 0 0 25px;
+    }
 
     .wave-vender {
-      background: linear-gradient(135deg, #006eff, #00bbff);
+      display: block;
+      width: 100%;
+      background: linear-gradient(
+        135deg,
+        #006eff,
+        #00bbff
+      );
       border-radius: 17px;
-      min-height: 76px;
+      min-height: 78px;
       font-size: 20px;
-      margin: 3px 0 22px;
+      margin: 6px 0 24px;
+      padding: 16px 12px;
       box-shadow: 0 6px 22px #007bff40;
+      text-align: center;
     }
 
     .wave-vender small {
       display: block;
-      margin-top: 5px;
+      margin-top: 6px;
       font-size: 12px;
       font-weight: 400;
       color: #e2f6ff;
     }
 
+    .wave-titulo-atalhos {
+      margin: 0 0 17px;
+      font-size: 20px;
+    }
+
     .wave-atalhos {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(
+        3,
+        minmax(0, 1fr)
+      );
       gap: 10px;
-      margin-bottom: 23px;
+      margin-bottom: 25px;
     }
 
     .wave-atalhos button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       background: #142b46;
       border: 1px solid #28527d;
       border-radius: 14px;
-      min-height: 88px;
+      min-height: 92px;
       padding: 12px 5px;
       margin: 0;
-      font-size: 25px;
+      font-size: 27px;
       box-shadow: none;
+      text-align: center;
     }
 
     .wave-atalhos button span {
       display: block;
-      margin-top: 7px;
+      margin: 0;
       font-size: 11px;
       font-weight: 700;
       color: #eaf5ff;
       overflow-wrap: anywhere;
+      line-height: 1.3;
     }
 
     .wave-atalhos button:active {
       background: #1b4672;
     }
 
+    /* RESUMO FINANCEIRO */
+
+    #home .grid {
+      gap: 10px;
+    }
+
     #home .grid .card {
-      padding: 13px;
+      padding: 14px;
       margin-bottom: 8px;
     }
 
-    #home .num { font-size: 21px; }
+    #home .num {
+      font-size: 21px;
+      line-height: 1.25;
+    }
+
+    /* TELAS MENORES */
 
     @media (max-width: 370px) {
-      header { padding: 11px 12px; }
-      .brand-logo { width: 45px; height: 45px; }
-      header strong { font-size: 17px; }
-      .brand-status { font-size: 9px; padding: 5px 7px; }
-      .wrap { padding-left: 11px; padding-right: 11px; }
-      .card { padding: 13px; }
-      .num { font-size: 21px; }
-      .nav button { font-size: 10px; }
-      .wave-atalhos { gap: 7px; }
-      .wave-atalhos button { min-height: 80px; }
-      .wave-atalhos button span { font-size: 10px; }
+      header {
+        padding: 11px 12px;
+      }
+
+      .brand {
+        gap: 8px;
+      }
+
+      .brand-logo {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+      }
+
+      header strong {
+        font-size: 17px;
+      }
+
+      header small {
+        font-size: 10px;
+      }
+
+      .brand-status {
+        font-size: 9px;
+        padding: 5px 7px;
+      }
+
+      .wrap {
+        padding-left: 11px;
+        padding-right: 11px;
+      }
+
+      .card {
+        padding: 13px;
+      }
+
+      .num {
+        font-size: 21px;
+      }
+
+      .nav button {
+        font-size: 10px;
+      }
+
+      .wave-atalhos {
+        gap: 7px;
+      }
+
+      .wave-atalhos button {
+        min-height: 84px;
+      }
+
+      .wave-atalhos button span {
+        font-size: 10px;
+      }
     }
   </style>
 </head>
 
 <body>
 
+  <!-- CABEÇALHO -->
+
   <header>
     <div class="flex">
       <div class="brand">
+
         <img
           src="logo.PNG"
           alt="Logo Wave Store"
@@ -370,45 +551,95 @@
           <strong>WAVE STORE</strong>
           <small>Gestão inteligente da loja</small>
         </div>
+
       </div>
 
-      <span class="brand-status">GESTÃO</span>
+      <span class="brand-status">
+        GESTÃO
+      </span>
     </div>
   </header>
 
+  <!-- TELAS DO SISTEMA -->
+
   <main class="wrap">
     <section id="home"></section>
-    <section id="sell" class="hidden"></section>
-    <section id="stock" class="hidden"></section>
-    <section id="receive" class="hidden"></section>
-    <section id="more" class="hidden"></section>
+
+    <section
+      id="sell"
+      class="hidden"
+    ></section>
+
+    <section
+      id="stock"
+      class="hidden"
+    ></section>
+
+    <section
+      id="receive"
+      class="hidden"
+    ></section>
+
+    <section
+      id="more"
+      class="hidden"
+    ></section>
   </main>
 
+  <!-- MENU INFERIOR -->
+
   <nav class="nav" id="nav">
-    <button data-tab="home" class="active">
-      <span class="nav-icon">⌂</span>Painel
+
+    <button
+      type="button"
+      data-tab="home"
+      class="active"
+    >
+      <span class="nav-icon">⌂</span>
+      Painel
     </button>
 
-    <button data-tab="sell">
-      <span class="nav-icon">＋</span>Venda
+    <button
+      type="button"
+      data-tab="sell"
+    >
+      <span class="nav-icon">＋</span>
+      Venda
     </button>
 
-    <button data-tab="stock">
-      <span class="nav-icon">▣</span>Estoque
+    <button
+      type="button"
+      data-tab="stock"
+    >
+      <span class="nav-icon">▣</span>
+      Estoque
     </button>
 
-    <button data-tab="receive">
-      <span class="nav-icon">◷</span>A receber
+    <button
+      type="button"
+      data-tab="receive"
+    >
+      <span class="nav-icon">◷</span>
+      A receber
     </button>
 
-    <button data-tab="more">
-      <span class="nav-icon">☷</span>Mais
+    <button
+      type="button"
+      data-tab="more"
+    >
+      <span class="nav-icon">☷</span>
+      Mais
     </button>
+
   </nav>
+
+  <!-- ATALHOS DO PAINEL -->
 
   <script>
     (() => {
       const home = document.getElementById("home");
+
+      if (!home) return;
 
       const atalhos = [
         ["📦", "Estoque", "stock"],
@@ -422,15 +653,26 @@
         ["👤", "Minha conta", "conta"]
       ];
 
+      function voltarAoTopo() {
+        window.scrollTo({
+          top: 0,
+          behavior: "instant"
+        });
+      }
+
       function abrirAtalho(destino) {
-        if (["sell", "stock", "receive"].includes(destino)) {
+        if (
+          ["sell", "stock", "receive"].includes(destino)
+        ) {
           const botao = document.querySelector(
             `#nav button[data-tab="${destino}"]`
           );
 
-          if (botao) botao.click();
+          if (botao) {
+            botao.click();
+            voltarAoTopo();
+          }
 
-          window.scrollTo(0, 0);
           return;
         }
 
@@ -446,58 +688,110 @@
           `#menuMais [data-abrir="${destino}"]`
         );
 
-        if (botaoPagina) botaoPagina.click();
+        if (botaoPagina) {
+          botaoPagina.click();
+        }
+
+        voltarAoTopo();
       }
 
       function montarAtalhos() {
-        if (!home || home.querySelector(".wave-inicio")) {
+        if (
+          !home ||
+          home.querySelector(".wave-inicio")
+        ) {
           return;
         }
 
         const titulo = home.querySelector("h2");
 
-        if (!titulo || !titulo.textContent.includes("Olá,")) {
+        if (
+          !titulo ||
+          !titulo.textContent.includes("Olá,")
+        ) {
           return;
         }
 
         const painel = document.createElement("div");
         painel.className = "wave-inicio";
 
+        /* BOTÃO NOVA VENDA */
+
         const vender = document.createElement("button");
         vender.type = "button";
         vender.className = "wave-vender";
-        vender.innerHTML =
-          '＋ NOVA VENDA<small>Registrar venda de produtos</small>';
 
-        vender.onclick = () => abrirAtalho("sell");
+        vender.innerHTML =
+          '＋ NOVA VENDA' +
+          '<small>Registrar venda de produtos</small>';
+
+        vender.onclick = () => {
+          abrirAtalho("sell");
+        };
+
         painel.appendChild(vender);
 
-        const tituloAtalhos = document.createElement("h3");
-        tituloAtalhos.textContent = "Acesso rápido";
+        /* TÍTULO DOS ATALHOS */
+
+        const tituloAtalhos =
+          document.createElement("h3");
+
+        tituloAtalhos.className =
+          "wave-titulo-atalhos";
+
+        tituloAtalhos.textContent =
+          "Acesso rápido";
+
         painel.appendChild(tituloAtalhos);
 
-        const grade = document.createElement("div");
+        /* GRADE DE ATALHOS */
+
+        const grade =
+          document.createElement("div");
+
         grade.className = "wave-atalhos";
 
-        for (const [icone, nome, destino] of atalhos) {
-          const botao = document.createElement("button");
+        for (
+          const [icone, nome, destino] of atalhos
+        ) {
+          const botao =
+            document.createElement("button");
+
           botao.type = "button";
 
-          const simbolo = document.createTextNode(icone);
-          const texto = document.createElement("span");
+          const simbolo =
+            document.createTextNode(icone);
+
+          const texto =
+            document.createElement("span");
+
           texto.textContent = nome;
 
           botao.append(simbolo, texto);
-          botao.onclick = () => abrirAtalho(destino);
+
+          botao.onclick = () => {
+            abrirAtalho(destino);
+          };
+
           grade.appendChild(botao);
         }
 
         painel.appendChild(grade);
-        titulo.insertAdjacentElement("afterend", painel);
+
+        titulo.insertAdjacentElement(
+          "afterend",
+          painel
+        );
       }
 
+      /* ATUALIZAÇÃO DO PAINEL */
+
       const observador = new MutationObserver(() => {
-        if (home.querySelector(".wave-inicio")) return;
+        if (
+          home.querySelector(".wave-inicio")
+        ) {
+          return;
+        }
 
         montarAtalhos();
       });
@@ -507,9 +801,34 @@
       });
 
       montarAtalhos();
+
+      /* AJUSTA A ROLAGEM AO TROCAR DE ABA */
+
+      const navegacao =
+        document.getElementById("nav");
+
+      if (navegacao) {
+        navegacao.addEventListener(
+          "click",
+          (evento) => {
+            const botao = evento.target.closest(
+              "button[data-tab]"
+            );
+
+            if (!botao) return;
+
+            requestAnimationFrame(() => {
+              voltarAoTopo();
+            });
+          }
+        );
+      }
     })();
   </script>
 
+  <!-- SISTEMA ORIGINAL DA WAVE STORE -->
+
   <script src="app.js"></script>
+
 </body>
 </html>
