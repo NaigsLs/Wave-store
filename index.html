@@ -76,9 +76,7 @@
       font-size: 30px;
     }
 
-    .brand-name {
-      min-width: 0;
-    }
+    .brand-name { min-width: 0; }
 
     .brand-status {
       display: inline-flex;
@@ -145,7 +143,6 @@
     }
 
     .full { grid-column: 1 / -1; }
-
     .accent { color: #45d6ff; }
 
     h2 {
@@ -202,9 +199,7 @@
       box-shadow: 0 4px 12px #006dff20;
     }
 
-    button:active {
-      transform: scale(.99);
-    }
+    button:active { transform: scale(.99); }
 
     button.secondary {
       background: #203b59;
@@ -276,25 +271,66 @@
     }
 
     .hidden { display: none !important; }
-
-    .warning {
-      background: #3a2b18;
-      color: #ffe0a8;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      margin-bottom: 14px;
-      border: 1px solid #77552b;
-    }
-
     .tiny { font-size: 12px; }
+    .tag { font-size: 11px; color: #91b9db; }
+    section { min-width: 0; }
 
-    .tag {
-      font-size: 11px;
-      color: #91b9db;
+    /* PAINEL COM ATALHOS */
+
+    .wave-vender {
+      background: linear-gradient(135deg, #006eff, #00bbff);
+      border-radius: 17px;
+      min-height: 76px;
+      font-size: 20px;
+      margin: 3px 0 22px;
+      box-shadow: 0 6px 22px #007bff40;
     }
 
-    section { min-width: 0; }
+    .wave-vender small {
+      display: block;
+      margin-top: 5px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #e2f6ff;
+    }
+
+    .wave-atalhos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 23px;
+    }
+
+    .wave-atalhos button {
+      background: #142b46;
+      border: 1px solid #28527d;
+      border-radius: 14px;
+      min-height: 88px;
+      padding: 12px 5px;
+      margin: 0;
+      font-size: 25px;
+      box-shadow: none;
+    }
+
+    .wave-atalhos button span {
+      display: block;
+      margin-top: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #eaf5ff;
+      overflow-wrap: anywhere;
+    }
+
+    .wave-atalhos button:active {
+      background: #1b4672;
+    }
+
+    #home .grid .card {
+      padding: 13px;
+      margin-bottom: 8px;
+    }
+
+    #home .num { font-size: 21px; }
 
     @media (max-width: 370px) {
       header { padding: 11px 12px; }
@@ -305,6 +341,9 @@
       .card { padding: 13px; }
       .num { font-size: 21px; }
       .nav button { font-size: 10px; }
+      .wave-atalhos { gap: 7px; }
+      .wave-atalhos button { min-height: 80px; }
+      .wave-atalhos button span { font-size: 10px; }
     }
   </style>
 </head>
@@ -320,6 +359,7 @@
           class="brand-logo"
           onerror="this.style.display='none';document.getElementById('brand-fallback').style.display='flex'"
         >
+
         <span
           id="brand-fallback"
           class="brand-logo brand-symbol"
@@ -365,6 +405,110 @@
       <span class="nav-icon">☷</span>Mais
     </button>
   </nav>
+
+  <script>
+    (() => {
+      const home = document.getElementById("home");
+
+      const atalhos = [
+        ["📦", "Estoque", "stock"],
+        ["🛍️", "Compras", "compras"],
+        ["💰", "Caixa", "historico"],
+        ["🧾", "Despesas", "despesas"],
+        ["📈", "Investimentos", "investimentos"],
+        ["📊", "Relatórios", "relatorios"],
+        ["🕒", "A receber", "receive"],
+        ["📋", "Histórico", "historico"],
+        ["👤", "Minha conta", "conta"]
+      ];
+
+      function abrirAtalho(destino) {
+        if (["sell", "stock", "receive"].includes(destino)) {
+          const botao = document.querySelector(
+            `#nav button[data-tab="${destino}"]`
+          );
+
+          if (botao) botao.click();
+
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        const botaoMais = document.querySelector(
+          '#nav button[data-tab="more"]'
+        );
+
+        if (!botaoMais) return;
+
+        botaoMais.click();
+
+        const botaoPagina = document.querySelector(
+          `#menuMais [data-abrir="${destino}"]`
+        );
+
+        if (botaoPagina) botaoPagina.click();
+      }
+
+      function montarAtalhos() {
+        if (!home || home.querySelector(".wave-inicio")) {
+          return;
+        }
+
+        const titulo = home.querySelector("h2");
+
+        if (!titulo || !titulo.textContent.includes("Olá,")) {
+          return;
+        }
+
+        const painel = document.createElement("div");
+        painel.className = "wave-inicio";
+
+        const vender = document.createElement("button");
+        vender.type = "button";
+        vender.className = "wave-vender";
+        vender.innerHTML =
+          '＋ NOVA VENDA<small>Registrar venda de produtos</small>';
+
+        vender.onclick = () => abrirAtalho("sell");
+        painel.appendChild(vender);
+
+        const tituloAtalhos = document.createElement("h3");
+        tituloAtalhos.textContent = "Acesso rápido";
+        painel.appendChild(tituloAtalhos);
+
+        const grade = document.createElement("div");
+        grade.className = "wave-atalhos";
+
+        for (const [icone, nome, destino] of atalhos) {
+          const botao = document.createElement("button");
+          botao.type = "button";
+
+          const simbolo = document.createTextNode(icone);
+          const texto = document.createElement("span");
+          texto.textContent = nome;
+
+          botao.append(simbolo, texto);
+          botao.onclick = () => abrirAtalho(destino);
+          grade.appendChild(botao);
+        }
+
+        painel.appendChild(grade);
+        titulo.insertAdjacentElement("afterend", painel);
+      }
+
+      const observador = new MutationObserver(() => {
+        if (home.querySelector(".wave-inicio")) return;
+
+        montarAtalhos();
+      });
+
+      observador.observe(home, {
+        childList: true
+      });
+
+      montarAtalhos();
+    })();
+  </script>
 
   <script src="app.js"></script>
 </body>
