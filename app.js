@@ -164,6 +164,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
       let productList = [];
       let saldos = {};
+      let estoqueDisponivel = {};
       let promocoes = [];
       let promoProdutos = [];
 
@@ -225,10 +226,24 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             >
 
             <label>Variação (opcional)</label>
-            <input
-              name="variacao"
-              placeholder="Ex.: Preto / G"
-            >
+            <input name="variacao" placeholder="Ex.: Preto / G">
+
+            <div class="grid">
+              <div>
+                <label>Cor (opcional)</label>
+                <input name="cor" placeholder="Ex.: Preto">
+              </div>
+              <div>
+                <label>Tamanho (opcional)</label>
+                <input name="tamanho" placeholder="Ex.: M / 38">
+              </div>
+            </div>
+
+            <label>Código de barras (opcional)</label>
+            <input name="codigo_barras" placeholder="EAN / código de barras">
+
+            <label>URL da foto (opcional)</label>
+            <input name="foto_url" type="url" placeholder="https://...">
 
             <label>Preço de custo (R$)</label>
             <input
@@ -248,14 +263,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
               required
             >
 
-            <label>Quantidade inicial</label>
-            <input
-              name="estoque_inicial"
-              type="number"
-              min="0"
-              step="1"
-              required
-            >
+            <label>Quantidade inicial (somente no cadastro)</label>
+            <input name="estoque_inicial" type="number" min="0" step="1" required>
+            <p class="tiny muted">Depois de cadastrar, ajuste o estoque por compras e movimentações. O estoque inicial não pode ser editado.</p>
 
             <button type="submit">Salvar produto</button>
             <p id="produtoMensagem" class="tiny"></p>
@@ -263,6 +273,12 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         </div>
 
         <h2>Produtos cadastrados</h2>
+        <div class="card">
+          <label>Pesquisar produtos</label>
+          <input id="buscarProduto" placeholder="Nome, código, cor, tamanho ou código de barras">
+          <label>Mostrar</label>
+          <select id="filtroStatusProduto"><option value="todos">Todos os produtos</option><option value="ativos">Somente ativos</option><option value="inativos">Somente inativos</option></select>
+        </div>
         <div class="card" id="listaProdutos">
           Carregando...
         </div>`;
@@ -274,7 +290,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         const { data, error } = await db
           .from("produtos")
           .select(
-            "id,codigo,nome,categoria,variacao,custo,preco,estoque_inicial"
+            "id,codigo,nome,categoria,variacao,custo,preco,estoque_inicial,cor,tamanho,codigo_barras,foto_url,ativo"
           )
           .eq("loja_id", socio.loja_id)
           .order("nome");
@@ -291,55 +307,133 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             .eq("loja_id", socio.loja_id);
 
         if (erroMovimentos) {
-          listaProdutos.textContent =
-            "Erro ao consultar estoque: " +
-            erroMovimentos.message;
+          listaProdutos.textContent = "Erro ao consultar estoque: " + erroMovimentos.message;
           return false;
+        }
+
+        const { data: reservasAtivas, error: erroReservas } = await db
+          .from("reservas")
+          .select("produto_id,quantidade,vencimento,status")
+          .eq("loja_id", socio.loja_id)
+          .eq("status", "ativa");
+        if (erroReservas) {
+          const avisoCarrinho = document.getElementById("carrinhoAviso");
+          if (avisoCarrinho) avisoCarrinho.textContent = "Aviso: não foi possível consultar reservas para calcular disponibilidade. O Supabase continuará validando e bloqueando saídas incompatíveis.";
         }
 
         productList = data || [];
         saldos = {};
-
-        for (const p of productList) {
-          saldos[p.id] = Number(p.estoque_inicial || 0);
+        estoqueDisponivel = {};
+        const reservadoPorProduto = {};
+        const agora = Date.now();
+        for (const r of (erroReservas ? [] : reservasAtivas) || []) {
+          if (r.vencimento && new Date(r.vencimento).getTime() <= agora) continue;
+          reservadoPorProduto[r.produto_id] = (reservadoPorProduto[r.produto_id] || 0) + Number(r.quantidade || 0);
         }
-
+        for (const p of productList) saldos[p.id] = Number(p.estoque_inicial || 0);
         for (const m of movimentos || []) {
           if (saldos[m.produto_id] === undefined) continue;
-
-          if (m.tipo === "entrada") {
-            saldos[m.produto_id] += Number(m.quantidade);
-          }
-
-          if (m.tipo === "saida") {
-            saldos[m.produto_id] -= Number(m.quantidade);
-          }
+          if (m.tipo === "entrada") saldos[m.produto_id] += Number(m.quantidade);
+          if (m.tipo === "saida") saldos[m.produto_id] -= Number(m.quantidade);
         }
+        for (const p of productList) estoqueDisponivel[p.id] = Math.max(0, saldos[p.id] - (reservadoPorProduto[p.id] || 0));
 
         listaProdutos.innerHTML = productList.length
           ? productList.map(p => `
-              <div class="item">
-                <strong>${safe(p.nome)}</strong>
-
-                <div class="tiny muted">
-                  ${safe(p.codigo)}
-                  • ${safe(p.categoria)}
-                  ${p.variacao
-                    ? " • " + safe(p.variacao)
-                    : ""}
+              <div class="item" data-product-item="${safe(p.id)}" data-search="${safe([p.nome,p.codigo,p.categoria,p.variacao,p.cor,p.tamanho,p.codigo_barras].filter(Boolean).join(" ").toLowerCase())}" data-status="${p.ativo === false ? "inativo" : "ativo"}">
+                <div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+                  <strong>${safe(p.nome)}</strong>
+                  <span class="pill">${p.ativo === false ? "Inativo" : "Ativo"}</span>
                 </div>
-
-                <div class="accent">${money(p.preco)}</div>
-
-                <small>
-                  Estoque disponível:
-                  ${saldos[p.id]} unidades
-                </small>
+                <div class="tiny muted">${safe(p.codigo)} • ${safe(p.categoria)}${p.variacao ? " • " + safe(p.variacao) : ""}${p.cor ? " • " + safe(p.cor) : ""}${p.tamanho ? " • " + safe(p.tamanho) : ""}</div>
+                <div class="grid">
+                  <div><small>Custo</small><div>${money(p.custo)}</div></div>
+                  <div><small>Preço de venda</small><div class="accent">${money(p.preco)}</div></div>
+                </div>
+                <small>Estoque total: ${saldos[p.id] ?? 0} • Disponível para venda: ${estoqueDisponivel[p.id] ?? saldos[p.id] ?? 0}</small>
+                <div class="grid" style="margin-top:10px">
+                  <button type="button" class="secondary" data-editar-produto="${safe(p.id)}">Editar cadastro</button>
+                  <button type="button" class="secondary" data-ativar-produto="${safe(p.id)}">${p.ativo === false ? "Ativar" : "Desativar"}</button>
+                </div>
+                <div id="editarProduto-${safe(p.id)}"></div>
               </div>
             `).join("")
           : "<p>Nenhum produto cadastrado.</p>";
 
+        const aplicarFiltroProdutos = () => {
+          const termo = (document.getElementById("buscarProduto")?.value || "").trim().toLowerCase();
+          const status = document.getElementById("filtroStatusProduto")?.value || "todos";
+          listaProdutos.querySelectorAll("[data-product-item]").forEach(item => {
+            const correspondeTexto = item.dataset.search.includes(termo);
+            const correspondeStatus = status === "todos" || item.dataset.status === (status === "ativos" ? "ativo" : "inativo");
+            item.classList.toggle("hidden", !(correspondeTexto && correspondeStatus));
+          });
+        };
+        document.getElementById("buscarProduto")?.addEventListener("input", aplicarFiltroProdutos);
+        document.getElementById("filtroStatusProduto")?.addEventListener("change", aplicarFiltroProdutos);
+        aplicarFiltroProdutos();
+
+        listaProdutos.querySelectorAll("[data-editar-produto]").forEach(btn => {
+          btn.onclick = () => abrirEditorProduto(btn.dataset.editarProduto);
+        });
+        listaProdutos.querySelectorAll("[data-ativar-produto]").forEach(btn => {
+          btn.onclick = async () => {
+            const produto = productList.find(x => x.id === btn.dataset.ativarProduto);
+            if (!produto) return;
+            const novoAtivo = produto.ativo === false;
+            if (!confirm(`${novoAtivo ? "Ativar" : "Desativar"} ${produto.nome}?`)) return;
+            btn.disabled = true;
+            const { error } = await db.from("produtos").update({ ativo: novoAtivo }).eq("id", produto.id).eq("loja_id", socio.loja_id);
+            if (error) alert("Não foi possível atualizar o produto: " + error.message);
+            else { await carregarProdutos(); carregarProdutosVenda(); await carregarPainel(); }
+          };
+        });
+
         return true;
+      }
+
+      async function abrirEditorProduto(id) {
+        const p = productList.find(x => x.id === id);
+        const alvo = document.getElementById(`editarProduto-${id}`);
+        if (!p || !alvo) return;
+        alvo.innerHTML = `
+          <div class="card" style="margin-top:12px">
+            <h3>Editar produto</h3>
+            <form id="formEditarProduto-${safe(id)}">
+              <label>Código</label><input name="codigo" required value="${safe(p.codigo)}">
+              <label>Categoria</label><input name="categoria" required value="${safe(p.categoria)}">
+              <label>Nome</label><input name="nome" required value="${safe(p.nome)}">
+              <label>Variação</label><input name="variacao" value="${safe(p.variacao || "")}">
+              <div class="grid"><div><label>Cor</label><input name="cor" value="${safe(p.cor || "")}"></div><div><label>Tamanho</label><input name="tamanho" value="${safe(p.tamanho || "")}"></div></div>
+              <label>Código de barras</label><input name="codigo_barras" value="${safe(p.codigo_barras || "")}">
+              <label>Foto (URL)</label><input name="foto_url" type="url" value="${safe(p.foto_url || "")}">
+              <div class="grid"><div><label>Custo (R$)</label><input name="custo" type="number" min="0" step="0.01" required value="${Number(p.custo || 0)}"></div><div><label>Preço (R$)</label><input name="preco" type="number" min="0" step="0.01" required value="${Number(p.preco || 0)}"></div></div>
+              <p class="tiny muted">O estoque inicial é protegido e não pode ser alterado aqui.</p>
+              <button type="submit">Salvar alterações</button>
+              <button type="button" class="secondary" data-cancelar-edicao>Cancelar</button>
+              <p class="tiny" data-editor-msg></p>
+            </form>
+          </div>`;
+        const form = alvo.querySelector("form");
+        form.querySelector("[data-cancelar-edicao]").onclick = () => { alvo.innerHTML = ""; };
+        form.onsubmit = async e => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          const dados = {
+            codigo: String(fd.get("codigo")).trim(), categoria: String(fd.get("categoria")).trim(),
+            nome: String(fd.get("nome")).trim(), variacao: String(fd.get("variacao")).trim() || null,
+            cor: String(fd.get("cor")).trim() || null, tamanho: String(fd.get("tamanho")).trim() || null,
+            codigo_barras: String(fd.get("codigo_barras")).trim() || null, foto_url: String(fd.get("foto_url")).trim() || null,
+            custo: Number(fd.get("custo")), preco: Number(fd.get("preco"))
+          };
+          const msg = form.querySelector("[data-editor-msg]");
+          const botao = form.querySelector('button[type="submit"]');
+          if (!dados.codigo || !dados.nome || !Number.isFinite(dados.custo) || !Number.isFinite(dados.preco) || dados.custo < 0 || dados.preco < 0) { msg.textContent = "Confira os campos e valores."; return; }
+          botao.disabled = true; msg.textContent = "Salvando...";
+          const { error } = await db.from("produtos").update(dados).eq("id", id).eq("loja_id", socio.loja_id);
+          if (error) { msg.textContent = "Erro: " + error.message; botao.disabled = false; return; }
+          await carregarProdutos(); carregarProdutosVenda(); await carregarPainel();
+        };
       }
 
       async function carregarPromocoes() {
@@ -492,12 +586,12 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           new Option("Selecione um produto", "")
         );
 
-        for (const p of productList) {
+        for (const p of productList.filter(x => x.ativo !== false)) {
           vendaProduto.add(
             new Option(
               `${p.nome}${p.variacao
                 ? " - " + p.variacao
-                : ""} - ${money(p.preco)} (estoque: ${saldos[p.id]})`,
+                : ""} - ${money(p.preco)} (disponível: ${estoqueDisponivel[p.id] ?? saldos[p.id]})`,
               p.id
             )
           );
@@ -994,10 +1088,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           const novoTotal =
             (carrinho.get(id) || 0) + quantidade;
 
-          if (novoTotal > (saldos[id] || 0)) {
+          if (novoTotal > (estoqueDisponivel[id] ?? saldos[id] ?? 0)) {
             carrinhoAviso.textContent =
-              "Estoque insuficiente. Disponível: " +
-              (saldos[id] || 0);
+              "Estoque disponível insuficiente após reservas. Disponível: " +
+              (estoqueDisponivel[id] ?? saldos[id] ?? 0);
             return;
           }
 
@@ -1037,9 +1131,12 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             nome: String(
               campos.get("nome")
             ).trim(),
-            variacao: String(
-              campos.get("variacao")
-            ).trim() || null,
+            variacao: String(campos.get("variacao")).trim() || null,
+            cor: String(campos.get("cor")).trim() || null,
+            tamanho: String(campos.get("tamanho")).trim() || null,
+            codigo_barras: String(campos.get("codigo_barras")).trim() || null,
+            foto_url: String(campos.get("foto_url")).trim() || null,
+            ativo: true,
             custo: Number(campos.get("custo")),
             preco: Number(campos.get("preco")),
             estoque_inicial: Number(
@@ -1618,9 +1715,22 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           <h2>Mais opções</h2>
 
           <div class="card">
-            <button type="button" data-abrir="compras">
-              Compras de mercadorias
-            </button>
+            <button type="button" data-abrir="compras">Compras de mercadorias</button>
+          </div>
+          <div class="card">
+            <button type="button" data-abrir="promocoes">Promoções e kits</button>
+          </div>
+          <div class="card">
+            <button type="button" data-abrir="ajustesVenda">Ajustes de preços e descontos</button>
+          </div>
+          <div class="card">
+            <button type="button" data-abrir="reservas">Reservas de produtos</button>
+          </div>
+          <div class="card">
+            <button type="button" data-abrir="devolucoes">Trocas e devoluções</button>
+          </div>
+          <div class="card">
+            <button type="button" data-abrir="parcelas">Parcelas a receber</button>
           </div>
 
           <div class="card">
@@ -1702,6 +1812,20 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         if (pagina === "compras") {
           montarPaginaCompras();
           await carregarHistoricoCompras();
+        } else if (pagina === "promocoes") {
+          montarPaginaPromocoes();
+          await carregarPromocoesAdmin();
+        } else if (pagina === "ajustesVenda") {
+          montarPaginaAjustesVenda();
+          await carregarVendasAjustes();
+        } else if (pagina === "reservas") {
+          montarPaginaReservas();
+          await carregarReservas();
+        } else if (pagina === "devolucoes") {
+          montarPaginaDevolucoes();
+        } else if (pagina === "parcelas") {
+          montarPaginaParcelas();
+          await carregarParcelas();
         } else if (pagina === "repasses") {
           montarPaginaRepasses();
           await carregarRepasses();
@@ -1732,6 +1856,250 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           botao.onclick = () =>
             abrirPaginaMais(botao.dataset.abrir);
         });
+
+      // ======================================
+      // PROMOÇÕES E KITS
+      // ======================================
+      function montarPaginaPromocoes() {
+        conteudoMais.innerHTML = `
+          <h2>Promoções e kits</h2>
+          <div class="card">
+            <h3>Criar promoção</h3>
+            <form id="promoAdminForm">
+              <label>Nome da promoção</label><input id="promoNome" required maxlength="120" placeholder="Ex.: 3 camisetas por R$ 120">
+              <div class="grid"><div><label>Quantidade por kit</label><input id="promoQuantidade" type="number" min="1" step="1" value="3" required></div><div><label>Preço total do kit (R$)</label><input id="promoPreco" type="number" min="0.01" step="0.01" required value="120"></div></div>
+              <label>Produtos que participam</label><div id="promoProdutosSelecao"></div>
+              <p class="tiny muted">A promoção só será aplicada quando o vendedor selecionar a quantidade de kits no carrinho. Produtos não usados no kit continuam pelo preço normal.</p>
+              <button type="submit">Criar promoção</button><p id="promoAdminMsg" class="tiny"></p>
+            </form>
+          </div>
+          <div class="card"><h3>Promoções cadastradas</h3><button type="button" class="secondary" id="atualizarPromocoesAdmin">Atualizar</button><div id="listaPromocoesAdmin">Carregando...</div></div>`;
+        document.getElementById("promoProdutosSelecao").innerHTML = productList.filter(p => p.ativo !== false).map(p => `<label style="display:flex;gap:10px;align-items:center"><input style="width:auto;min-height:0" type="checkbox" value="${safe(p.id)}" data-promo-produto> ${safe(p.nome)} ${p.variacao ? "• " + safe(p.variacao) : ""} (${money(p.preco)})</label>`).join("") || '<p class="tiny muted">Cadastre produtos ativos primeiro.</p>';
+        document.getElementById("promoAdminForm").onsubmit = criarPromocaoAdmin;
+        document.getElementById("atualizarPromocoesAdmin").onclick = carregarPromocoesAdmin;
+      }
+
+      async function carregarPromocoesAdmin() {
+        const alvo = document.getElementById("listaPromocoesAdmin");
+        if (!alvo) return;
+        alvo.textContent = "Consultando promoções...";
+        const { data, error } = await db.from("promocoes").select("id,nome,quantidade,preco_total,ativa").eq("loja_id", socio.loja_id).order("nome");
+        if (!document.getElementById("listaPromocoesAdmin")) return;
+        if (error) { alvo.textContent = "Erro ao consultar promoções: " + error.message; return; }
+        if (!data?.length) { alvo.innerHTML = '<p>Nenhuma promoção cadastrada.</p>'; return; }
+        alvo.innerHTML = data.map(p => `<div class="item"><strong>${safe(p.nome)}</strong><p class="tiny muted">${p.quantidade} unidade(s) por ${money(p.preco_total)} • ${p.ativa ? "Ativa" : "Inativa"}</p><div class="grid"><button type="button" class="secondary" data-editar-promo="${safe(p.id)}">Editar nome/valor</button><button type="button" class="secondary" data-toggle-promo="${safe(p.id)}" data-ativa="${p.ativa ? "true" : "false"}">${p.ativa ? "Desativar" : "Ativar"}</button></div><div id="editorPromo-${safe(p.id)}"></div></div>`).join("");
+        alvo.querySelectorAll("[data-editar-promo]").forEach(btn => btn.onclick = () => {
+          const p = data.find(x => x.id === btn.dataset.editarPromo); const box = document.getElementById(`editorPromo-${p.id}`); if (!p || !box) return;
+          box.innerHTML = `<form class="card" data-form-editar-promo="${safe(p.id)}"><label>Nome</label><input name="nome" required value="${safe(p.nome)}"><label>Quantidade por kit</label><input name="quantidade" type="number" min="1" step="1" required value="${Number(p.quantidade)}"><label>Preço total (R$)</label><input name="preco_total" type="number" min="0.01" step="0.01" required value="${Number(p.preco_total)}"><button type="submit">Salvar promoção</button><button type="button" class="secondary" data-fechar-editor>Cancelar</button><p class="tiny" data-msg></p></form>`;
+          const form = box.querySelector("form"); form.querySelector("[data-fechar-editor]").onclick = () => box.innerHTML = "";
+          form.onsubmit = async e => { e.preventDefault(); const fd = new FormData(form); const nome = String(fd.get("nome")).trim(); const quantidade = Number(fd.get("quantidade")); const preco_total = Number(fd.get("preco_total")); const msg = form.querySelector("[data-msg]"); if (!nome || !Number.isInteger(quantidade) || quantidade < 1 || !Number.isFinite(preco_total) || preco_total <= 0) { msg.textContent = "Confira nome, quantidade e valor."; return; } const submit = form.querySelector('button[type="submit"]'); submit.disabled = true; const { error: err } = await db.from("promocoes").update({ nome, quantidade, preco_total }).eq("id", p.id).eq("loja_id", socio.loja_id); if (err) { msg.textContent = "Não foi possível salvar: " + err.message; submit.disabled = false; return; } await carregarPromocoes(); await carregarPromocoesAdmin(); };
+        });
+        alvo.querySelectorAll("[data-toggle-promo]").forEach(btn => btn.onclick = async () => {
+          const ativa = btn.dataset.ativa !== "true";
+          btn.disabled = true;
+          const { error: e } = await db.from("promocoes").update({ ativa }).eq("id", btn.dataset.togglePromo).eq("loja_id", socio.loja_id);
+          if (e) { alert("Não foi possível alterar a promoção: " + e.message); btn.disabled = false; return; }
+          await carregarPromocoes(); await carregarPromocoesAdmin();
+        });
+      }
+
+      async function criarPromocaoAdmin(e) {
+        e.preventDefault();
+        const msg = document.getElementById("promoAdminMsg");
+        const nome = document.getElementById("promoNome").value.trim();
+        const quantidade = Number(document.getElementById("promoQuantidade").value);
+        const preco_total = Number(document.getElementById("promoPreco").value);
+        const produtos = [...document.querySelectorAll("[data-promo-produto]:checked")].map(x => x.value);
+        if (!nome || !Number.isInteger(quantidade) || quantidade < 1 || !Number.isFinite(preco_total) || preco_total <= 0 || !produtos.length) { msg.textContent = "Informe nome, quantidade, preço e pelo menos um produto."; return; }
+        if (!confirm(`Criar a promoção ${nome}: ${quantidade} unidade(s) por ${money(preco_total)}?`)) return;
+        const form = document.getElementById("promoAdminForm");
+        const btn = form.querySelector('button[type="submit"]'); btn.disabled = true; msg.textContent = "Criando promoção...";
+        const { data, error } = await db.from("promocoes").insert({ loja_id: socio.loja_id, nome, quantidade, preco_total, ativa: true }).select("id").single();
+        if (error) { msg.textContent = "Não foi possível criar: " + error.message; btn.disabled = false; return; }
+        const vinculos = produtos.map(produto_id => ({ loja_id: socio.loja_id, promocao_id: data.id, produto_id }));
+        const { error: erroVinculos } = await db.from("promocao_produtos").insert(vinculos);
+        if (erroVinculos) { msg.textContent = "Promoção criada, mas não foi possível vincular os produtos. ID: " + data.id + ". Erro: " + erroVinculos.message; btn.disabled = false; await carregarPromocoesAdmin(); return; }
+        form.reset(); document.getElementById("promoQuantidade").value = "3"; document.getElementById("promoPreco").value = "120";
+        msg.textContent = "Promoção criada e produtos vinculados."; btn.disabled = false;
+        await carregarPromocoes(); await carregarPromocoesAdmin();
+      }
+
+      // ======================================
+      // AJUSTES DE PREÇO E DESCONTOS DE VENDA
+      // ======================================
+      function montarPaginaAjustesVenda() {
+        conteudoMais.innerHTML = `<h2>Ajustes de preços e descontos</h2><p class="tiny muted">Os ajustes são enviados pelas RPCs seguras do Supabase. Confira a venda antes de aplicar qualquer alteração; o banco valida as regras e os totais.</p><div class="card"><label>Venda</label><select id="vendaParaAjuste"></select><button type="button" class="secondary" id="carregarItensAjuste">Carregar itens</button><p id="ajusteVendaMsg" class="tiny"></p><div id="itensParaAjuste"></div></div><div class="card"><h3>Aplicar desconto à venda</h3><form id="descontoVendaForm"><label>Tipo de desconto</label><select id="tipoDesconto"><option value="valor">Valor em reais (R$)</option><option value="percentual">Percentual (%)</option></select><label>Valor do desconto</label><input id="valorDesconto" type="number" min="0.01" step="0.01" required><p class="tiny muted">A função do Supabase valida o limite e recalcula os totais. Não aplique um desconto que já esteja incluído em uma promoção.</p><button type="submit">Aplicar desconto</button><p id="descontoVendaMsg" class="tiny"></p></form></div>`;
+        document.getElementById("carregarItensAjuste").onclick = carregarItensParaAjuste;
+        document.getElementById("descontoVendaForm").onsubmit = aplicarDescontoUI;
+      }
+      async function carregarVendasAjustes() {
+        const sel = document.getElementById("vendaParaAjuste"); if (!sel) return;
+        const { data, error } = await db.from("vendas").select("id,cliente,valor_total,situacao,criado_em").eq("loja_id", socio.loja_id).neq("situacao", "cancelado").order("criado_em", { ascending: false }).limit(100);
+        if (!document.getElementById("vendaParaAjuste")) return;
+        if (error) { sel.innerHTML = '<option value="">Erro ao consultar vendas</option>'; document.getElementById("ajusteVendaMsg").textContent = error.message; return; }
+        sel.innerHTML = '<option value="">Selecione a venda</option>' + (data || []).map(v => `<option value="${safe(v.id)}">${safe(dataBR(v.criado_em))} • ${safe(v.cliente || "Cliente não informado")} • ${money(v.valor_total)} • ${safe(v.situacao)}</option>`).join("");
+      }
+      async function carregarItensParaAjuste() {
+        const vendaId = document.getElementById("vendaParaAjuste").value; const area = document.getElementById("itensParaAjuste"); const msg = document.getElementById("ajusteVendaMsg");
+        area.innerHTML = ""; if (!vendaId) { msg.textContent = "Selecione uma venda."; return; }
+        msg.textContent = "Consultando itens...";
+        const { data, error } = await db.from("itens_venda").select("id,produto_id,quantidade,preco_unitario").eq("venda_id", vendaId);
+        if (error) { msg.textContent = "Erro ao consultar itens: " + error.message; return; }
+        if (!data?.length) { msg.textContent = "Nenhum item encontrado nesta venda."; return; }
+        area.innerHTML = `<h3>Itens da venda</h3>` + data.map(i => { const p = productList.find(x => x.id === i.produto_id); return `<div class="item"><strong>${safe(p?.nome || "Produto")} ${p?.variacao ? "• " + safe(p.variacao) : ""}</strong><p class="tiny muted">${i.quantidade} unidade(s) • preço atual ${money(i.preco_unitario)}</p><form data-form-preco-item="${safe(i.id)}"><label>Novo preço unitário (R$)</label><input name="preco" type="number" min="0" step="0.01" required value="${Number(i.preco_unitario)}"><button type="submit">Atualizar preço deste item</button><p class="tiny" data-msg></p></form></div>`; }).join("");
+        area.querySelectorAll("[data-form-preco-item]").forEach(form => form.onsubmit = async e => { e.preventDefault(); const novo = Number(new FormData(form).get("preco")); const msg = form.querySelector("[data-msg]"); if (!Number.isFinite(novo) || novo < 0) { msg.textContent = "Preço inválido."; return; } if (!confirm(`Atualizar o preço unitário para ${money(novo)}?`)) return; const btn = form.querySelector('button[type="submit"]'); btn.disabled = true; const { error: err } = await db.rpc("editar_preco_item_venda", { p_item_id: form.dataset.formPrecoItem, p_novo_preco: cents(novo)/100 }); if (err) { msg.textContent = "O Supabase recusou o ajuste: " + err.message; btn.disabled = false; return; } msg.textContent = "Preço atualizado."; await carregarItensParaAjuste(); await carregarPainel(); });
+        msg.textContent = "Ajuste os preços dos itens ou aplique um desconto à venda.";
+      }
+      async function aplicarDescontoUI(e) {
+        e.preventDefault(); const vendaId = document.getElementById("vendaParaAjuste").value; const tipo = document.getElementById("tipoDesconto").value; const valor = Number(document.getElementById("valorDesconto").value); const msg = document.getElementById("descontoVendaMsg");
+        if (!vendaId || !Number.isFinite(valor) || valor <= 0) { msg.textContent = "Selecione a venda e informe um desconto válido."; return; }
+        if (tipo === "percentual" && valor > 100) { msg.textContent = "O percentual não pode passar de 100%."; return; }
+        if (!confirm(`Aplicar desconto ${tipo === "percentual" ? `${valor}%` : money(valor)} à venda selecionada?`)) return;
+        const btn = e.currentTarget.querySelector('button[type="submit"]'); btn.disabled = true; msg.textContent = "Aplicando desconto...";
+        const { error } = await db.rpc("aplicar_desconto_venda", { p_venda_id: vendaId, p_tipo: tipo, p_valor: valor });
+        if (error) msg.textContent = "O Supabase recusou o desconto: " + error.message;
+        else { msg.textContent = "Desconto aplicado com sucesso."; await carregarVendasAjustes(); await carregarPainel(); }
+        btn.disabled = false;
+      }
+
+      // ======================================
+      // RESERVAS SEGURAS
+      // ======================================
+      function montarPaginaReservas() {
+        conteudoMais.innerHTML = `<h2>Reservas de produtos</h2><div class="card"><h3>Criar reserva</h3><form id="reservaForm"><label>Produto</label><select id="reservaProduto" required></select><label>Cliente</label><input id="reservaCliente" required maxlength="150"><label>Telefone (opcional)</label><input id="reservaTelefone" type="tel"><label>Quantidade</label><input id="reservaQuantidade" type="number" min="1" step="1" value="1" required><label>Vencimento (opcional)</label><input id="reservaVencimento" type="datetime-local"><label>Observação</label><textarea id="reservaObs" rows="2"></textarea><button type="submit">Criar reserva</button><p id="reservaMsg" class="tiny"></p></form></div><div class="card"><h3>Reservas da loja</h3><button type="button" class="secondary" id="atualizarReservas">Atualizar</button><div id="listaReservas">Carregando...</div></div>`;
+        const sel = document.getElementById("reservaProduto"); sel.innerHTML = '<option value="">Selecione um produto</option>' + productList.filter(p => p.ativo !== false).map(p => `<option value="${safe(p.id)}">${safe(p.nome)} ${p.variacao ? "• " + safe(p.variacao) : ""} — disponível ${estoqueDisponivel[p.id] ?? saldos[p.id] ?? 0}</option>`).join("");
+        document.getElementById("reservaForm").onsubmit = criarReservaUI;
+        document.getElementById("atualizarReservas").onclick = carregarReservas;
+      }
+      async function carregarReservas() {
+        const alvo = document.getElementById("listaReservas"); if (!alvo) return;
+        alvo.textContent = "Consultando reservas...";
+        const { data, error } = await db.from("reservas").select("id,produto_id,cliente,telefone,quantidade,vencimento,status,observacao").eq("loja_id", socio.loja_id).order("vencimento", { ascending: true }).limit(100);
+        if (!document.getElementById("listaReservas")) return;
+        if (error) { alvo.textContent = "Erro ao consultar reservas: " + error.message; return; }
+        const rows = data || []; if (!rows.length) { alvo.innerHTML = "<p>Nenhuma reserva cadastrada.</p>"; return; }
+        alvo.innerHTML = rows.map(r => { const prod = productList.find(p => p.id === r.produto_id); return `<div class="item"><strong>${safe(r.cliente)}</strong><p class="tiny muted">${safe(prod?.nome || "Produto")}${prod?.variacao ? " • " + safe(prod.variacao) : ""} • ${r.quantidade} unidade(s)</p><p class="tiny muted">Status: ${safe(r.status)} • Vencimento: ${safe(dataBR(r.vencimento))}</p>${r.telefone ? `<p class="tiny">${safe(r.telefone)}</p>` : ""}${r.observacao ? `<p class="tiny">${safe(r.observacao)}</p>` : ""}${r.status === "ativa" ? `<div class="grid"><button type="button" data-finalizar-reserva="${safe(r.id)}">Finalizar venda</button><button type="button" class="secondary" data-cancelar-reserva="${safe(r.id)}">Cancelar</button></div>` : ""}</div>`; }).join("");
+        alvo.querySelectorAll("[data-cancelar-reserva]").forEach(btn => btn.onclick = async () => { if (!confirm("Cancelar esta reserva?")) return; btn.disabled = true; const { error: e } = await db.rpc("cancelar_reserva", { p_reserva_id: btn.dataset.cancelarReserva }); if (e) { alert("Erro ao cancelar: " + e.message); btn.disabled = false; return; } await carregarReservas(); });
+        alvo.querySelectorAll("[data-finalizar-reserva]").forEach(btn => btn.onclick = async () => { const vendedor = vendedores.length === 1 ? vendedores[0] : vendedores.find(v => v.usuario_id === user.id) || vendedores[0]; if (!confirm(`Finalizar a venda desta reserva atribuindo a ${vendedor.nome}?`)) return; btn.disabled = true; const { error: e } = await db.rpc("finalizar_venda_reserva", { p_reserva_id: btn.dataset.finalizarReserva, p_vendedor_id: vendedor.usuario_id }); if (e) { alert("Erro ao finalizar reserva: " + e.message); btn.disabled = false; return; } alert("Venda da reserva finalizada."); await carregarReservas(); await carregarProdutos(); carregarProdutosVenda(); await carregarRecebimentos(); await carregarPainel(); });
+      }
+      async function criarReservaUI(e) {
+        e.preventDefault(); const msg = document.getElementById("reservaMsg");
+        const produto_id = document.getElementById("reservaProduto").value; const cliente = document.getElementById("reservaCliente").value.trim(); const telefone = document.getElementById("reservaTelefone").value.trim(); const quantidade = Number(document.getElementById("reservaQuantidade").value); const v = document.getElementById("reservaVencimento").value; const observacao = document.getElementById("reservaObs").value.trim();
+        if (!produto_id || !cliente || !Number.isInteger(quantidade) || quantidade < 1) { msg.textContent = "Confira produto, cliente e quantidade."; return; }
+        if (!confirm(`Criar reserva de ${quantidade} unidade(s) para ${cliente}? O estoque reservado ficará indisponível para outras vendas.`)) return;
+        const btn = e.currentTarget.querySelector('button[type="submit"]'); btn.disabled = true; msg.textContent = "Criando reserva...";
+        const { error } = await db.rpc("criar_reserva_segura", { p_produto_id: produto_id, p_cliente: cliente, p_quantidade: quantidade, p_telefone: telefone || null, p_vencimento: v ? new Date(v).toISOString() : null, p_observacao: observacao || null });
+        if (error) msg.textContent = "Erro ao criar reserva: " + error.message;
+        else { e.currentTarget.reset(); document.getElementById("reservaQuantidade").value = "1"; msg.textContent = "Reserva criada com sucesso."; await carregarReservas(); }
+        btn.disabled = false;
+      }
+
+      // ======================================
+      // TROCAS E DEVOLUÇÕES
+      // ======================================
+      function montarPaginaDevolucoes() {
+        conteudoMais.innerHTML = `<h2>Devoluções</h2><p class="tiny muted">Este fluxo usa as funções seguras de devolução do Supabase. Trocas ainda precisam de uma função RPC segura específica; não fazemos gravações diretas nas tabelas de troca.</p><div class="card"><h3>Registrar devolução</h3><label>Venda original</label><select id="devolucaoVenda"><option value="">Carregando vendas...</option></select><button type="button" class="secondary" id="carregarItensDevolucao">Carregar itens da venda</button><p id="devolucaoMsg" class="tiny"></p><div id="itensDevolucao"></div><form id="devolucaoForm" class="hidden"><label>Motivo</label><input id="devolucaoMotivo" maxlength="200" placeholder="Ex.: Tamanho incorreto"><label>Observação</label><textarea id="devolucaoObs" rows="2"></textarea><label>Valor a reembolsar (R$)</label><input id="devolucaoValor" type="number" min="0" step="0.01" value="0" required><label>Forma de reembolso</label><select id="devolucaoForma"><option value="pix">Pix</option><option value="dinheiro">Dinheiro</option></select><p class="tiny muted">Confirme apenas os itens realmente devolvidos. O reembolso não pode exceder o valor recebido nem o valor dos itens.</p><button type="submit">Concluir devolução</button></form></div>`;
+        carregarVendasParaDevolucao();
+        document.getElementById("carregarItensDevolucao").onclick = carregarItensVendaDevolucao;
+        document.getElementById("devolucaoForm").onsubmit = processarDevolucaoUI;
+      }
+      async function carregarVendasParaDevolucao() {
+        const sel = document.getElementById("devolucaoVenda"); if (!sel) return;
+        const { data, error } = await db.from("vendas").select("id,cliente,valor_total,criado_em,situacao").eq("loja_id", socio.loja_id).neq("situacao", "cancelado").order("criado_em", { ascending: false }).limit(100);
+        if (!document.getElementById("devolucaoVenda")) return;
+        if (error) { sel.innerHTML = '<option value="">Erro ao consultar vendas</option>'; document.getElementById("devolucaoMsg").textContent = error.message; return; }
+        sel.innerHTML = '<option value="">Selecione a venda</option>' + (data || []).map(v => `<option value="${safe(v.id)}">${safe(dataBR(v.criado_em))} • ${safe(v.cliente || "Cliente não informado")} • ${money(v.valor_total)} (${safe(v.situacao)})</option>`).join("");
+      }
+      async function carregarItensVendaDevolucao() {
+        const vendaId = document.getElementById("devolucaoVenda").value; const msg = document.getElementById("devolucaoMsg"); const area = document.getElementById("itensDevolucao");
+        document.getElementById("devolucaoForm").classList.add("hidden"); area.innerHTML = "";
+        if (!vendaId) { msg.textContent = "Selecione uma venda."; return; }
+        msg.textContent = "Consultando itens...";
+        const { data, error } = await db.from("itens_venda").select("id,produto_id,quantidade,preco_unitario").eq("venda_id", vendaId);
+        if (error) { msg.textContent = "Erro: " + error.message; return; }
+        if (!data?.length) { msg.textContent = "A venda não possui itens encontrados."; return; }
+        area.innerHTML = `<h3>Selecione os itens devolvidos</h3>` + data.map(i => { const p = productList.find(x => x.id === i.produto_id); return `<div class="item"><strong>${safe(p?.nome || "Produto")} ${p?.variacao ? "• " + safe(p.variacao) : ""}</strong><p class="tiny muted">Vendido: ${i.quantidade} • ${money(i.preco_unitario)} por unidade</p><label>Quantidade devolvida</label><input type="number" min="0" max="${i.quantidade}" step="1" value="0" data-devolucao-produto="${safe(i.produto_id)}" data-max="${i.quantidade}"></div>`; }).join("");
+        document.getElementById("devolucaoForm").classList.remove("hidden"); msg.textContent = "Confira as quantidades antes de concluir.";
+      }
+      async function processarDevolucaoUI(e) {
+        e.preventDefault(); const msg = document.getElementById("devolucaoMsg"); const vendaId = document.getElementById("devolucaoVenda").value;
+        const itens = [...document.querySelectorAll("[data-devolucao-produto]")].map(x => ({ produto_id: x.dataset.devolucaoProduto, quantidade: Number(x.value), max: Number(x.dataset.max) })).filter(x => x.quantidade > 0);
+        const valor = Number(document.getElementById("devolucaoValor").value); const forma = document.getElementById("devolucaoForma").value;
+        if (!vendaId || !itens.length || itens.some(i => !Number.isInteger(i.quantidade) || i.quantidade < 1 || i.quantidade > i.max) || !Number.isFinite(valor) || valor < 0 || cents(valor) !== Math.round(valor * 100)) { msg.textContent = "Selecione pelo menos um item e confira quantidades e reembolso."; return; }
+        if (valor > 0 && !confirm(`Confirmar devolução e reembolso de ${money(valor)} por ${forma}?`)) return;
+        if (valor === 0 && !confirm("Confirmar devolução dos itens sem reembolso em dinheiro?")) return;
+        const btn = e.currentTarget.querySelector('button[type="submit"]'); btn.disabled = true; msg.textContent = "Abrindo devolução...";
+        try {
+          const { data: devolucaoId, error: erroAbertura } = await db.rpc("ws_abrir_devolucao", { p_venda_id: vendaId, p_motivo: document.getElementById("devolucaoMotivo").value.trim() || null, p_observacao: document.getElementById("devolucaoObs").value.trim() || null });
+          if (erroAbertura) throw erroAbertura;
+          for (const item of itens) { const { error } = await db.rpc("ws_adicionar_item_devolucao", { p_devolucao_id: devolucaoId, p_produto_id: item.produto_id, p_quantidade: item.quantidade }); if (error) throw new Error(`Devolução ${devolucaoId} criada, mas item não foi adicionado: ${error.message}. Não tente abrir outra sem conferir a pendente.`); }
+          const { error: erroFinal } = await db.rpc("ws_concluir_devolucao", { p_devolucao_id: devolucaoId, p_valor_reembolso: cents(valor) / 100, p_forma_reembolso: valor > 0 ? forma : null });
+          if (erroFinal) throw new Error(`Devolução ${devolucaoId} ficou pendente: ${erroFinal.message}. Confira o registro antes de repetir.`);
+          msg.textContent = "Devolução concluída; estoque e eventual reembolso atualizados.";
+          await carregarProdutos(); carregarProdutosVenda(); await carregarPainel();
+          e.currentTarget.reset(); document.getElementById("itensDevolucao").innerHTML = ""; e.currentTarget.classList.add("hidden");
+        } catch (err) { msg.textContent = "Atenção: " + err.message; }
+        finally { btn.disabled = false; }
+      }
+
+      // ======================================
+      // PARCELAS A RECEBER
+      // ======================================
+      function montarPaginaParcelas() {
+        conteudoMais.innerHTML = `<h2>Parcelas a receber</h2><div class="card"><h3>Parcelar uma venda pendente</h3><label>Venda</label><select id="criarParcelasVenda"></select><div class="grid"><div><label>Número de parcelas</label><input id="numeroParcelas" type="number" min="2" max="36" step="1" value="3"></div><div><label>Primeiro vencimento</label><input id="primeiroVencimento" type="date" required></div></div><p class="tiny muted">As parcelas serão criadas pelo Supabase com base no total da venda. Não crie parcelas para uma venda que já tenha parcelas.</p><button type="button" id="botaoCriarParcelas">Criar parcelas</button><p id="parcelasMsg" class="tiny"></p></div><div class="card"><h3>Parcelas cadastradas</h3><button type="button" class="secondary" id="atualizarParcelas">Atualizar</button><div id="listaParcelas">Carregando...</div></div><div class="card"><h3>Registrar pagamento de parcela</h3><form id="receberParcelaForm"><label>Parcela</label><select id="parcelaSelecionada" required></select><label>Valor recebido (R$)</label><input id="valorParcela" type="number" min="0.01" step="0.01" required><label>Forma</label><select id="formaParcela"><option value="dinheiro">Dinheiro</option><option value="pix">Pix</option><option value="debito">Débito</option><option value="credito">Crédito</option></select><label>Taxa (R$)</label><input id="taxaParcela" type="number" min="0" step="0.01" value="0" required><button type="submit">Registrar pagamento</button><p id="receberParcelaMsg" class="tiny"></p></form></div>`;
+        const today = new Date(); document.getElementById("primeiroVencimento").value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+        document.getElementById("atualizarParcelas").onclick = carregarParcelas;
+        document.getElementById("botaoCriarParcelas").onclick = criarParcelasUI;
+        document.getElementById("receberParcelaForm").onsubmit = receberParcelaUI;
+      }
+      async function carregarParcelas() {
+        const alvo = document.getElementById("listaParcelas"); if (!alvo) return;
+        alvo.textContent = "Consultando parcelas...";
+        const [{ data: parcelas, error: ep }, { data: pagamentos, error: epp }, { data: vendas, error: ev }] = await Promise.all([
+          db.from("parcelas_receber").select("id,venda_id,numero,valor,vencimento,loja_id").eq("loja_id", socio.loja_id).order("vencimento"),
+          db.from("pagamentos_parcelas").select("parcela_id,valor").eq("loja_id", socio.loja_id),
+          db.from("vendas").select("id,cliente,valor_total,situacao,criado_em").eq("loja_id", socio.loja_id).in("situacao", ["pendente", "parcial"]).order("criado_em", { ascending: false }).limit(200)
+        ]);
+        if (!document.getElementById("listaParcelas")) return;
+        if (ep || epp || ev) { alvo.textContent = "Erro ao consultar parcelas: " + (ep || epp || ev).message; return; }
+        const payMap = new Map(); for (const p of pagamentos || []) payMap.set(p.parcela_id, (payMap.get(p.parcela_id) || 0) + cents(p.valor));
+        const vMap = new Map((vendas || []).map(v => [v.id, v]));
+        const pendentes = (parcelas || []).filter(p => cents(p.valor) > (payMap.get(p.id) || 0));
+        const sel = document.getElementById("parcelaSelecionada"); if (sel) sel.innerHTML = '<option value="">Selecione uma parcela pendente</option>' + pendentes.map(p => { const v = vMap.get(p.venda_id); const saldo = (cents(p.valor) - (payMap.get(p.id) || 0)) / 100; return `<option value="${safe(p.id)}" data-saldo="${saldo.toFixed(2)}">Parcela ${p.numero} • ${safe(v?.cliente || "Cliente")} • vence ${safe(p.vencimento)} • saldo ${money(saldo)}</option>`; }).join("");
+        const saleSel = document.getElementById("criarParcelasVenda"); if (saleSel) {
+          const existing = new Set((parcelas || []).map(p => p.venda_id));
+          saleSel.innerHTML = '<option value="">Selecione uma venda sem parcelas</option>' + (vendas || []).filter(v => !existing.has(v.id)).map(v => `<option value="${safe(v.id)}">${safe(v.cliente || "Cliente")} • ${money(v.valor_total)} • ${safe(dataBR(v.criado_em))}</option>`).join("");
+        }
+        if (!(parcelas || []).length) { alvo.innerHTML = "<p>Nenhuma parcela cadastrada.</p>"; return; }
+        alvo.innerHTML = (parcelas || []).map(p => { const v = vMap.get(p.venda_id); const pago = payMap.get(p.id) || 0; const saldo = cents(p.valor) - pago; return `<div class="item"><strong>${safe(v?.cliente || "Venda")}: parcela ${p.numero}</strong><p class="tiny muted">Vencimento ${safe(p.vencimento)} • Valor ${money(p.valor)} • Pago ${money(pago/100)} • Saldo ${money(Math.max(0,saldo)/100)}</p></div>`; }).join("");
+      }
+      async function criarParcelasUI() {
+        const vendaId = document.getElementById("criarParcelasVenda").value; const numero = Number(document.getElementById("numeroParcelas").value); const dataInicio = document.getElementById("primeiroVencimento").value; const msg = document.getElementById("parcelasMsg");
+        if (!vendaId || !Number.isInteger(numero) || numero < 2 || numero > 36 || !dataInicio) { msg.textContent = "Selecione uma venda, número de parcelas e vencimento válido."; return; }
+        if (!confirm(`Criar ${numero} parcelas para esta venda, começando em ${dataInicio}?`)) return;
+        const datas = []; const base = new Date(`${dataInicio}T12:00:00`);
+        for (let i=0;i<numero;i++) {
+          const ano = base.getFullYear(); const mesBase = base.getMonth(); const dia = base.getDate();
+          const alvoMes = mesBase + i; const anoAlvo = ano + Math.floor(alvoMes / 12); const mesAlvo = ((alvoMes % 12) + 12) % 12;
+          const ultimoDia = new Date(anoAlvo, mesAlvo + 1, 0).getDate(); const d = new Date(anoAlvo, mesAlvo, Math.min(dia, ultimoDia), 12, 0, 0);
+          datas.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
+        }
+        const btn = document.getElementById("botaoCriarParcelas"); btn.disabled = true; msg.textContent = "Criando parcelas...";
+        const { error } = await db.rpc("criar_parcelas_venda", { p_venda_id: vendaId, p_vencimentos: datas });
+        if (error) msg.textContent = "Não foi possível criar parcelas: " + error.message;
+        else { msg.textContent = "Parcelas criadas."; await carregarParcelas(); }
+        btn.disabled = false;
+      }
+      async function receberParcelaUI(e) {
+        e.preventDefault(); const id = document.getElementById("parcelaSelecionada").value; const valor = Number(document.getElementById("valorParcela").value); const forma = document.getElementById("formaParcela").value; const taxa = Number(document.getElementById("taxaParcela").value); const msg = document.getElementById("receberParcelaMsg");
+        if (!id || !Number.isFinite(valor) || valor <= 0 || !Number.isFinite(taxa) || taxa < 0 || taxa > valor) { msg.textContent = "Confira parcela, valor e taxa."; return; }
+        if (!confirm(`Registrar recebimento de ${money(valor)} da parcela?`)) return;
+        const btn = e.currentTarget.querySelector('button[type="submit"]'); btn.disabled = true; msg.textContent = "Registrando...";
+        const { error } = await db.rpc("receber_parcela", { p_parcela_id: id, p_valor: cents(valor)/100, p_forma: forma, p_taxa: cents(taxa)/100 });
+        if (error) msg.textContent = "Erro ao receber parcela: " + error.message;
+        else { msg.textContent = "Pagamento de parcela registrado."; e.currentTarget.reset(); document.getElementById("taxaParcela").value = "0"; await carregarParcelas(); await carregarRecebimentos(); await carregarPainel(); }
+        btn.disabled = false;
+      }
 
       // ======================================
       // REPASSES DE CARTÃO
