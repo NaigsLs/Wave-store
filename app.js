@@ -159,21 +159,122 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         </p>
       `;
 
-      document.getElementById("stock").innerHTML = `
-        <h2>Produtos</h2>
-        ${produtosError ? "<p>Erro ao carregar produtos.</p>" : ""}
-        <div class="card">
-          ${productList.length
-            ? productList.map(p => `
-              <div class="item">
-                <strong>${safe(p.nome)}</strong>
-                <div class="tiny muted">${safe(p.categoria)}</div>
-                <div class="accent">${money(p.preco)}</div>
-              </div>
-            `).join("")
-            : "<p>Nenhum produto cadastrado.</p>"}
+      
+document.getElementById("stock").innerHTML = `
+  <h2>Estoque de produtos</h2>
+
+  <div class="card">
+    <h2>Adicionar produto</h2>
+    <form id="produtoForm">
+      <label>Código do produto</label>
+      <input name="codigo" required placeholder="Ex.: CAM001">
+
+      <label>Categoria</label>
+      <select name="categoria" required>
+        <option value="">Selecione</option>
+        <option>Camiseta</option>
+        <option>Tênis</option>
+        <option>Perfume</option>
+        <option>Conjunto</option>
+        <option>Bermuda</option>
+        <option>Outro</option>
+      </select>
+
+      <label>Nome do produto</label>
+      <input name="nome" required placeholder="Ex.: Camiseta Nike">
+
+      <label>Variação (opcional)</label>
+      <input name="variacao" placeholder="Ex.: Preto / G">
+
+      <label>Preço de custo (R$)</label>
+      <input name="custo" type="number" min="0" step="0.01" required>
+
+      <label>Preço de venda (R$)</label>
+      <input name="preco" type="number" min="0" step="0.01" required>
+
+      <label>Quantidade inicial</label>
+      <input name="estoque_inicial" type="number" min="0" step="1" required>
+
+      <button type="submit">Salvar produto</button>
+      <p id="produtoMensagem" class="tiny"></p>
+    </form>
+  </div>
+
+  <h2>Produtos cadastrados</h2>
+  <div class="card" id="listaProdutos">
+    Carregando...
+  </div>
+`;
+
+const listaProdutos = document.getElementById("listaProdutos");
+
+async function carregarProdutos() {
+  const { data, error } = await db
+    .from("produtos")
+    .select("id,codigo,nome,categoria,variacao,preco,estoque_inicial")
+    .eq("loja_id", socio.loja_id)
+    .order("nome");
+
+  if (error) {
+    listaProdutos.textContent = "Erro: " + error.message;
+    return;
+  }
+
+  listaProdutos.innerHTML = data.length
+    ? data.map(p => `
+      <div class="item">
+        <strong>${safe(p.nome)}</strong>
+        <div class="tiny muted">
+          ${safe(p.codigo)} • ${safe(p.categoria)}
+          ${p.variacao ? " • " + safe(p.variacao) : ""}
         </div>
-      `;
+        <div class="accent">${money(p.preco)}</div>
+        <small>Estoque inicial: ${p.estoque_inicial}</small>
+      </div>
+    `).join("")
+    : "<p>Nenhum produto cadastrado.</p>";
+}
+
+await carregarProdutos();
+
+document.getElementById("produtoForm").onsubmit = async e => {
+  e.preventDefault();
+
+  const form = e.currentTarget;
+  const msg = document.getElementById("produtoMensagem");
+  const botao = form.querySelector('button[type="submit"]');
+  const campos = new FormData(form);
+
+  botao.disabled = true;
+  msg.textContent = "Salvando produto...";
+
+  const produto = {
+    loja_id: socio.loja_id,
+    codigo: String(campos.get("codigo")).trim(),
+    categoria: String(campos.get("categoria")).trim(),
+    nome: String(campos.get("nome")).trim(),
+    variacao: String(campos.get("variacao")).trim() || null,
+    custo: Number(campos.get("custo")),
+    preco: Number(campos.get("preco")),
+    estoque_inicial: Number(campos.get("estoque_inicial"))
+  };
+
+  try {
+    const { error } = await db.from("produtos").insert(produto);
+
+    if (error) {
+      msg.textContent = "Erro: " + error.message;
+      return;
+    }
+
+    form.reset();
+    msg.textContent = "Produto cadastrado com sucesso!";
+    await carregarProdutos();
+  } finally {
+    botao.disabled = false;
+  }
+};
+
 
       document.getElementById("sell").innerHTML = `
         <h2>Vendas recentes</h2>
