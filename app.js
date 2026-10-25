@@ -28,6 +28,14 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
     return Math.round(Number(n || 0) * 100);
   }
 
+  function dataBR(value) {
+    if (!value) return "—";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime())
+      ? "—"
+      : d.toLocaleString("pt-BR");
+  }
+
   function message(text) {
     home.innerHTML = `<div class="card"><p>${safe(text)}</p></div>`;
   }
@@ -59,10 +67,15 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
     let atualizarRecebimentos = null;
     let atualizarInvestimentos = null;
+    let atualizarPainel = null;
+    let abrirMenuMais = null;
 
     function showLogin(error = "") {
       atualizarRecebimentos = null;
       atualizarInvestimentos = null;
+      atualizarPainel = null;
+      abrirMenuMais = null;
+
       nav.classList.add("hidden");
 
       sections.forEach(id => {
@@ -76,15 +89,24 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         <div class="card">
           <form id="loginForm">
             <label>E-mail</label>
-            <input id="email" type="email" required
-              autocomplete="username">
+            <input
+              id="email"
+              type="email"
+              required
+              autocomplete="username"
+            >
 
             <label>Senha</label>
-            <input id="password" type="password" required
-              autocomplete="current-password">
+            <input
+              id="password"
+              type="password"
+              required
+              autocomplete="current-password"
+            >
 
             <button type="submit">Entrar</button>
           </form>
+
           <p id="loginError" class="tiny"></p>
         </div>`;
 
@@ -159,12 +181,15 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         <h2>Estoque de produtos</h2>
 
         <div class="card">
-          <h2>Adicionar produto</h2>
+          <h3>Adicionar produto</h3>
 
           <form id="produtoForm">
             <label>Código do produto</label>
-            <input name="codigo" required
-              placeholder="Ex.: CAM001">
+            <input
+              name="codigo"
+              required
+              placeholder="Ex.: CAM001"
+            >
 
             <label>Categoria</label>
             <select name="categoria" required>
@@ -178,24 +203,44 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             </select>
 
             <label>Nome do produto</label>
-            <input name="nome" required
-              placeholder="Ex.: Camiseta Nike">
+            <input
+              name="nome"
+              required
+              placeholder="Ex.: Camiseta Nike"
+            >
 
             <label>Variação (opcional)</label>
-            <input name="variacao"
-              placeholder="Ex.: Preto / G">
+            <input
+              name="variacao"
+              placeholder="Ex.: Preto / G"
+            >
 
             <label>Preço de custo (R$)</label>
-            <input name="custo" type="number"
-              min="0" step="0.01" required>
+            <input
+              name="custo"
+              type="number"
+              min="0"
+              step="0.01"
+              required
+            >
 
             <label>Preço de venda (R$)</label>
-            <input name="preco" type="number"
-              min="0" step="0.01" required>
+            <input
+              name="preco"
+              type="number"
+              min="0"
+              step="0.01"
+              required
+            >
 
             <label>Quantidade inicial</label>
-            <input name="estoque_inicial" type="number"
-              min="0" step="1" required>
+            <input
+              name="estoque_inicial"
+              type="number"
+              min="0"
+              step="1"
+              required
+            >
 
             <button type="submit">Salvar produto</button>
             <p id="produtoMensagem" class="tiny"></p>
@@ -269,9 +314,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
                     : ""}
                 </div>
 
-                <div class="accent">
-                  ${money(p.preco)}
-                </div>
+                <div class="accent">${money(p.preco)}</div>
 
                 <small>
                   Estoque disponível:
@@ -300,10 +343,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           promocoes = [];
           promoProdutos = [];
 
-          document.getElementById("promoAviso")
-            .textContent =
-              "Não foi possível carregar as promoções: " +
-              (pe || ppe).message;
+          document.getElementById("promoAviso").textContent =
+            "Não foi possível carregar as promoções: " +
+            (pe || ppe).message;
 
           return;
         }
@@ -311,8 +353,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         promocoes = ps || [];
         promoProdutos = pp || [];
 
-        document.getElementById("promoAviso")
-          .textContent = "";
+        document.getElementById("promoAviso").textContent = "";
       }
 
       // ======================================
@@ -329,14 +370,17 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
           <label>Produto</label>
           <select id="vendaProduto">
-            <option value="">
-              Selecione um produto
-            </option>
+            <option value="">Selecione um produto</option>
           </select>
 
           <label>Quantidade</label>
-          <input id="vendaQuantidade"
-            type="number" min="1" step="1" value="1">
+          <input
+            id="vendaQuantidade"
+            type="number"
+            min="1"
+            step="1"
+            value="1"
+          >
 
           <button type="button" id="adicionarCarrinho">
             Adicionar produto
@@ -364,8 +408,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
         <div class="card">
           <label>Cliente (opcional)</label>
-          <input id="vendaCliente"
-            placeholder="Nome do cliente">
+          <input
+            id="vendaCliente"
+            placeholder="Nome do cliente"
+          >
 
           <label>Forma de pagamento prevista</label>
           <select id="vendaPagamento">
@@ -374,12 +420,8 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             </option>
             <option value="dinheiro">Dinheiro</option>
             <option value="pix">Pix</option>
-            <option value="debito">
-              Cartão de débito
-            </option>
-            <option value="credito">
-              Cartão de crédito
-            </option>
+            <option value="debito">Cartão de débito</option>
+            <option value="credito">Cartão de crédito</option>
             <option value="fiado">Fiado</option>
           </select>
 
@@ -465,10 +507,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
               const disponivel =
                 restantesGerais.get(p.id) || 0;
 
-              const pegar = Math.min(
-                disponivel,
-                faltam
-              );
+              const pegar = Math.min(disponivel, faltam);
 
               if (pegar > 0) {
                 itens.push({
@@ -564,8 +603,11 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
                     = ${money(Number(p.preco) * quantidade)}
                   </div>
 
-                  <button type="button" class="secondary"
-                    data-remove="${safe(id)}">
+                  <button
+                    type="button"
+                    class="secondary"
+                    data-remove="${safe(id)}"
+                  >
                     Remover
                   </button>
                 </div>`;
@@ -632,10 +674,14 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
                     Quantidade de kits para aplicar
                   </label>
 
-                  <input type="number"
-                    min="0" max="${max}" step="1"
+                  <input
+                    type="number"
+                    min="0"
+                    max="${max}"
+                    step="1"
                     value="${atual}"
-                    data-promo="${safe(p.id)}">
+                    data-promo="${safe(p.id)}"
+                  >
                 </div>`;
             }).join("")
           : `<p class="tiny muted">
@@ -691,19 +737,166 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
       }
 
       // ======================================
+      // CAIXA - CONSULTA FINANCEIRA
+      // ======================================
+
+      async function buscarMovimentosCaixa() {
+        const todos = [];
+        const tamanhoPagina = 1000;
+        let inicio = 0;
+
+        while (true) {
+          const { data, error } = await db
+            .from("movimentos_caixa")
+            .select(
+              "id,tipo,conta,valor,descricao,criado_em"
+            )
+            .eq("loja_id", socio.loja_id)
+            .order("criado_em", {
+              ascending: false
+            })
+            .order("id", {
+              ascending: false
+            })
+            .range(inicio, inicio + tamanhoPagina - 1);
+
+          if (error) throw error;
+
+          todos.push(...(data || []));
+
+          if (!data || data.length < tamanhoPagina) {
+            break;
+          }
+
+          inicio += tamanhoPagina;
+        }
+
+        return todos;
+      }
+
+      function calcularSaldosCaixa(movimentos) {
+        const resultado = {
+          banco: 0,
+          dinheiro: 0,
+          transferencias: 0
+        };
+
+        for (const m of movimentos) {
+          const valor = cents(m.valor);
+
+          if (
+            m.conta !== "banco" &&
+            m.conta !== "dinheiro"
+          ) {
+            continue;
+          }
+
+          if (m.tipo === "entrada") {
+            resultado[m.conta] += valor;
+          } else if (m.tipo === "saida") {
+            resultado[m.conta] -= valor;
+          } else if (m.tipo === "transferencia") {
+            resultado.transferencias += 1;
+          }
+        }
+
+        return resultado;
+      }
+
+      // ======================================
       // PAINEL INICIAL
       // ======================================
 
       async function carregarPainel() {
-        const { data: vendas, error } = await db
-          .from("vendas")
-          .select("id")
-          .eq("loja_id", socio.loja_id)
-          .order("criado_em", { ascending: false })
-          .limit(20);
+        home.innerHTML = `
+          <h2>Olá, ${safe(socio.nome)}!</h2>
+
+          <div class="card">
+            Consultando saldos e vendas...
+          </div>`;
+
+        const [
+          resultadoVendas,
+          resultadoCaixa
+        ] = await Promise.allSettled([
+          db
+            .from("vendas")
+            .select("id")
+            .eq("loja_id", socio.loja_id)
+            .order("criado_em", {
+              ascending: false
+            })
+            .limit(20),
+
+          buscarMovimentosCaixa()
+        ]);
+
+        const vendas =
+          resultadoVendas.status === "fulfilled"
+            ? resultadoVendas.value
+            : { data: null, error: { message: "Falha na consulta" } };
+
+        let saldoBanco = "—";
+        let saldoDinheiro = "—";
+        let avisoCaixa = "";
+        let avisoTransferencia = "";
+
+        if (resultadoCaixa.status === "fulfilled") {
+          const resumo = calcularSaldosCaixa(
+            resultadoCaixa.value
+          );
+
+          saldoBanco = money(resumo.banco / 100);
+          saldoDinheiro = money(resumo.dinheiro / 100);
+
+          if (resumo.transferencias > 0) {
+            avisoTransferencia =
+              "Existem movimentos de transferência. " +
+              "Eles precisam ser conferidos para garantir " +
+              "que os saldos estejam completos.";
+          }
+        } else {
+          avisoCaixa =
+            "Não foi possível consultar o caixa: " +
+            resultadoCaixa.reason.message;
+        }
 
         home.innerHTML = `
           <h2>Olá, ${safe(socio.nome)}!</h2>
+
+          <h3>Resumo financeiro</h3>
+
+          <div class="grid">
+            <div class="card">
+              <small>Saldo bancário</small>
+              <div class="num">${saldoBanco}</div>
+            </div>
+
+            <div class="card">
+              <small>Dinheiro físico</small>
+              <div class="num">${saldoDinheiro}</div>
+            </div>
+          </div>
+
+          ${avisoCaixa
+            ? `<p class="tiny">${safe(avisoCaixa)}</p>`
+            : ""}
+
+          ${avisoTransferencia
+            ? `<p class="tiny">${safe(avisoTransferencia)}</p>`
+            : ""}
+
+          <div class="card">
+            <button
+              type="button"
+              class="secondary"
+              id="atualizarPainel"
+            >
+              Atualizar saldos
+            </button>
+          </div>
+
+          <h3>Resumo da loja</h3>
 
           <div class="grid">
             <div class="card">
@@ -716,16 +909,28 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             <div class="card">
               <small>Vendas recentes</small>
               <div class="num">
-                ${error ? "—" : (vendas || []).length}
+                ${vendas.error
+                  ? "—"
+                  : (vendas.data || []).length}
               </div>
             </div>
           </div>
 
           <p class="muted tiny">
-            Dados consultados diretamente no Supabase.
+            Os saldos representam os lançamentos registrados
+            no sistema, não uma consulta direta ao banco.
             Vendas recentes: até 20 registros.
           </p>`;
+
+        document.getElementById("atualizarPainel")
+          .onclick = carregarPainel;
       }
+
+      atualizarPainel = carregarPainel;
+
+      // ======================================
+      // INICIALIZAÇÃO DE ESTOQUE E VENDAS
+      // ======================================
 
       await carregarProdutos();
       carregarProdutosVenda();
@@ -911,7 +1116,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
       };
 
       // ======================================
-      // ABA RECEBIMENTOS
+      // RECEBIMENTOS
       // ======================================
 
       const receiveSection =
@@ -921,9 +1126,11 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         <h2>Recebimentos</h2>
 
         <div class="card">
-          <button type="button"
+          <button
+            type="button"
             id="atualizarRecebimentos"
-            class="secondary">
+            class="secondary"
+          >
             Atualizar vendas
           </button>
 
@@ -939,40 +1146,40 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         <div class="card">
           <h3>Registrar pagamento</h3>
 
-          <p id="vendaSelecionadaInfo"
-            class="tiny muted">
+          <p
+            id="vendaSelecionadaInfo"
+            class="tiny muted"
+          >
             Selecione uma venda na lista.
           </p>
 
           <form id="recebimentoForm">
             <label>Valor recebido (R$)</label>
-            <input id="recebimentoValor"
+            <input
+              id="recebimentoValor"
               type="number"
               min="0.01"
               step="0.01"
-              required>
+              required
+            >
 
             <label>Forma de pagamento</label>
             <select id="recebimentoForma" required>
-              <option value="dinheiro">
-                Dinheiro
-              </option>
+              <option value="dinheiro">Dinheiro</option>
               <option value="pix">Pix</option>
-              <option value="debito">
-                Cartão de débito
-              </option>
-              <option value="credito">
-                Cartão de crédito
-              </option>
+              <option value="debito">Cartão de débito</option>
+              <option value="credito">Cartão de crédito</option>
             </select>
 
             <label>Taxa da operadora (R$)</label>
-            <input id="recebimentoTaxa"
+            <input
+              id="recebimentoTaxa"
               type="number"
               min="0"
               step="0.01"
               value="0"
-              required>
+              required
+            >
 
             <p class="tiny muted">
               Registre dinheiro e Pix somente
@@ -984,14 +1191,15 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
               será controlado separadamente.
             </p>
 
-            <button type="submit"
+            <button
+              type="submit"
               id="salvarRecebimento"
-              disabled>
+              disabled
+            >
               Registrar pagamento
             </button>
 
-            <p id="recebimentoMensagem"
-              class="tiny"></p>
+            <p id="recebimentoMensagem" class="tiny"></p>
           </form>
         </div>`;
 
@@ -1067,23 +1275,20 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
               </strong>
 
               <p class="tiny muted">
-                ${safe(
-                  new Date(v.criado_em)
-                    .toLocaleString("pt-BR")
-                )}
+                ${safe(dataBR(v.criado_em))}
                 • ${safe(v.situacao)}
               </p>
 
               <p>
                 Total da venda:
-                <strong>
-                  ${money(v.valor_total)}
-                </strong>
+                <strong>${money(v.valor_total)}</strong>
               </p>
 
-              <button type="button"
+              <button
+                type="button"
                 class="secondary"
-                data-venda="${safe(v.id)}">
+                data-venda="${safe(v.id)}"
+              >
                 Consultar saldo / Receber
               </button>
             </div>
@@ -1136,9 +1341,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
                 error: erroVenda
               } = await db
                 .from("vendas")
-                .select(
-                  "id,valor_total,situacao"
-                )
+                .select("id,valor_total,situacao")
                 .eq("loja_id", socio.loja_id)
                 .eq("id", id)
                 .single();
@@ -1187,8 +1390,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
               const pagoCentavos =
                 pagamentos.reduce(
-                  (soma, p) =>
-                    soma + cents(p.valor),
+                  (soma, p) => soma + cents(p.valor),
                   0
                 );
 
@@ -1202,8 +1404,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
               }
 
               vendaSelecionada = id;
-              saldoSelecionadoCentavos =
-                saldoCentavos;
+              saldoSelecionadoCentavos = saldoCentavos;
 
               document.getElementById(
                 "vendaSelecionadaInfo"
@@ -1216,13 +1417,11 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
                 </strong>
 
                 <p>
-                  Total:
-                  ${money(totalCentavos / 100)}
+                  Total: ${money(totalCentavos / 100)}
                 </p>
 
                 <p>
-                  Já recebido:
-                  ${money(pagoCentavos / 100)}
+                  Já recebido: ${money(pagoCentavos / 100)}
                 </p>
 
                 <p>
@@ -1254,8 +1453,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           });
       }
 
-      atualizarRecebimentos =
-        carregarRecebimentos;
+      atualizarRecebimentos = carregarRecebimentos;
 
       document.getElementById(
         "atualizarRecebimentos"
@@ -1343,9 +1541,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           recebimentoMensagem.textContent =
             "Pagamento registrado com sucesso!";
 
-          alert(
-            "Pagamento registrado com sucesso!"
-          );
+          alert("Pagamento registrado com sucesso!");
 
         } catch (err) {
           recebimentoMensagem.textContent =
@@ -1355,105 +1551,470 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         }
       };
 
-      await carregarRecebimentos();
-      await carregarPainel();
-
       // ======================================
-      // MINHA CONTA E INVESTIMENTOS
+      // MAIS OPÇÕES - TELAS SEPARADAS
       // ======================================
 
-      document.getElementById("more").innerHTML = `
-        <h2>Investimentos dos sócios</h2>
+      const moreSection = document.getElementById("more");
 
-        <div class="card">
-          <h3>Registrar investimento</h3>
+      moreSection.innerHTML = `
+        <div id="menuMais">
+          <h2>Mais opções</h2>
 
-          <p class="tiny muted">
-            Sócio responsável:
-            <strong>${safe(socio.nome)}</strong>
-          </p>
-
-          <form id="investimentoForm">
-            <label>Valor investido (R$)</label>
-            <input
-              id="investimentoValor"
-              type="number"
-              min="0.01"
-              step="0.01"
-              required
-            >
-
-            <label>Conta que recebeu o dinheiro</label>
-            <select id="investimentoConta" required>
-              <option value="banco">Banco</option>
-              <option value="dinheiro">Dinheiro</option>
-            </select>
-
-            <label>Forma do investimento</label>
-            <select id="investimentoForma" required>
-              <option value="pix">Pix</option>
-              <option value="dinheiro">Dinheiro</option>
-              <option value="transferencia">
-                Transferência
-              </option>
-              <option value="cartao">Cartão</option>
-            </select>
-
-            <label>Observação (opcional)</label>
-            <input
-              id="investimentoObservacao"
-              placeholder="Ex.: Capital inicial da loja"
-            >
-
-            <p class="tiny muted">
-              Registre somente dinheiro que já entrou
-              na conta escolhida. O valor será lançado
-              automaticamente no caixa e não será
-              considerado faturamento de vendas.
-            </p>
-
-            <button
-              type="submit"
-              id="salvarInvestimento">
-              Registrar investimento
+          <div class="card">
+            <button type="button" data-abrir="despesas">
+              Despesas
             </button>
+          </div>
 
-            <p id="investimentoMensagem" class="tiny"></p>
-          </form>
-        </div>
+          <div class="card">
+            <button type="button" data-abrir="investimentos">
+              Investimentos dos sócios
+            </button>
+          </div>
 
-        <div class="card">
-          <h3>Total investido por sócio</h3>
+          <div class="card">
+            <button type="button" data-abrir="historico">
+              Histórico do caixa
+            </button>
+          </div>
 
-          <button
-            type="button"
-            id="atualizarInvestimentos"
-            class="secondary">
-            Atualizar investimentos
-          </button>
+          <div class="card">
+            <button type="button" data-abrir="relatorios">
+              Relatórios e lucros
+            </button>
+          </div>
 
-          <div id="resumoInvestimentos">
-            Carregando...
+          <div class="card">
+            <button type="button" data-abrir="conta">
+              Minha conta
+            </button>
           </div>
         </div>
 
-        <div class="card">
-          <h3>Minha conta</h3>
-
-          <p><strong>${safe(socio.nome)}</strong></p>
-          <p class="muted">${safe(user.email)}</p>
-
-          <button id="logout" class="secondary">
-            Sair da conta
+        <div id="paginaMais" class="hidden">
+          <button
+            type="button"
+            id="voltarMenuMais"
+            class="secondary"
+          >
+            ← Voltar para Mais opções
           </button>
+
+          <div id="conteudoMais"></div>
         </div>`;
+
+      const menuMais =
+        document.getElementById("menuMais");
+
+      const paginaMais =
+        document.getElementById("paginaMais");
+
+      const conteudoMais =
+        document.getElementById("conteudoMais");
+
+      function voltarMais() {
+        paginaMais.classList.add("hidden");
+        menuMais.classList.remove("hidden");
+        conteudoMais.innerHTML = "";
+      }
+
+      abrirMenuMais = voltarMais;
+
+      document.getElementById("voltarMenuMais")
+        .onclick = voltarMais;
+
+      async function abrirPaginaMais(pagina) {
+        menuMais.classList.add("hidden");
+        paginaMais.classList.remove("hidden");
+
+        conteudoMais.innerHTML = `
+          <div class="card">Carregando...</div>`;
+
+        if (pagina === "despesas") {
+          montarPaginaDespesas();
+        } else if (pagina === "investimentos") {
+          montarPaginaInvestimentos();
+          await carregarInvestimentos();
+        } else if (pagina === "historico") {
+          montarPaginaHistorico();
+          await carregarHistorico();
+        } else if (pagina === "relatorios") {
+          montarPaginaRelatorios();
+        } else if (pagina === "conta") {
+          montarPaginaConta();
+        }
+
+        paginaMais.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+
+      moreSection
+        .querySelectorAll("[data-abrir]")
+        .forEach(botao => {
+          botao.onclick = () =>
+            abrirPaginaMais(botao.dataset.abrir);
+        });
+
+      // ======================================
+      // DESPESAS
+      // ======================================
+
+      function montarPaginaDespesas() {
+        conteudoMais.innerHTML = `
+          <h2>Despesas</h2>
+
+          <div class="card">
+            <h3>Registrar despesa</h3>
+
+            <p class="tiny muted">
+              Responsável:
+              <strong>${safe(socio.nome)}</strong>
+            </p>
+
+            <form id="despesaForm">
+              <label>Descrição da despesa</label>
+              <input
+                id="despesaDescricao"
+                required
+                maxlength="200"
+                placeholder="Ex.: Embalagens"
+              >
+
+              <label>Categoria</label>
+              <select id="despesaCategoria" required>
+                <option value="">Selecione</option>
+                <option value="Embalagens">Embalagens</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Aluguel">Aluguel</option>
+                <option value="Internet">Internet</option>
+                <option value="Energia">Energia</option>
+                <option value="Taxas">Taxas</option>
+                <option value="Outros">Outros</option>
+              </select>
+
+              <label>Valor pago (R$)</label>
+              <input
+                id="despesaValor"
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+              >
+
+              <label>Conta utilizada</label>
+              <select id="despesaConta" required>
+                <option value="banco">Banco</option>
+                <option value="dinheiro">Dinheiro físico</option>
+              </select>
+
+              <p class="tiny muted">
+                Registre somente despesas já pagas.
+                O valor será descontado automaticamente
+                da conta escolhida.
+              </p>
+
+              <button
+                type="submit"
+                id="salvarDespesa"
+              >
+                Registrar despesa
+              </button>
+
+              <p id="despesaMensagem" class="tiny"></p>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Despesas recentes</h3>
+
+            <button
+              type="button"
+              class="secondary"
+              id="atualizarDespesas"
+            >
+              Atualizar despesas
+            </button>
+
+            <div id="listaDespesas">
+              Carregando...
+            </div>
+          </div>`;
+
+        document.getElementById("atualizarDespesas")
+          .onclick = carregarDespesas;
+
+        document.getElementById("despesaForm")
+          .onsubmit = registrarDespesa;
+
+        carregarDespesas();
+      }
+
+      async function carregarDespesas() {
+        const lista = document.getElementById(
+          "listaDespesas"
+        );
+
+        if (!lista) return;
+
+        lista.textContent = "Consultando despesas...";
+
+        const { data, error } = await db
+          .from("despesas")
+          .select(
+            "id,descricao,categoria,valor,conta,criado_em"
+          )
+          .eq("loja_id", socio.loja_id)
+          .order("criado_em", {
+            ascending: false
+          })
+          .limit(100);
+
+        if (!document.getElementById("listaDespesas")) {
+          return;
+        }
+
+        if (error) {
+          lista.textContent =
+            "Erro ao consultar despesas: " +
+            error.message;
+          return;
+        }
+
+        if (!data?.length) {
+          lista.innerHTML =
+            "<p>Nenhuma despesa registrada.</p>";
+          return;
+        }
+
+        const total = data.reduce(
+          (soma, d) => soma + cents(d.valor),
+          0
+        );
+
+        lista.innerHTML = `
+          <p class="tiny muted">
+            Últimas ${data.length} despesas
+          </p>
+
+          <p>
+            <strong>
+              Total listado: ${money(total / 100)}
+            </strong>
+          </p>
+
+          ${data.map(d => `
+            <div class="item">
+              <strong>${safe(d.descricao)}</strong>
+
+              <div class="tiny muted">
+                ${safe(d.categoria)}
+                • ${d.conta === "banco"
+                  ? "Banco"
+                  : "Dinheiro"}
+                • ${safe(dataBR(d.criado_em))}
+              </div>
+
+              <div class="accent">
+                ${money(d.valor)}
+              </div>
+            </div>
+          `).join("")}
+        `;
+      }
+
+      async function registrarDespesa(e) {
+        e.preventDefault();
+
+        const form = e.currentTarget;
+        const botao =
+          document.getElementById("salvarDespesa");
+
+        const mensagem =
+          document.getElementById("despesaMensagem");
+
+        const descricao =
+          document.getElementById("despesaDescricao")
+            .value.trim();
+
+        const categoria =
+          document.getElementById("despesaCategoria")
+            .value;
+
+        const conta =
+          document.getElementById("despesaConta")
+            .value;
+
+        const valor = Number(
+          document.getElementById("despesaValor").value
+        );
+
+        const valorCentavos = cents(valor);
+
+        if (
+          !descricao ||
+          !categoria ||
+          !["banco", "dinheiro"].includes(conta) ||
+          !Number.isFinite(valor) ||
+          valorCentavos <= 0
+        ) {
+          mensagem.textContent =
+            "Preencha os dados com um valor válido.";
+          return;
+        }
+
+        if (!confirm(
+          `Confirmar despesa de ${money(
+            valorCentavos / 100
+          )} na conta ${conta}?`
+        )) {
+          return;
+        }
+
+        botao.disabled = true;
+        mensagem.textContent = "Registrando despesa...";
+
+        try {
+          const { error } = await db
+            .from("despesas")
+            .insert({
+              loja_id: socio.loja_id,
+              socio_id: user.id,
+              descricao,
+              categoria,
+              valor: valorCentavos / 100,
+              conta
+            });
+
+          if (error) {
+            mensagem.textContent =
+              "Erro ao registrar despesa: " +
+              error.message;
+            return;
+          }
+
+          form.reset();
+
+          mensagem.textContent =
+            "Despesa registrada com sucesso!";
+
+          await carregarDespesas();
+          await carregarPainel();
+
+        } catch (err) {
+          mensagem.textContent =
+            "Erro: " + err.message;
+        } finally {
+          botao.disabled = false;
+        }
+      }
+
+      // ======================================
+      // INVESTIMENTOS DOS SÓCIOS
+      // ======================================
+
+      function montarPaginaInvestimentos() {
+        conteudoMais.innerHTML = `
+          <h2>Investimentos dos sócios</h2>
+
+          <div class="card">
+            <h3>Registrar investimento</h3>
+
+            <p class="tiny muted">
+              Sócio responsável:
+              <strong>${safe(socio.nome)}</strong>
+            </p>
+
+            <form id="investimentoForm">
+              <label>Valor investido (R$)</label>
+              <input
+                id="investimentoValor"
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+              >
+
+              <label>Conta que recebeu o dinheiro</label>
+              <select id="investimentoConta" required>
+                <option value="banco">Banco</option>
+                <option value="dinheiro">Dinheiro</option>
+              </select>
+
+              <label>Forma do investimento</label>
+              <select id="investimentoForma" required>
+                <option value="pix">Pix</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="transferencia">
+                  Transferência
+                </option>
+                <option value="cartao">Cartão</option>
+              </select>
+
+              <label>Observação (opcional)</label>
+              <input
+                id="investimentoObservacao"
+                placeholder="Ex.: Capital inicial da loja"
+              >
+
+              <p class="tiny muted">
+                Registre somente dinheiro que já entrou
+                na conta escolhida. O valor será lançado
+                automaticamente no caixa e não será
+                considerado faturamento de vendas.
+              </p>
+
+              <button
+                type="submit"
+                id="salvarInvestimento"
+              >
+                Registrar investimento
+              </button>
+
+              <p
+                id="investimentoMensagem"
+                class="tiny"
+              ></p>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Total investido por sócio</h3>
+
+            <button
+              type="button"
+              id="atualizarInvestimentos"
+              class="secondary"
+            >
+              Atualizar investimentos
+            </button>
+
+            <div id="resumoInvestimentos">
+              Carregando...
+            </div>
+          </div>`;
+
+        document.getElementById(
+          "atualizarInvestimentos"
+        ).onclick = carregarInvestimentos;
+
+        document.getElementById(
+          "investimentoForm"
+        ).onsubmit = registrarInvestimento;
+      }
 
       async function carregarInvestimentos() {
         const resumo = document.getElementById(
           "resumoInvestimentos"
         );
 
-        resumo.textContent = "Consultando investimentos...";
+        if (!resumo) return;
+
+        resumo.textContent =
+          "Consultando investimentos...";
 
         const [
           { data: socios, error: erroSocios },
@@ -1467,6 +2028,12 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             .select("socio_id,valor")
             .eq("loja_id", socio.loja_id)
         ]);
+
+        if (!document.getElementById(
+          "resumoInvestimentos"
+        )) {
+          return;
+        }
 
         if (erroSocios || erroInvestimentos) {
           resumo.textContent =
@@ -1506,6 +2073,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         resumo.innerHTML = registros.map(item => `
           <div class="item">
             <strong>${safe(item.nome)}</strong>
+
             <div class="accent">
               ${money(item.totalCentavos / 100)}
             </div>
@@ -1513,6 +2081,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         `).join("") + `
           <div class="item">
             <strong>Total investido na loja</strong>
+
             <div class="accent">
               ${money(totalGeral / 100)}
             </div>
@@ -1520,19 +2089,13 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         `;
       }
 
-      atualizarInvestimentos =
-        carregarInvestimentos;
+      atualizarInvestimentos = carregarInvestimentos;
 
-      document.getElementById(
-        "atualizarInvestimentos"
-      ).onclick = carregarInvestimentos;
-
-      document.getElementById(
-        "investimentoForm"
-      ).onsubmit = async e => {
+      async function registrarInvestimento(e) {
         e.preventDefault();
 
         const form = e.currentTarget;
+
         const botao = document.getElementById(
           "salvarInvestimento"
         );
@@ -1579,6 +2142,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         }
 
         botao.disabled = true;
+
         mensagem.textContent =
           "Registrando investimento...";
 
@@ -1614,19 +2178,244 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         } finally {
           botao.disabled = false;
         }
-      };
+      }
 
-      await carregarInvestimentos();
+      // ======================================
+      // HISTÓRICO DO CAIXA
+      // ======================================
 
-      document.getElementById("logout")
-        .onclick = async () => {
-          await db.auth.signOut();
-          showLogin();
-        };
+      function montarPaginaHistorico() {
+        conteudoMais.innerHTML = `
+          <h2>Histórico do caixa</h2>
+
+          <div class="card">
+            <label>Filtrar por conta</label>
+            <select id="filtroContaCaixa">
+              <option value="todas">Todas as contas</option>
+              <option value="banco">Banco</option>
+              <option value="dinheiro">Dinheiro físico</option>
+            </select>
+
+            <button
+              type="button"
+              id="atualizarHistorico"
+              class="secondary"
+            >
+              Atualizar histórico
+            </button>
+
+            <p id="historicoAviso" class="tiny muted"></p>
+          </div>
+
+          <div id="listaHistorico">
+            <div class="card">Carregando...</div>
+          </div>`;
+
+        document.getElementById("atualizarHistorico")
+          .onclick = carregarHistorico;
+
+        document.getElementById("filtroContaCaixa")
+          .onchange = carregarHistorico;
+      }
+
+      async function carregarHistorico() {
+        const lista = document.getElementById(
+          "listaHistorico"
+        );
+
+        const aviso = document.getElementById(
+          "historicoAviso"
+        );
+
+        if (!lista || !aviso) return;
+
+        lista.innerHTML = `
+          <div class="card">
+            Consultando movimentações...
+          </div>`;
+
+        try {
+          const movimentos =
+            await buscarMovimentosCaixa();
+
+          if (!document.getElementById(
+            "listaHistorico"
+          )) {
+            return;
+          }
+
+          const filtro = document.getElementById(
+            "filtroContaCaixa"
+          ).value;
+
+          const filtrados = movimentos.filter(m =>
+            filtro === "todas" || m.conta === filtro
+          );
+
+          const resumo =
+            calcularSaldosCaixa(movimentos);
+
+          const exibidos = filtrados.slice(0, 100);
+
+          aviso.textContent =
+            `Exibindo ${exibidos.length} de ` +
+            `${filtrados.length} movimentações.`;
+
+          lista.innerHTML = `
+            <div class="card">
+              <h3>Saldos registrados</h3>
+
+              <p>
+                Banco:
+                <strong>
+                  ${money(resumo.banco / 100)}
+                </strong>
+              </p>
+
+              <p>
+                Dinheiro físico:
+                <strong>
+                  ${money(resumo.dinheiro / 100)}
+                </strong>
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>Movimentações recentes</h3>
+
+              ${exibidos.length
+                ? exibidos.map(m => `
+                  <div class="item">
+                    <strong>
+                      ${m.tipo === "entrada"
+                        ? "Entrada"
+                        : m.tipo === "saida"
+                          ? "Saída"
+                          : "Transferência"}
+                    </strong>
+
+                    <div class="tiny muted">
+                      ${m.conta === "banco"
+                        ? "Banco"
+                        : "Dinheiro físico"}
+                      • ${safe(dataBR(m.criado_em))}
+                    </div>
+
+                    <p class="tiny">
+                      ${safe(m.descricao || "Sem descrição")}
+                    </p>
+
+                    <div class="accent">
+                      ${m.tipo === "entrada"
+                        ? "+"
+                        : m.tipo === "saida"
+                          ? "−"
+                          : ""}
+                      ${money(Math.abs(Number(m.valor)))}
+                    </div>
+                  </div>
+                `).join("")
+                : "<p>Nenhuma movimentação encontrada.</p>"
+              }
+            </div>
+          `;
+
+        } catch (err) {
+          aviso.textContent =
+            "Erro ao consultar o caixa: " +
+            err.message;
+
+          lista.innerHTML = "";
+        }
+      }
+
+      // ======================================
+      // RELATÓRIOS
+      // ======================================
+
+      function montarPaginaRelatorios() {
+        conteudoMais.innerHTML = `
+          <h2>Relatórios e lucros</h2>
+
+          <div class="card">
+            <h3>Em desenvolvimento</h3>
+
+            <p>
+              Nesta tela vamos colocar:
+            </p>
+
+            <p>• Faturamento por período</p>
+            <p>• Vendas de Gian e Leo</p>
+            <p>• Custo das mercadorias vendidas</p>
+            <p>• Despesas da loja</p>
+            <p>• Lucro da operação</p>
+
+            <p class="tiny muted">
+              Ainda não há cálculo de lucro nesta versão.
+              O saldo do caixa não representa o lucro,
+              pois inclui investimentos e outras movimentações.
+            </p>
+          </div>`;
+      }
+
+      // ======================================
+      // MINHA CONTA
+      // ======================================
+
+      function montarPaginaConta() {
+        conteudoMais.innerHTML = `
+          <h2>Minha conta</h2>
+
+          <div class="card">
+            <h3>Dados do sócio</h3>
+
+            <p>
+              <strong>${safe(socio.nome)}</strong>
+            </p>
+
+            <p class="muted">
+              ${safe(user.email)}
+            </p>
+
+            <button
+              type="button"
+              id="logout"
+              class="secondary"
+            >
+              Sair da conta
+            </button>
+          </div>`;
+
+        document.getElementById("logout")
+          .onclick = async () => {
+            const { error } = await db.auth.signOut();
+
+            if (error) {
+              alert(
+                "Não foi possível sair: " +
+                error.message
+              );
+              return;
+            }
+
+            showLogin();
+          };
+      }
+
+      // ======================================
+      // FINALIZAÇÃO DA TELA
+      // ======================================
+
+      await carregarRecebimentos();
+      await carregarPainel();
 
       nav.classList.remove("hidden");
       activateTab(tab);
     }
+
+    // ======================================
+    // NAVEGAÇÃO PRINCIPAL
+    // ======================================
 
     document.querySelectorAll("#nav button")
       .forEach(button => {
@@ -1634,6 +2423,13 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           const tab = button.dataset.tab;
 
           activateTab(tab);
+
+          if (
+            tab === "home" &&
+            atualizarPainel
+          ) {
+            await atualizarPainel();
+          }
 
           if (
             tab === "receive" &&
@@ -1644,9 +2440,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
           if (
             tab === "more" &&
-            atualizarInvestimentos
+            abrirMenuMais
           ) {
-            await atualizarInvestimentos();
+            abrirMenuMais();
           }
         };
       });
