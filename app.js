@@ -1624,6 +1624,12 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           </div>
 
           <div class="card">
+            <button type="button" data-abrir="repasses">
+              💳 Repasses de cartão
+            </button>
+          </div>
+
+          <div class="card">
             <button type="button" data-abrir="despesas">
               Despesas
             </button>
@@ -1696,6 +1702,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         if (pagina === "compras") {
           montarPaginaCompras();
           await carregarHistoricoCompras();
+        } else if (pagina === "repasses") {
+          montarPaginaRepasses();
+          await carregarRepasses();
         } else if (pagina === "despesas") {
           montarPaginaDespesas();
         } else if (pagina === "investimentos") {
@@ -1723,6 +1732,178 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           botao.onclick = () =>
             abrirPaginaMais(botao.dataset.abrir);
         });
+
+      // ======================================
+      // REPASSES DE CARTÃO
+      // ======================================
+
+      function montarPaginaRepasses() {
+        conteudoMais.innerHTML = `
+          <h2>Repasses de cartão</h2>
+
+          <p class="muted">
+            Acompanhe os valores previstos pelas operadoras e confirme
+            quando o dinheiro realmente entrar na conta bancária.
+          </p>
+
+          <div class="grid">
+            <div class="card">
+              <small>Repasses pendentes</small>
+              <div class="num" id="repassesTotalPendente">—</div>
+            </div>
+            <div class="card">
+              <small>Repasses recebidos</small>
+              <div class="num" id="repassesTotalRecebido">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="row" style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+              <h3 style="margin:0">Histórico de repasses</h3>
+              <button type="button" class="secondary" id="atualizarRepasses">Atualizar</button>
+            </div>
+            <p id="repassesAviso" class="tiny muted" aria-live="polite"></p>
+            <div id="listaRepasses"></div>
+          </div>`;
+
+        document.getElementById("atualizarRepasses").onclick =
+          carregarRepasses;
+      }
+
+      async function carregarRepasses() {
+        const aviso = document.getElementById("repassesAviso");
+        const lista = document.getElementById("listaRepasses");
+        const totalPendente = document.getElementById("repassesTotalPendente");
+        const totalRecebido = document.getElementById("repassesTotalRecebido");
+
+        if (!aviso || !lista || !totalPendente || !totalRecebido) return;
+
+        aviso.textContent = "Consultando repasses...";
+        lista.innerHTML = "";
+        totalPendente.textContent = "—";
+        totalRecebido.textContent = "—";
+
+        const { data: repasses, error } = await db
+          .from("repasses_cartao")
+          .select("id,recebimento_id,valor_bruto,taxa,valor_liquido,previsao_repasse,data_repasse,status,operadora,observacao,criado_em")
+          .eq("loja_id", socio.loja_id)
+          .order("criado_em", { ascending: false })
+          .limit(200);
+
+        if (error) {
+          aviso.textContent =
+            "Não foi possível carregar os repasses: " + error.message;
+          lista.innerHTML = `
+            <p class="tiny muted">
+              Confira sua conexão e as permissões de consulta da loja.
+            </p>`;
+          return;
+        }
+
+        const registros = repasses || [];
+        const pendentes = registros.filter(r => r.status === "pendente");
+        const recebidos = registros.filter(r => r.status === "recebido");
+
+        totalPendente.textContent = money(
+          pendentes.reduce((s, r) => s + Number(r.valor_liquido || 0), 0)
+        );
+        totalRecebido.textContent = money(
+          recebidos.reduce((s, r) => s + Number(r.valor_liquido || 0), 0)
+        );
+
+        if (!registros.length) {
+          aviso.textContent = "Nenhum repasse de cartão encontrado.";
+          lista.innerHTML = `
+            <div class="item">
+              <p>Quando houver um recebimento no crédito, o repasse pendente aparecerá aqui automaticamente.</p>
+            </div>`;
+          return;
+        }
+
+        aviso.textContent = `${registros.length} repasse(s) encontrado(s).`;
+        lista.innerHTML = registros.map(r => {
+          const recebido = r.status === "recebido";
+          const cancelado = r.status === "cancelado";
+          const statusLabel = recebido ? "Recebido" : cancelado ? "Cancelado" : (r.status || "Pendente");
+          const previsao = r.previsao_repasse
+            ? new Date(`${r.previsao_repasse}T12:00:00`).toLocaleDateString("pt-BR")
+            : "Não informada";
+          const dataRecebimento = r.data_repasse
+            ? new Date(`${r.data_repasse}T12:00:00`).toLocaleDateString("pt-BR")
+            : "—";
+
+          return `
+            <div class="item">
+              <div style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap">
+                <strong>${safe(r.operadora || "Operadora não informada")}</strong>
+                <span class="pill">${safe(statusLabel)}</span>
+              </div>
+              <p class="tiny muted">
+                Criado em ${safe(dataBR(r.criado_em))}
+              </p>
+              <div class="grid">
+                <div>
+                  <small class="muted">Valor bruto</small>
+                  <div><strong>${money(r.valor_bruto)}</strong></div>
+                </div>
+                <div>
+                  <small class="muted">Taxa</small>
+                  <div><strong>${money(r.taxa)}</strong></div>
+                </div>
+                <div>
+                  <small class="muted">Valor líquido</small>
+                  <div><strong class="accent">${money(r.valor_liquido)}</strong></div>
+                </div>
+                <div>
+                  <small class="muted">Previsão</small>
+                  <div><strong>${safe(previsao)}</strong></div>
+                </div>
+              </div>
+              ${recebido ? `<p class="tiny muted">Recebido em: ${safe(dataRecebimento)}</p>` : ""}
+              ${r.observacao ? `<p class="tiny muted">${safe(r.observacao)}</p>` : ""}
+              ${r.status === "pendente" ? `
+                <button type="button" data-confirmar-repasse="${safe(r.id)}">
+                  Confirmar recebimento
+                </button>
+                <p class="tiny muted">Confirme somente depois de verificar que o valor entrou na conta bancária.</p>
+              ` : ""}
+            </div>`;
+        }).join("");
+
+        lista.querySelectorAll("[data-confirmar-repasse]").forEach(botao => {
+          botao.onclick = async () => {
+            const repasseId = botao.dataset.confirmarRepasse;
+            if (!repasseId) return;
+
+            const confirmado = window.confirm(
+              "Confirma que este repasse já entrou na conta bancária? Essa ação registra a entrada no caixa e não deve ser repetida."
+            );
+            if (!confirmado) return;
+
+            botao.disabled = true;
+            botao.textContent = "Confirmando...";
+
+            const { error: erroConfirmacao } = await db.rpc(
+              "confirmar_repasse_cartao",
+              { p_repasse_id: repasseId }
+            );
+
+            if (erroConfirmacao) {
+              alert("Não foi possível confirmar o repasse: " + erroConfirmacao.message);
+              botao.disabled = false;
+              botao.textContent = "Confirmar recebimento";
+              return;
+            }
+
+            alert("Repasse confirmado e entrada registrada no banco.");
+            await carregarRepasses();
+            await carregarPainel();
+            if (typeof carregarHistorico === "function") {
+              await carregarHistorico();
+            }
+          };
+        });
+      }
 
       // ======================================
       // COMPRAS DE MERCADORIAS
