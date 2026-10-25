@@ -1,4 +1,3 @@
-
 const SUPABASE_URL = "https://xanwtxykldbyxdhdtfbj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
@@ -1562,6 +1561,12 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           <h2>Mais opções</h2>
 
           <div class="card">
+            <button type="button" data-abrir="compras">
+              Compras de mercadorias
+            </button>
+          </div>
+
+          <div class="card">
             <button type="button" data-abrir="despesas">
               Despesas
             </button>
@@ -1631,7 +1636,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         conteudoMais.innerHTML = `
           <div class="card">Carregando...</div>`;
 
-        if (pagina === "despesas") {
+        if (pagina === "compras") {
+          montarPaginaCompras();
+          await carregarHistoricoCompras();
+        } else if (pagina === "despesas") {
           montarPaginaDespesas();
         } else if (pagina === "investimentos") {
           montarPaginaInvestimentos();
@@ -1657,6 +1665,478 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           botao.onclick = () =>
             abrirPaginaMais(botao.dataset.abrir);
         });
+
+      // ======================================
+      // COMPRAS DE MERCADORIAS
+      // ======================================
+
+      const itensCompra = new Map();
+
+      function montarPaginaCompras() {
+        itensCompra.clear();
+
+        conteudoMais.innerHTML = `
+          <h2>Compras de mercadorias</h2>
+
+          <div class="card">
+            <h3>Adicionar produtos à compra</h3>
+
+            <p class="tiny muted">
+              Responsável:
+              <strong>${safe(socio.nome)}</strong>
+            </p>
+
+            <label>Produto</label>
+            <select id="compraProduto">
+              <option value="">Selecione um produto</option>
+            </select>
+
+            <label>Quantidade comprada</label>
+            <input
+              id="compraQuantidade"
+              type="number"
+              min="1"
+              step="1"
+              value="1"
+            >
+
+            <label>Custo unitário (R$)</label>
+            <input
+              id="compraCusto"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0,00"
+            >
+
+            <button
+              type="button"
+              id="adicionarItemCompra"
+            >
+              Adicionar à compra
+            </button>
+
+            <p id="compraAviso" class="tiny"></p>
+          </div>
+
+          <div class="card">
+            <h3>Produtos desta compra</h3>
+
+            <div id="listaItensCompra">
+              Nenhum produto adicionado.
+            </div>
+
+            <h3 id="totalCompra">
+              Total: ${money(0)}
+            </h3>
+          </div>
+
+          <div class="card">
+            <h3>Pagamento da compra</h3>
+
+            <label>Conta utilizada</label>
+            <select id="compraConta">
+              <option value="banco">Banco</option>
+              <option value="dinheiro">Dinheiro físico</option>
+            </select>
+
+            <label>Forma de pagamento</label>
+            <select id="compraForma">
+              <option value="pix">Pix</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="transferencia">
+                Transferência
+              </option>
+              <option value="cartao">Cartão</option>
+            </select>
+
+            <label>Observação (opcional)</label>
+            <input
+              id="compraObservacao"
+              maxlength="200"
+              placeholder="Ex.: Reposição de camisetas"
+            >
+
+            <p class="tiny muted">
+              Registre apenas compras já pagas.
+              O total será descontado uma única vez
+              da conta escolhida e os produtos
+              serão adicionados ao estoque.
+            </p>
+
+            <button
+              type="button"
+              id="salvarCompra"
+            >
+              Registrar compra
+            </button>
+
+            <p id="compraMensagem" class="tiny"></p>
+          </div>
+
+          <div class="card">
+            <h3>Compras recentes</h3>
+
+            <button
+              type="button"
+              id="atualizarCompras"
+              class="secondary"
+            >
+              Atualizar histórico
+            </button>
+
+            <div id="historicoCompras">
+              Carregando...
+            </div>
+          </div>`;
+
+        const seletor =
+          document.getElementById("compraProduto");
+
+        for (const p of productList) {
+          seletor.add(
+            new Option(
+              `${p.nome}${p.variacao
+                ? " - " + p.variacao
+                : ""} (${p.codigo})`,
+              p.id
+            )
+          );
+        }
+
+        seletor.onchange = () => {
+          const produto = productList.find(
+            p => p.id === seletor.value
+          );
+
+          document.getElementById("compraCusto")
+            .value = produto
+              ? Number(produto.custo || 0).toFixed(2)
+              : "";
+        };
+
+        document.getElementById("adicionarItemCompra")
+          .onclick = adicionarItemCompra;
+
+        document.getElementById("salvarCompra")
+          .onclick = registrarCompra;
+
+        document.getElementById("atualizarCompras")
+          .onclick = carregarHistoricoCompras;
+
+        renderItensCompra();
+      }
+
+      function totalCompraCentavos() {
+        let total = 0;
+
+        for (const item of itensCompra.values()) {
+          total += cents(item.custo_unitario) *
+            item.quantidade;
+        }
+
+        return total;
+      }
+
+      function renderItensCompra() {
+        const lista =
+          document.getElementById("listaItensCompra");
+
+        const total =
+          document.getElementById("totalCompra");
+
+        if (!lista || !total) return;
+
+        lista.innerHTML = itensCompra.size
+          ? [...itensCompra.values()].map(item => {
+              const p = productList.find(
+                x => x.id === item.produto_id
+              );
+
+              return `
+                <div class="item">
+                  <strong>
+                    ${safe(p?.nome || "Produto")}
+                    ${safe(p?.variacao || "")}
+                  </strong>
+
+                  <p class="tiny">
+                    ${item.quantidade} ×
+                    ${money(item.custo_unitario)}
+                    = ${money(
+                      item.quantidade *
+                      item.custo_unitario
+                    )}
+                  </p>
+
+                  <button
+                    type="button"
+                    class="secondary"
+                    data-remover-compra="${safe(
+                      item.produto_id
+                    )}"
+                  >
+                    Remover
+                  </button>
+                </div>`;
+            }).join("")
+          : "<p>Nenhum produto adicionado.</p>";
+
+        total.textContent =
+          "Total da compra: " +
+          money(totalCompraCentavos() / 100);
+
+        lista
+          .querySelectorAll("[data-remover-compra]")
+          .forEach(botao => {
+            botao.onclick = () => {
+              itensCompra.delete(
+                botao.dataset.removerCompra
+              );
+
+              renderItensCompra();
+            };
+          });
+      }
+
+      function adicionarItemCompra() {
+        const aviso =
+          document.getElementById("compraAviso");
+
+        const produtoId =
+          document.getElementById("compraProduto").value;
+
+        const quantidade = Number(
+          document.getElementById("compraQuantidade").value
+        );
+
+        const custo = Number(
+          document.getElementById("compraCusto").value
+        );
+
+        const custoCentavos = cents(custo);
+
+        if (
+          !produtoId ||
+          !productList.some(p => p.id === produtoId) ||
+          !Number.isInteger(quantidade) ||
+          quantidade <= 0 ||
+          !Number.isFinite(custo) ||
+          custo < 0 ||
+          custoCentavos < 0
+        ) {
+          aviso.textContent =
+            "Selecione um produto e informe quantidade e custo válidos.";
+          return;
+        }
+
+        const existente = itensCompra.get(produtoId);
+
+        if (
+          existente &&
+          cents(existente.custo_unitario) !== custoCentavos
+        ) {
+          aviso.textContent =
+            "Este produto já está na compra com outro custo. " +
+            "Remova o item antes de alterar o custo.";
+          return;
+        }
+
+        itensCompra.set(produtoId, {
+          produto_id: produtoId,
+          quantidade:
+            (existente?.quantidade || 0) + quantidade,
+          custo_unitario: custoCentavos / 100
+        });
+
+        document.getElementById("compraQuantidade")
+          .value = "1";
+
+        aviso.textContent =
+          "Produto adicionado à compra.";
+
+        renderItensCompra();
+      }
+
+      async function registrarCompra() {
+        const mensagem =
+          document.getElementById("compraMensagem");
+
+        const botao =
+          document.getElementById("salvarCompra");
+
+        if (!itensCompra.size) {
+          mensagem.textContent =
+            "Adicione pelo menos um produto.";
+          return;
+        }
+
+        const totalCentavos = totalCompraCentavos();
+
+        if (totalCentavos <= 0) {
+          mensagem.textContent =
+            "O total da compra deve ser maior que zero.";
+          return;
+        }
+
+        const conta =
+          document.getElementById("compraConta").value;
+
+        const forma =
+          document.getElementById("compraForma").value;
+
+        const observacao =
+          document.getElementById("compraObservacao")
+            .value.trim();
+
+        if (
+          !["banco", "dinheiro"].includes(conta) ||
+          !["pix", "dinheiro", "cartao", "transferencia"]
+            .includes(forma)
+        ) {
+          mensagem.textContent =
+            "Selecione uma conta e uma forma de pagamento válidas.";
+          return;
+        }
+
+        if (!confirm(
+          `Confirmar compra de ${money(
+            totalCentavos / 100
+          )} com ${itensCompra.size} produto(s)?\n\n` +
+          `O valor será descontado da conta ${conta} ` +
+          `e o estoque será atualizado.`
+        )) {
+          return;
+        }
+
+        botao.disabled = true;
+        mensagem.textContent =
+          "Registrando compra...";
+
+        try {
+          const payload = [...itensCompra.values()];
+
+          const { data: compraId, error } =
+            await db.rpc("registrar_compra_lote", {
+              p_itens: payload,
+              p_conta: conta,
+              p_forma_pagamento: forma,
+              p_observacao: observacao || null
+            });
+
+          if (error) {
+            mensagem.textContent =
+              "Erro ao registrar compra: " +
+              error.message;
+            return;
+          }
+
+          itensCompra.clear();
+          renderItensCompra();
+
+          document.getElementById("compraObservacao")
+            .value = "";
+
+          mensagem.textContent =
+            "Compra registrada com sucesso! Código: " +
+            compraId;
+
+          if (await carregarProdutos()) {
+            carregarProdutosVenda();
+          }
+
+          await carregarHistoricoCompras();
+          await carregarPainel();
+
+          alert(
+            "Compra registrada com sucesso! " +
+            "O estoque e o caixa foram atualizados."
+          );
+
+        } catch (err) {
+          mensagem.textContent =
+            "Erro: " + err.message;
+        } finally {
+          botao.disabled = false;
+        }
+      }
+
+      async function carregarHistoricoCompras() {
+        const lista =
+          document.getElementById("historicoCompras");
+
+        if (!lista) return;
+
+        lista.textContent =
+          "Consultando compras...";
+
+        const { data: compras, error } = await db
+          .from("compras_lotes")
+          .select(
+            "id,valor_total,conta,forma_pagamento,observacao,criado_em"
+          )
+          .eq("loja_id", socio.loja_id)
+          .order("criado_em", {
+            ascending: false
+          })
+          .limit(50);
+
+        if (!document.getElementById(
+          "historicoCompras"
+        )) {
+          return;
+        }
+
+        if (error) {
+          lista.textContent =
+            "Erro ao consultar compras: " +
+            error.message;
+          return;
+        }
+
+        if (!compras?.length) {
+          lista.innerHTML =
+            "<p>Nenhuma compra registrada.</p>";
+          return;
+        }
+
+        const total = compras.reduce(
+          (soma, c) => soma + cents(c.valor_total),
+          0
+        );
+
+        lista.innerHTML = `
+          <p class="tiny muted">
+            Últimas ${compras.length} compras
+          </p>
+
+          <p>
+            <strong>
+              Total listado: ${money(total / 100)}
+            </strong>
+          </p>
+
+          ${compras.map(c => `
+            <div class="item">
+              <strong>${money(c.valor_total)}</strong>
+
+              <div class="tiny muted">
+                ${c.conta === "banco"
+                  ? "Banco"
+                  : "Dinheiro físico"}
+                • ${safe(c.forma_pagamento)}
+                • ${safe(dataBR(c.criado_em))}
+              </div>
+
+              ${c.observacao
+                ? `<p class="tiny">
+                    ${safe(c.observacao)}
+                  </p>`
+                : ""}
+            </div>
+          `).join("")}
+        `;
+      }
 
       // ======================================
       // DESPESAS
