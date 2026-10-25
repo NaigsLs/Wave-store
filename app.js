@@ -1,3 +1,4 @@
+
 const SUPABASE_URL = "https://xanwtxykldbyxdhdtfbj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
@@ -833,7 +834,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         const vendas =
           resultadoVendas.status === "fulfilled"
             ? resultadoVendas.value
-            : { data: null, error: { message: "Falha na consulta" } };
+            : {
+                data: null,
+                error: { message: "Falha na consulta" }
+              };
 
         let saldoBanco = "—";
         let saldoDinheiro = "—";
@@ -941,7 +945,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           const id = vendaProduto.value;
 
           const quantidade = Number(
-            document.getElementById("vendaQuantidade").value
+            document.getElementById(
+              "vendaQuantidade"
+            ).value
           );
 
           if (
@@ -966,8 +972,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
           carrinho.set(id, novoTotal);
 
-          document.getElementById("vendaQuantidade")
-            .value = "1";
+          document.getElementById(
+            "vendaQuantidade"
+          ).value = "1";
 
           renderCarrinho();
         };
@@ -1073,8 +1080,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
               p_itens: itensPayload(),
               p_kits: kits,
               p_cliente:
-                document.getElementById("vendaCliente")
-                  .value.trim() || null
+                document.getElementById(
+                  "vendaCliente"
+                ).value.trim() || null
             });
 
           if (error) {
@@ -1087,11 +1095,13 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           carrinho.clear();
           kitsSelecionados.clear();
 
-          document.getElementById("vendaCliente")
-            .value = "";
+          document.getElementById(
+            "vendaCliente"
+          ).value = "";
 
-          document.getElementById("vendaPagamento")
-            .value = "pendente";
+          document.getElementById(
+            "vendaPagamento"
+          ).value = "pendente";
 
           vendaMensagem.textContent =
             "Venda registrada como PENDENTE! " +
@@ -1222,9 +1232,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         saldoSelecionadoCentavos = 0;
         salvarRecebimento.disabled = true;
 
-        document.getElementById("vendaSelecionadaInfo")
-          .textContent =
-            "Selecione uma venda na lista.";
+        document.getElementById(
+          "vendaSelecionadaInfo"
+        ).textContent =
+          "Selecione uma venda na lista.";
 
         recebimentosAviso.textContent =
           "Consultando vendas...";
@@ -1270,7 +1281,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           vendas.map(v => `
             <div class="card">
               <strong>
-                ${safe(v.cliente || "Cliente não informado")}
+                ${safe(
+                  v.cliente || "Cliente não informado"
+                )}
               </strong>
 
               <p class="tiny muted">
@@ -1389,7 +1402,8 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
               const pagoCentavos =
                 pagamentos.reduce(
-                  (soma, p) => soma + cents(p.valor),
+                  (soma, p) =>
+                    soma + cents(p.valor),
                   0
                 );
 
@@ -1550,6 +1564,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         }
       };
 
+      
       // ======================================
       // MAIS OPÇÕES - TELAS SEPARADAS
       // ======================================
@@ -1649,6 +1664,7 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           await carregarHistorico();
         } else if (pagina === "relatorios") {
           montarPaginaRelatorios();
+          await carregarRelatorios();
         } else if (pagina === "conta") {
           montarPaginaConta();
         }
@@ -1831,7 +1847,8 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         let total = 0;
 
         for (const item of itensCompra.values()) {
-          total += cents(item.custo_unitario) *
+          total +=
+            cents(item.custo_unitario) *
             item.quantidade;
         }
 
@@ -1907,7 +1924,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           document.getElementById("compraProduto").value;
 
         const quantidade = Number(
-          document.getElementById("compraQuantidade").value
+          document.getElementById(
+            "compraQuantidade"
+          ).value
         );
 
         const custo = Number(
@@ -1949,8 +1968,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           custo_unitario: custoCentavos / 100
         });
 
-        document.getElementById("compraQuantidade")
-          .value = "1";
+        document.getElementById(
+          "compraQuantidade"
+        ).value = "1";
 
         aviso.textContent =
           "Produto adicionado à compra.";
@@ -1986,13 +2006,18 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           document.getElementById("compraForma").value;
 
         const observacao =
-          document.getElementById("compraObservacao")
-            .value.trim();
+          document.getElementById(
+            "compraObservacao"
+          ).value.trim();
 
         if (
           !["banco", "dinheiro"].includes(conta) ||
-          !["pix", "dinheiro", "cartao", "transferencia"]
-            .includes(forma)
+          ![
+            "pix",
+            "dinheiro",
+            "cartao",
+            "transferencia"
+          ].includes(forma)
         ) {
           mensagem.textContent =
             "Selecione uma conta e uma forma de pagamento válidas.";
@@ -2034,8 +2059,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           itensCompra.clear();
           renderItensCompra();
 
-          document.getElementById("compraObservacao")
-            .value = "";
+          document.getElementById(
+            "compraObservacao"
+          ).value = "";
 
           mensagem.textContent =
             "Compra registrada com sucesso! Código: " +
@@ -2224,11 +2250,13 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             </div>
           </div>`;
 
-        document.getElementById("atualizarDespesas")
-          .onclick = carregarDespesas;
+        document.getElementById(
+          "atualizarDespesas"
+        ).onclick = carregarDespesas;
 
-        document.getElementById("despesaForm")
-          .onsubmit = registrarDespesa;
+        document.getElementById(
+          "despesaForm"
+        ).onsubmit = registrarDespesa;
 
         carregarDespesas();
       }
@@ -2253,7 +2281,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           })
           .limit(100);
 
-        if (!document.getElementById("listaDespesas")) {
+        if (!document.getElementById(
+          "listaDespesas"
+        )) {
           return;
         }
 
@@ -2317,19 +2347,24 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           document.getElementById("despesaMensagem");
 
         const descricao =
-          document.getElementById("despesaDescricao")
-            .value.trim();
+          document.getElementById(
+            "despesaDescricao"
+          ).value.trim();
 
         const categoria =
-          document.getElementById("despesaCategoria")
-            .value;
+          document.getElementById(
+            "despesaCategoria"
+          ).value;
 
         const conta =
-          document.getElementById("despesaConta")
-            .value;
+          document.getElementById(
+            "despesaConta"
+          ).value;
 
         const valor = Number(
-          document.getElementById("despesaValor").value
+          document.getElementById(
+            "despesaValor"
+          ).value
         );
 
         const valorCentavos = cents(valor);
@@ -2355,7 +2390,8 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         }
 
         botao.disabled = true;
-        mensagem.textContent = "Registrando despesa...";
+        mensagem.textContent =
+          "Registrando despesa...";
 
         try {
           const { error } = await db
@@ -2810,32 +2846,1068 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
       }
 
       // ======================================
-      // RELATÓRIOS
+      // RELATÓRIOS E LUCROS
       // ======================================
 
+      let geracaoRelatorio = 0;
+
+      function dataLocalRelatorio(data) {
+        const ano = data.getFullYear();
+        const mes = String(
+          data.getMonth() + 1
+        ).padStart(2, "0");
+        const dia = String(
+          data.getDate()
+        ).padStart(2, "0");
+
+        return `${ano}-${mes}-${dia}`;
+      }
+
+      function inicioDiaRelatorio(valor) {
+        const [ano, mes, dia] = valor
+          .split("-")
+          .map(Number);
+
+        return new Date(ano, mes - 1, dia);
+      }
+
+      function nomeProdutoRelatorio(produto) {
+        return [
+          produto.nome,
+          produto.variacao,
+          produto.codigo
+        ].filter(Boolean).join(" • ");
+      }
+
+      async function consultarTodasRelatorio(
+        tabela,
+        campos,
+        configurar
+      ) {
+        const resultado = [];
+        const tamanhoPagina = 1000;
+
+        for (
+          let inicio = 0;
+          ;
+          inicio += tamanhoPagina
+        ) {
+          let consulta = db
+            .from(tabela)
+            .select(campos);
+
+          consulta = configurar(consulta);
+
+          const { data, error } =
+            await consulta.range(
+              inicio,
+              inicio + tamanhoPagina - 1
+            );
+
+          if (error) throw error;
+
+          resultado.push(...(data || []));
+
+          if (
+            !data ||
+            data.length < tamanhoPagina
+          ) {
+            break;
+          }
+
+          if (inicio >= 999000) {
+            throw new Error(
+              "Consulta muito grande. " +
+              "Selecione um período menor."
+            );
+          }
+        }
+
+        return resultado;
+      }
+
       function montarPaginaRelatorios() {
+        const hoje = new Date();
+        const inicio = new Date(hoje);
+
+        inicio.setDate(
+          inicio.getDate() - 29
+        );
+
         conteudoMais.innerHTML = `
           <h2>Relatórios e lucros</h2>
 
           <div class="card">
-            <h3>Em desenvolvimento</h3>
+            <h3>Selecionar período</h3>
 
-            <p>
-              Nesta tela vamos colocar:
+            <label>Período</label>
+
+            <select id="relPeriodo">
+              <option value="hoje">Hoje</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="30" selected>
+                Últimos 30 dias
+              </option>
+              <option value="mes">Este mês</option>
+              <option value="personalizado">
+                Personalizado
+              </option>
+            </select>
+
+            <label>Data inicial</label>
+            <input
+              id="relInicio"
+              type="date"
+              value="${dataLocalRelatorio(inicio)}"
+            >
+
+            <label>Data final</label>
+            <input
+              id="relFim"
+              type="date"
+              value="${dataLocalRelatorio(hoje)}"
+            >
+
+            <button
+              type="button"
+              id="relAtualizar"
+            >
+              Atualizar relatório
+            </button>
+
+            <p
+              id="relAviso"
+              class="tiny muted"
+            ></p>
+          </div>
+
+          <div id="relResultado">
+            <div class="card">
+              Carregando relatórios...
+            </div>
+          </div>
+        `;
+
+        document.getElementById(
+          "relPeriodo"
+        ).onchange = () => {
+          const periodo =
+            document.getElementById(
+              "relPeriodo"
+            ).value;
+
+          const agora = new Date();
+          const comeco = new Date(agora);
+
+          if (periodo === "hoje") {
+            // Mesmo dia.
+          } else if (periodo === "7") {
+            comeco.setDate(
+              comeco.getDate() - 6
+            );
+          } else if (periodo === "30") {
+            comeco.setDate(
+              comeco.getDate() - 29
+            );
+          } else if (periodo === "mes") {
+            comeco.setDate(1);
+          } else {
+            return;
+          }
+
+          document.getElementById(
+            "relInicio"
+          ).value = dataLocalRelatorio(comeco);
+
+          document.getElementById(
+            "relFim"
+          ).value = dataLocalRelatorio(agora);
+
+          carregarRelatorios();
+        };
+
+        document.getElementById(
+          "relAtualizar"
+        ).onclick = carregarRelatorios;
+
+        document.getElementById(
+          "relInicio"
+        ).onchange = () => {
+          document.getElementById(
+            "relPeriodo"
+          ).value = "personalizado";
+        };
+
+        document.getElementById(
+          "relFim"
+        ).onchange = () => {
+          document.getElementById(
+            "relPeriodo"
+          ).value = "personalizado";
+        };
+      }
+
+      function barraRelatorio(
+        nome,
+        valor,
+        maximo,
+        descricao
+      ) {
+        const percentual = maximo > 0
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                valor / maximo * 100
+              )
+            )
+          : 0;
+
+        return `
+          <div class="item">
+            <strong>${safe(nome)}</strong>
+
+            <p class="tiny">
+              ${safe(descricao)}
             </p>
 
-            <p>• Faturamento por período</p>
-            <p>• Vendas de Gian e Leo</p>
-            <p>• Custo das mercadorias vendidas</p>
-            <p>• Despesas da loja</p>
-            <p>• Lucro da operação</p>
+            <div style="
+              width:100%;
+              height:12px;
+              background:#e5e7eb;
+              border-radius:8px;
+              overflow:hidden;
+            ">
+              <div style="
+                width:${percentual.toFixed(2)}%;
+                height:100%;
+                background:#2563eb;
+                border-radius:8px;
+              "></div>
+            </div>
+          </div>
+        `;
+      }
 
-            <p class="tiny muted">
-              Ainda não há cálculo de lucro nesta versão.
-              O saldo do caixa não representa o lucro,
-              pois inclui investimentos e outras movimentações.
-            </p>
-          </div>`;
+      async function carregarRelatorios() {
+        const resultado =
+          document.getElementById(
+            "relResultado"
+          );
+
+        const aviso =
+          document.getElementById(
+            "relAviso"
+          );
+
+        if (!resultado || !aviso) return;
+
+        const token = ++geracaoRelatorio;
+
+        const inicio =
+          document.getElementById(
+            "relInicio"
+          ).value;
+
+        const fim =
+          document.getElementById(
+            "relFim"
+          ).value;
+
+        if (
+          !inicio ||
+          !fim ||
+          inicio > fim
+        ) {
+          aviso.textContent =
+            "Selecione um período válido.";
+          return;
+        }
+
+        const dataInicial =
+          inicioDiaRelatorio(inicio);
+
+        const dataFinal =
+          inicioDiaRelatorio(fim);
+
+        dataFinal.setDate(
+          dataFinal.getDate() + 1
+        );
+
+        const de = dataInicial.toISOString();
+        const ate = dataFinal.toISOString();
+
+        aviso.textContent =
+          "Consultando dados...";
+
+        resultado.innerHTML = `
+          <div class="card">
+            Calculando faturamento,
+            despesas e lucros...
+          </div>
+        `;
+
+        try {
+          const [
+            vendas,
+            despesas,
+            recebimentos,
+            sociosLista
+          ] = await Promise.all([
+            consultarTodasRelatorio(
+              "vendas",
+              "id,vendedor_id,valor_total,situacao,criado_em",
+              q => q
+                .eq("loja_id", socio.loja_id)
+                .gte("criado_em", de)
+                .lt("criado_em", ate)
+                .order("criado_em")
+                .order("id")
+            ),
+
+            consultarTodasRelatorio(
+              "despesas",
+              "id,valor,categoria,criado_em",
+              q => q
+                .eq("loja_id", socio.loja_id)
+                .gte("criado_em", de)
+                .lt("criado_em", ate)
+                .order("criado_em")
+                .order("id")
+            ),
+
+            consultarTodasRelatorio(
+              "recebimentos",
+              "id,venda_id,valor,valor_liquido,forma,data_recebimento",
+              q => q
+                .eq("loja_id", socio.loja_id)
+                .gte("data_recebimento", de)
+                .lt("data_recebimento", ate)
+                .order("data_recebimento")
+                .order("id")
+            ),
+
+            consultarTodasRelatorio(
+              "socios",
+              "usuario_id,nome",
+              q => q
+                .eq("loja_id", socio.loja_id)
+                .order("usuario_id")
+            )
+          ]);
+
+          const vendasValidas =
+            vendas.filter(
+              v => String(
+                v.situacao || ""
+              ).toLowerCase() !== "cancelado"
+            );
+
+          const itens = [];
+
+          const ids = vendasValidas.map(
+            v => v.id
+          );
+
+          for (
+            let i = 0;
+            i < ids.length;
+            i += 100
+          ) {
+            const lote = ids.slice(
+              i,
+              i + 100
+            );
+
+            const encontrados =
+              await consultarTodasRelatorio(
+                "itens_venda",
+                "id,venda_id,produto_id,quantidade,preco_unitario,custo_unitario,valor_liquido_total,desconto_total",
+                q => q
+                  .in("venda_id", lote)
+                  .order("id")
+              );
+
+            itens.push(...encontrados);
+          }
+
+          if (
+            token !== geracaoRelatorio ||
+            !document.getElementById(
+              "relResultado"
+            )
+          ) {
+            return;
+          }
+
+          // ==================================
+          // RESUMO FINANCEIRO
+          // ==================================
+
+          const faturamento =
+            vendasValidas.reduce(
+              (soma, v) =>
+                soma + cents(v.valor_total),
+              0
+            );
+
+          const custoMercadorias =
+            itens.reduce(
+              (soma, item) =>
+                soma +
+                cents(item.custo_unitario) *
+                Number(item.quantidade || 0),
+              0
+            );
+
+          const totalDespesas =
+            despesas.reduce(
+              (soma, d) =>
+                soma + cents(d.valor),
+              0
+            );
+
+          const lucroBruto =
+            faturamento - custoMercadorias;
+
+          const lucroOperacional =
+            lucroBruto - totalDespesas;
+
+          const totalRecebido =
+            recebimentos.reduce(
+              (soma, r) =>
+                soma + cents(r.valor),
+              0
+            );
+
+          const recebidoLiquido =
+            recebimentos.reduce(
+              (soma, r) =>
+                soma + cents(
+                  r.valor_liquido == null
+                    ? r.valor
+                    : r.valor_liquido
+                ),
+              0
+            );
+
+          const taxasRecebimento =
+            totalRecebido - recebidoLiquido;
+
+          // ==================================
+          // VENDAS POR SÓCIO
+          // ==================================
+
+          const porSocio = new Map();
+
+          for (const s of sociosLista) {
+            porSocio.set(s.usuario_id, {
+              nome: s.nome,
+              quantidade: 0,
+              faturamento: 0
+            });
+          }
+
+          for (const venda of vendasValidas) {
+            if (
+              !porSocio.has(venda.vendedor_id)
+            ) {
+              porSocio.set(
+                venda.vendedor_id,
+                {
+                  nome:
+                    "Vendedor não identificado",
+                  quantidade: 0,
+                  faturamento: 0
+                }
+              );
+            }
+
+            const registro =
+              porSocio.get(
+                venda.vendedor_id
+              );
+
+            registro.quantidade += 1;
+
+            registro.faturamento +=
+              cents(venda.valor_total);
+          }
+
+          // ==================================
+          // RESULTADOS POR PRODUTO
+          // ==================================
+
+          const produtos = new Map();
+
+          for (const p of productList) {
+            produtos.set(p.id, {
+              id: p.id,
+              nome: p.nome,
+              codigo: p.codigo,
+              variacao: p.variacao,
+              estoque: Number(
+                saldos[p.id] || 0
+              ),
+              quantidade: 0,
+              faturamento: 0,
+              custo: 0
+            });
+          }
+
+          const itensPorVenda = new Map();
+
+          for (const item of itens) {
+            if (
+              !itensPorVenda.has(
+                item.venda_id
+              )
+            ) {
+              itensPorVenda.set(
+                item.venda_id,
+                []
+              );
+            }
+
+            itensPorVenda
+              .get(item.venda_id)
+              .push(item);
+          }
+
+          const vendasPorId = new Map(
+            vendasValidas.map(
+              v => [v.id, v]
+            )
+          );
+
+          for (const [
+            vendaId,
+            itensDaVenda
+          ] of itensPorVenda) {
+            const venda =
+              vendasPorId.get(vendaId);
+
+            if (!venda) continue;
+
+            const totalVenda =
+              cents(venda.valor_total);
+
+            const valoresOriginais =
+              itensDaVenda.map(item => {
+                const quantidade =
+                  Number(
+                    item.quantidade || 0
+                  );
+
+                if (
+                  item.valor_liquido_total != null
+                ) {
+                  return cents(
+                    item.valor_liquido_total
+                  );
+                }
+
+                return (
+                  cents(
+                    item.preco_unitario
+                  ) * quantidade -
+                  cents(
+                    item.desconto_total
+                  )
+                );
+              });
+
+            const somaOriginal =
+              valoresOriginais.reduce(
+                (soma, valor) =>
+                  soma + valor,
+                0
+              );
+
+            let valorDistribuido = 0;
+
+            for (
+              let i = 0;
+              i < itensDaVenda.length;
+              i++
+            ) {
+              const item =
+                itensDaVenda[i];
+
+              const quantidade =
+                Number(
+                  item.quantidade || 0
+                );
+
+              if (
+                !produtos.has(
+                  item.produto_id
+                )
+              ) {
+                produtos.set(
+                  item.produto_id,
+                  {
+                    id: item.produto_id,
+                    nome:
+                      "Produto não encontrado",
+                    codigo: "",
+                    variacao: "",
+                    estoque: 0,
+                    quantidade: 0,
+                    faturamento: 0,
+                    custo: 0
+                  }
+                );
+              }
+
+              const p = produtos.get(
+                item.produto_id
+              );
+
+              let valorItem;
+
+              if (
+                i ===
+                itensDaVenda.length - 1
+              ) {
+                valorItem =
+                  totalVenda -
+                  valorDistribuido;
+              } else if (
+                somaOriginal > 0
+              ) {
+                valorItem = Math.round(
+                  totalVenda *
+                  valoresOriginais[i] /
+                  somaOriginal
+                );
+              } else {
+                valorItem = Math.round(
+                  totalVenda /
+                  itensDaVenda.length
+                );
+              }
+
+              valorDistribuido += valorItem;
+
+              p.quantidade += quantidade;
+
+              p.faturamento += valorItem;
+
+              p.custo +=
+                cents(
+                  item.custo_unitario
+                ) * quantidade;
+            }
+          }
+
+          const ranking =
+            [...produtos.values()]
+              .filter(
+                p => p.quantidade > 0
+              )
+              .sort(
+                (a, b) =>
+                  b.quantidade -
+                  a.quantidade
+              );
+
+          const maisLucrativos =
+            [...ranking].sort(
+              (a, b) =>
+                (
+                  b.faturamento -
+                  b.custo
+                ) -
+                (
+                  a.faturamento -
+                  a.custo
+                )
+            );
+
+          // ==================================
+          // SUGESTÃO DE REPOSIÇÃO
+          // ==================================
+
+          const diasPeriodo = Math.max(
+            1,
+            Math.round(
+              (
+                dataFinal -
+                dataInicial
+              ) / 86400000
+            )
+          );
+
+          const reposicao =
+            ranking.map(p => {
+              const mediaDiaria =
+                p.quantidade /
+                diasPeriodo;
+
+              const cobertura =
+                mediaDiaria > 0
+                  ? p.estoque /
+                    mediaDiaria
+                  : Infinity;
+
+              const estoqueAlvo =
+                Math.ceil(
+                  mediaDiaria * 14
+                );
+
+              const comprar =
+                Math.max(
+                  0,
+                  estoqueAlvo -
+                  p.estoque
+                );
+
+              let prioridade = "Baixa";
+
+              if (cobertura <= 7) {
+                prioridade = "Alta";
+              } else if (
+                cobertura <= 14
+              ) {
+                prioridade = "Média";
+              }
+
+              return {
+                ...p,
+                mediaDiaria,
+                cobertura,
+                comprar,
+                prioridade
+              };
+            });
+
+          const ordem = {
+            Alta: 0,
+            Média: 1,
+            Baixa: 2
+          };
+
+          reposicao.sort(
+            (a, b) =>
+              ordem[a.prioridade] -
+              ordem[b.prioridade] ||
+              b.quantidade -
+              a.quantidade
+          );
+
+          // ==================================
+          // MONTAGEM DOS RESULTADOS
+          // ==================================
+
+          const cartao = (
+            titulo,
+            valor
+          ) => `
+            <div class="card">
+              <small>
+                ${safe(titulo)}
+              </small>
+
+              <div class="num">
+                ${money(valor / 100)}
+              </div>
+            </div>
+          `;
+
+          const maxQuantidade =
+            ranking[0]?.quantidade || 0;
+
+          const maxLucro = Math.max(
+            0,
+            ...maisLucrativos.map(
+              p =>
+                p.faturamento -
+                p.custo
+            )
+          );
+
+          resultado.innerHTML = `
+            <h3>Resumo financeiro</h3>
+
+            <div class="grid">
+              ${cartao(
+                "Faturamento das vendas",
+                faturamento
+              )}
+
+              ${cartao(
+                "Custo das mercadorias vendidas",
+                custoMercadorias
+              )}
+
+              ${cartao(
+                "Lucro bruto estimado",
+                lucroBruto
+              )}
+
+              ${cartao(
+                "Despesas pagas",
+                totalDespesas
+              )}
+
+              ${cartao(
+                "Lucro operacional estimado",
+                lucroOperacional
+              )}
+
+              ${cartao(
+                "Pagamentos recebidos",
+                totalRecebido
+              )}
+
+              ${cartao(
+                "Recebimentos líquidos informados",
+                recebidoLiquido
+              )}
+
+              ${cartao(
+                "Taxas dos recebimentos",
+                taxasRecebimento
+              )}
+            </div>
+
+            <div class="card">
+              <h3>Resultado do período</h3>
+
+              <p>
+                <strong>
+                  ${vendasValidas.length}
+                </strong>
+                vendas não canceladas
+              </p>
+
+              <p class="tiny muted">
+                O faturamento considera a data
+                da venda, inclusive vendas
+                pendentes. Os recebimentos
+                consideram a data do pagamento.
+              </p>
+
+              <p class="tiny muted">
+                Lucro estimado = faturamento
+                menos custo das mercadorias
+                vendidas e despesas registradas.
+              </p>
+
+              <p class="tiny muted">
+                Investimentos dos sócios não
+                são faturamento. Compras de
+                estoque não são descontadas
+                novamente como despesas.
+              </p>
+
+              <p class="tiny muted">
+                Taxas de recebimento são
+                mostradas separadamente e não
+                são descontadas novamente
+                do lucro, para evitar duplicidade
+                com despesas cadastradas.
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>Vendas por sócio</h3>
+
+              ${
+                [...porSocio.values()]
+                  .map(s => `
+                    <div class="item">
+                      <strong>
+                        ${safe(s.nome)}
+                      </strong>
+
+                      <p>
+                        ${s.quantidade}
+                        venda(s)
+                      </p>
+
+                      <div class="accent">
+                        ${money(
+                          s.faturamento / 100
+                        )}
+                      </div>
+                    </div>
+                  `).join("") ||
+                "<p>Sem dados.</p>"
+              }
+            </div>
+
+            <div class="card">
+              <h3>Produtos mais vendidos</h3>
+
+              <p class="tiny muted">
+                Quantidade vendida
+                no período selecionado.
+              </p>
+
+              ${
+                ranking.length
+                  ? ranking
+                      .slice(0, 10)
+                      .map(p =>
+                        barraRelatorio(
+                          nomeProdutoRelatorio(p),
+                          p.quantidade,
+                          maxQuantidade,
+                          p.quantidade +
+                          " unidade(s) • " +
+                          money(
+                            p.faturamento / 100
+                          )
+                        )
+                      ).join("")
+                  : "<p>Nenhuma venda no período.</p>"
+              }
+            </div>
+
+            <div class="card">
+              <h3>Produtos mais lucrativos</h3>
+
+              <p class="tiny muted">
+                Lucro bruto estimado
+                por produto, considerando
+                descontos das vendas.
+              </p>
+
+              ${
+                maisLucrativos.length
+                  ? maisLucrativos
+                      .slice(0, 10)
+                      .map(p => {
+                        const lucro =
+                          p.faturamento -
+                          p.custo;
+
+                        return barraRelatorio(
+                          nomeProdutoRelatorio(p),
+                          Math.max(0, lucro),
+                          maxLucro,
+                          "Lucro bruto: " +
+                          money(lucro / 100)
+                        );
+                      }).join("")
+                  : "<p>Nenhum produto vendido.</p>"
+              }
+            </div>
+
+            <div class="card">
+              <h3>Prioridade de reposição</h3>
+
+              <p class="tiny muted">
+                Estimativa baseada na
+                quantidade vendida no período
+                e no estoque disponível.
+                O objetivo sugerido é manter
+                aproximadamente 14 dias
+                de vendas em estoque.
+              </p>
+
+              ${
+                reposicao.length
+                  ? reposicao
+                      .slice(0, 20)
+                      .map(p => `
+                        <div class="item">
+                          <strong>
+                            ${safe(
+                              nomeProdutoRelatorio(p)
+                            )}
+                          </strong>
+
+                          <p>
+                            Prioridade:
+                            <strong>
+                              ${safe(p.prioridade)}
+                            </strong>
+                          </p>
+
+                          <p class="tiny">
+                            Vendidos:
+                            ${p.quantidade}
+                            unidade(s)
+                          </p>
+
+                          <p class="tiny">
+                            Estoque atual:
+                            ${p.estoque}
+                          </p>
+
+                          <p class="tiny">
+                            Cobertura estimada:
+                            ${
+                              Number.isFinite(
+                                p.cobertura
+                              )
+                                ? Math.max(
+                                    0,
+                                    p.cobertura
+                                  ).toFixed(1) +
+                                  " dia(s)"
+                                : "Sem estimativa"
+                            }
+                          </p>
+
+                          <p>
+                            <strong>
+                              Sugestão de compra:
+                              ${p.comprar}
+                              unidade(s)
+                            </strong>
+                          </p>
+                        </div>
+                      `).join("")
+                  : `
+                    <p>
+                      Ainda não há vendas
+                      suficientes para
+                      sugerir reposição.
+                    </p>
+                  `
+              }
+
+              <p class="tiny muted">
+                As sugestões são estimativas,
+                não compras automáticas.
+                Confira demanda, fornecedor,
+                tamanho, cor e orçamento
+                antes de comprar.
+              </p>
+            </div>
+          `;
+
+          aviso.textContent =
+            "Relatório atualizado com sucesso.";
+
+        } catch (err) {
+          if (
+            token !== geracaoRelatorio
+          ) {
+            return;
+          }
+
+          aviso.textContent =
+            "Erro ao gerar relatório: " +
+            err.message;
+
+          resultado.innerHTML = `
+            <div class="card">
+              <p>
+                Não foi possível carregar
+                os relatórios.
+              </p>
+
+              <p class="tiny muted">
+                ${safe(err.message)}
+              </p>
+            </div>
+          `;
+        }
       }
 
       // ======================================
@@ -2850,7 +3922,9 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
             <h3>Dados do sócio</h3>
 
             <p>
-              <strong>${safe(socio.nome)}</strong>
+              <strong>
+                ${safe(socio.nome)}
+              </strong>
             </p>
 
             <p class="muted">
@@ -2868,7 +3942,8 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
         document.getElementById("logout")
           .onclick = async () => {
-            const { error } = await db.auth.signOut();
+            const { error } =
+              await db.auth.signOut();
 
             if (error) {
               alert(
@@ -2940,7 +4015,10 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
     console.error(error);
 
     message(
-      "Erro ao conectar: " + error.message
+      "Erro ao conectar: " +
+      error.message
     );
   }
 })();
+
+      
