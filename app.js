@@ -1,4 +1,3 @@
-
 const SUPABASE_URL = "https://xanwtxykldbyxdhdtfbj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
@@ -167,6 +166,22 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
       let saldos = {};
       let promocoes = [];
       let promoProdutos = [];
+
+      // Vendedores cadastrados na mesma loja.
+      const { data: vendedores, error: erroVendedores } = await db
+        .from("socios")
+        .select("usuario_id,nome")
+        .eq("loja_id", socio.loja_id)
+        .order("nome");
+
+      if (erroVendedores || !vendedores?.length) {
+        nav.classList.add("hidden");
+        message(
+          "Não foi possível carregar os vendedores: " +
+          (erroVendedores?.message || "Nenhum sócio encontrado.")
+        );
+        return;
+      }
 
       const carrinho = new Map();
       const kitsSelecionados = new Map();
@@ -366,6 +381,22 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         <h2>Registrar venda</h2>
 
         <div class="card">
+          <h3>Vendedor responsável</h3>
+          <label for="vendaVendedor">Quem realizou a venda?</label>
+          <select id="vendaVendedor" required>
+            ${vendedores.map(v => `
+              <option value="${safe(v.usuario_id)}"
+                ${v.usuario_id === user.id ? "selected" : ""}>
+                ${safe(v.nome)}
+              </option>
+            `).join("")}
+          </select>
+          <p class="tiny muted">
+            Selecione Gian ou Leo conforme quem realizou a venda.
+          </p>
+        </div>
+
+        <div class="card">
           <h3>Adicionar ao carrinho</h3>
 
           <label>Produto</label>
@@ -440,8 +471,8 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
         </div>
 
         <p class="muted tiny">
-          Vendedor: ${safe(socio.nome)}.
-          Identificado automaticamente pela conta conectada.
+          A venda será atribuída ao vendedor selecionado acima.
+          A conta conectada continua responsável pela autenticação.
         </p>`;
 
       const vendaProduto =
@@ -1063,8 +1094,18 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
           return;
         }
 
+        const vendedorId = document.getElementById("vendaVendedor").value;
+        const vendedorSelecionado = vendedores.find(
+          v => v.usuario_id === vendedorId
+        );
+
+        if (!vendedorSelecionado) {
+          vendaMensagem.textContent = "Selecione um vendedor válido.";
+          return;
+        }
+
         if (!confirm(
-          "Registrar esta venda como PENDENTE? " +
+          `Registrar esta venda para ${vendedorSelecionado.nome} como PENDENTE? ` +
           "Nenhum pagamento será lançado automaticamente no caixa."
         )) {
           return;
@@ -1076,13 +1117,14 @@ const SUPABASE_KEY = "sb_publishable_NAmaxDUR8yEknMHLb64JnQ_YEfNCX4p";
 
         try {
           const { data: vendaId, error } =
-            await db.rpc("finalizar_carrinho", {
+            await db.rpc("finalizar_carrinho_com_vendedor", {
               p_itens: itensPayload(),
               p_kits: kits,
               p_cliente:
                 document.getElementById(
                   "vendaCliente"
-                ).value.trim() || null
+                ).value.trim() || null,
+              p_vendedor_id: vendedorId
             });
 
           if (error) {
