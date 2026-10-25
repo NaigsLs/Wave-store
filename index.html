@@ -1,2 +1,371 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101b2b"><link rel="manifest" href="manifest.json"><title>Wave Store • Demonstração</title><style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#eaf2ff;background:#0b1421}*{box-sizing:border-box}body{margin:0}header{background:#111f31;padding:18px 20px;position:sticky;top:0;z-index:3;border-bottom:1px solid #293c54}header strong{font-size:21px}header small{display:block;color:#9eafc4;margin-top:4px}.wrap{max-width:750px;margin:auto;padding:20px 16px 105px}.muted{color:#9eafc4}.pill{background:#334356;color:#eaf2ff;border-radius:25px;padding:5px 9px;font-size:11px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#17263a;border:1px solid #2b4059;border-radius:18px;padding:17px;margin-bottom:13px}.card small{color:#b3c4d7}.num{font-size:25px;font-weight:800;margin-top:8px;overflow-wrap:anywhere}.full{grid-column:1/-1}.accent{color:#6ce0b5}h2{font-size:19px;margin:12px 0 16px}label{display:block;color:#b3c4d7;font-size:13px;margin:12px 0 6px}input,select{width:100%;background:#0e1b2c;color:white;border:1px solid #3b526b;border-radius:11px;padding:13px;font:inherit}button{border:0;background:#50cda5;color:#06251d;border-radius:12px;padding:13px 16px;font-weight:800;cursor:pointer;width:100%;margin-top:13px}button.secondary{background:#283b52;color:white}.nav{position:fixed;bottom:0;left:0;right:0;background:#111f31;border-top:1px solid #293c54;display:flex;justify-content:center;z-index:4}.nav button{background:none;color:#b3c4d7;border-radius:0;padding:13px 3px;margin:0;font-size:12px;max-width:150px}.nav button.active{color:#6ce0b5;border-top:3px solid #6ce0b5}.item{padding:12px 0;border-bottom:1px solid #2d4056}.item:last-child{border:0}.flex{display:flex;justify-content:space-between;gap:12px;align-items:center}.hidden{display:none}.warning{background:#3b3023;color:#ffdda6;padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px}.tiny{font-size:12px}.tag{font-size:11px;color:#89a6c2} </style></head><body><header><div class="flex"><div><strong>🌊 Wave Store</strong><small>Gestão da loja • versão de teste</small></div><span class="pill">DEMO LOCAL</span></div></header><main class="wrap"><div class="warning">Demonstração no dispositivo: os registros feitos aqui não são sincronizados com o outro sócio. Confira os saldos com a planilha antes de usar dados reais.</div><section id="home"></section><section id="sell" class="hidden"></section><section id="stock" class="hidden"></section><section id="receive" class="hidden"></section><section id="more" class="hidden"></section></main><nav class="nav" id="nav"><button data-tab="home" class="active">⌂<br>Painel</button><button data-tab="sell">＋<br>Venda</button><button data-tab="stock">▣<br>Estoque</button><button data-tab="receive">◷<br>A receber</button><button data-tab="more">☷<br>Mais</button></nav><script src="app.js"></script></body></html>
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050b16">
+  <link rel="manifest" href="manifest.json">
+  <title>Wave Store • Gestão</title>
+
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f0f7ff;
+      background: #07101e;
+      color-scheme: dark;
+      --bg: #07101e;
+      --panel: #11223a;
+      --border: #254362;
+      --blue: #008cff;
+      --cyan: #00cfff;
+      --muted: #a8bed7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0b1c33 0%, #07101e 42%);
+    }
+
+    header {
+      background: rgba(8, 20, 38, .97);
+      padding: 13px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      border-bottom: 1px solid #1d4773;
+      box-shadow: 0 5px 22px #0004;
+    }
+
+    header strong {
+      font-size: 20px;
+      letter-spacing: .4px;
+      color: #fff;
+    }
+
+    header small {
+      display: block;
+      color: #91b6d8;
+      margin-top: 3px;
+      font-size: 11px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #000;
+      border: 1px solid #174b85;
+    }
+
+    .brand-symbol {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+    }
+
+    .brand-name {
+      min-width: 0;
+    }
+
+    .brand-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #102d4a;
+      color: #8bdcff;
+      border: 1px solid #20517b;
+      border-radius: 20px;
+      padding: 6px 9px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .brand-status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: #00cfff;
+      border-radius: 50%;
+    }
+
+    .wrap {
+      max-width: 750px;
+      margin: auto;
+      padding: 19px 14px 115px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .pill {
+      background: #183a5b;
+      color: #a6e5ff;
+      border-radius: 25px;
+      padding: 5px 9px;
+      font-size: 11px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #142b46, #102137);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 17px;
+      margin-bottom: 13px;
+      box-shadow: 0 5px 18px #0002;
+      min-width: 0;
+    }
+
+    .card small { color: #aec9e2; }
+
+    .num {
+      font-size: 25px;
+      font-weight: 800;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+      color: #fff;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .accent { color: #45d6ff; }
+
+    h2 {
+      font-size: 20px;
+      margin: 12px 0 17px;
+      color: #fff;
+      letter-spacing: -.3px;
+    }
+
+    h3 { color: #f0f7ff; }
+
+    label {
+      display: block;
+      color: #bed4e8;
+      font-size: 13px;
+      margin: 13px 0 7px;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #09182a;
+      color: #fff;
+      border: 1px solid #365a7b;
+      border-radius: 12px;
+      padding: 14px;
+      font: inherit;
+      font-size: 16px;
+      outline: none;
+      min-height: 47px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px #00cfff20;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #7993ae;
+    }
+
+    button {
+      border: 0;
+      background: linear-gradient(135deg, #007bff, #00a7ff);
+      color: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 13px;
+      min-height: 47px;
+      box-shadow: 0 4px 12px #006dff20;
+    }
+
+    button:active {
+      transform: scale(.99);
+    }
+
+    button.secondary {
+      background: #203b59;
+      color: #e6f4ff;
+      border: 1px solid #315677;
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #08182b;
+      border-top: 1px solid #24517d;
+      display: flex;
+      justify-content: center;
+      z-index: 4;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -5px 22px #0005;
+    }
+
+    .nav button {
+      flex: 1;
+      background: transparent;
+      color: #91aac5;
+      border-radius: 0;
+      padding: 12px 2px 10px;
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      max-width: 150px;
+      min-height: 62px;
+      box-shadow: none;
+      border-top: 3px solid transparent;
+    }
+
+    .nav button.active {
+      color: #35cfff;
+      border-top-color: #00bfff;
+      background: linear-gradient(180deg, #10345a, transparent);
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 22px;
+      line-height: 25px;
+      margin-bottom: 3px;
+    }
+
+    .item {
+      padding: 14px 0;
+      border-bottom: 1px solid #294560;
+      overflow-wrap: anywhere;
+    }
+
+    .item:last-child { border: 0; }
+
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hidden { display: none !important; }
+
+    .warning {
+      background: #3a2b18;
+      color: #ffe0a8;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      border: 1px solid #77552b;
+    }
+
+    .tiny { font-size: 12px; }
+
+    .tag {
+      font-size: 11px;
+      color: #91b9db;
+    }
+
+    section { min-width: 0; }
+
+    @media (max-width: 370px) {
+      header { padding: 11px 12px; }
+      .brand-logo { width: 45px; height: 45px; }
+      header strong { font-size: 17px; }
+      .brand-status { font-size: 9px; padding: 5px 7px; }
+      .wrap { padding-left: 11px; padding-right: 11px; }
+      .card { padding: 13px; }
+      .num { font-size: 21px; }
+      .nav button { font-size: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="flex">
+      <div class="brand">
+        <img
+          src="logo.png"
+          alt="Logo Wave Store"
+          class="brand-logo"
+          onerror="this.style.display='none';document.getElementById('brand-fallback').style.display='flex'"
+        >
+        <span
+          id="brand-fallback"
+          class="brand-logo brand-symbol"
+          style="display:none"
+        >🌊</span>
+
+        <div class="brand-name">
+          <strong>WAVE STORE</strong>
+          <small>Gestão inteligente da loja</small>
+        </div>
+      </div>
+
+      <span class="brand-status">GESTÃO</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="home"></section>
+    <section id="sell" class="hidden"></section>
+    <section id="stock" class="hidden"></section>
+    <section id="receive" class="hidden"></section>
+    <section id="more" class="hidden"></section>
+  </main>
+
+  <nav class="nav" id="nav">
+    <button data-tab="home" class="active">
+      <span class="nav-icon">⌂</span>Painel
+    </button>
+
+    <button data-tab="sell">
+      <span class="nav-icon">＋</span>Venda
+    </button>
+
+    <button data-tab="stock">
+      <span class="nav-icon">▣</span>Estoque
+    </button>
+
+    <button data-tab="receive">
+      <span class="nav-icon">◷</span>A receber
+    </button>
+
+    <button data-tab="more">
+      <span class="nav-icon">☷</span>Mais
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
