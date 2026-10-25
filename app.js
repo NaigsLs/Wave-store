@@ -276,25 +276,115 @@ document.getElementById("produtoForm").onsubmit = async e => {
 };
 
 
-      document.getElementById("sell").innerHTML = `
-        <h2>Vendas recentes</h2>
-        ${vendasError ? "<p>Erro ao carregar vendas.</p>" : ""}
-        <div class="card">
-          ${salesList.length
-            ? salesList.map(v => `
-              <div class="item flex">
-                <span>${safe(
-                  new Date(v.criado_em).toLocaleDateString("pt-BR")
-                )}</span>
-                <strong>${money(v.valor_total)}</strong>
-              </div>
-            `).join("")
-            : "<p>Nenhuma venda registrada.</p>"}
-        </div>
-        <p class="muted tiny">
-          Cadastro de vendas será ativado na próxima etapa.
-        </p>
-      `;
+      
+document.getElementById("sell").innerHTML = `
+  <h2>Registrar venda</h2>
+  <div class="card">
+    <form id="vendaForm">
+      <label>Produto</label>
+      <select id="vendaProduto" required>
+        <option value="">Selecione um produto</option>
+      </select>
+
+      <label>Quantidade</label>
+      <input id="vendaQuantidade"
+        type="number" min="1" step="1"
+        value="1" required>
+
+      <label>Cliente (opcional)</label>
+      <input id="vendaCliente"
+        placeholder="Nome do cliente">
+
+      <button type="submit">Finalizar venda</button>
+      <p id="vendaMensagem" class="tiny"></p>
+    </form>
+  </div>
+  <p class="muted tiny">
+    O vendedor será identificado automaticamente
+    pela conta conectada.
+  </p>
+`;
+
+const vendaProduto = document.getElementById("vendaProduto");
+
+async function carregarProdutosVenda() {
+  const { data, error } = await db
+    .from("produtos")
+    .select("id,nome,variacao,preco")
+    .eq("loja_id", socio.loja_id)
+    .order("nome");
+
+  if (error) {
+    document.getElementById("vendaMensagem")
+      .textContent = "Erro: " + error.message;
+    return;
+  }
+
+  vendaProduto.replaceChildren(
+    new Option("Selecione um produto", "")
+  );
+
+  for (const p of data || []) {
+    const descricao =
+      `${p.nome}${p.variacao ? " - " + p.variacao : ""} - ` +
+      Number(p.preco).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+
+    vendaProduto.add(new Option(descricao, p.id));
+  }
+}
+
+await carregarProdutosVenda();
+
+document.getElementById("vendaForm").onsubmit = async e => {
+  e.preventDefault();
+
+  const botao = e.currentTarget.querySelector("button");
+  const mensagem = document.getElementById("vendaMensagem");
+  const produtoId = vendaProduto.value;
+  const quantidade = Number(
+    document.getElementById("vendaQuantidade").value
+  );
+  const cliente = document.getElementById("vendaCliente").value;
+
+  if (!produtoId || !Number.isInteger(quantidade) || quantidade < 1) {
+    mensagem.textContent = "Selecione um produto e uma quantidade válida.";
+    return;
+  }
+
+  botao.disabled = true;
+  mensagem.textContent = "Registrando venda...";
+
+  try {
+    const { error } = await db.rpc("registrar_venda", {
+      p_produto_id: produtoId,
+      p_quantidade: quantidade,
+      p_cliente: cliente
+    });
+
+    if (error) {
+      mensagem.textContent = "Erro: " + error.message;
+      return;
+    }
+
+    mensagem.textContent = "Venda registrada com sucesso!";
+    document.getElementById("vendaQuantidade").value = "1";
+    document.getElementById("vendaCliente").value = "";
+
+    // Atualiza o painel, as vendas e o estoque.
+    await showApp();
+    activateTab("sell");
+    document.getElementById("vendaMensagem").textContent =
+      "Venda registrada com sucesso!";
+  } catch (erro) {
+    mensagem.textContent = "Erro ao registrar: " + erro.message;
+  } finally {
+    botao.disabled = false;
+  }
+};
+
 
       document.getElementById("receive").innerHTML = `
         <h2>A receber</h2>
