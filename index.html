@@ -1,835 +1,1440 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#050b16">
-  <link rel="manifest" href="manifest.json">
-  <title>Wave Store • Gestão</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SneakerERP" />
+  <title>SneakerERP - Portais Separados</title>
   <style>
     :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      color: #f0f7ff;
-      background: #07101e;
-      color-scheme: dark;
+      --bg: #0b1120;
+      --card: #161f33;
+      --card-light: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #26334d;
+      --admin-accent: #f59e0b;
+      --admin-glow: rgba(245, 158, 11, 0.15);
+      --seller-accent: #10b981;
+      --seller-glow: rgba(16, 185, 129, 0.15);
+      --primary: #3b82f6;
+      --danger: #ef4444;
+      --purple: #a855f7;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-      --bg: #07101e;
-      --panel: #11223a;
-      --border: #254362;
-      --blue: #008cff;
-      --cyan: #00cfff;
-      --muted: #a8bed7;
+    /* ================= TELA 0: PORTAL DE ENTRADA (SPLASH) ================= */
+    #screen-login {
+      min-height: 100vh; padding: 28px 20px; display: flex; flex-direction: column;
+      justify-content: center; max-width: 500px; margin: 0 auto;
+    }
+    .login-hero { text-align: center; margin-bottom: 28px; }
+    .login-logo {
+      width: 68px; height: 68px; border-radius: 20px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 34px; margin-bottom: 12px; box-shadow: 0 12px 30px rgba(59,130,246,0.3);
+    }
+    .login-hero h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .login-hero p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+    .portal-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 20px; margin-bottom: 16px;
+      transition: transform 0.15s ease; position: relative; overflow: hidden;
+    }
+    .portal-card.seller-portal { border-left: 5px solid var(--seller-accent); }
+    .portal-card.admin-portal { border-left: 5px solid var(--admin-accent); }
+    .portal-tag {
+      display: inline-block; font-size: 11px; font-weight: 800; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+    }
+    .tag-seller { background: var(--seller-glow); color: #34d399; }
+    .tag-admin { background: var(--admin-glow); color: #fbbf24; }
+    .portal-title { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+    .portal-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+
+    .seller-grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .seller-login-btn {
+      background: var(--card-light); border: 1px solid var(--border); color: #fff;
+      padding: 14px 12px; border-radius: 14px; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+    }
+    .seller-login-btn:active { transform: scale(0.97); background: var(--seller-accent); color: #000; }
+
+    .admin-login-btn {
+      width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000; border: none; padding: 14px; border-radius: 14px;
+      font-weight: 800; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
     }
 
-    * {
-      box-sizing: border-box;
+    /* ================= LAYOUT INTERNO DOS MODOS ================= */
+    .app-shell { display: none; padding-bottom: 95px; }
+    .top-bar {
+      position: sticky; top: 0; z-index: 40;
+      padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+      backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);
+    }
+    .top-bar-admin { background: rgba(22, 31, 51, 0.92); border-bottom-color: rgba(245, 158, 11, 0.35); }
+    .top-bar-seller { background: rgba(16, 42, 37, 0.92); border-bottom-color: rgba(16, 185, 129, 0.35); }
+
+    .mode-badge { display: flex; align-items: center; gap: 8px; }
+    .mode-avatar {
+      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px;
+    }
+    .avatar-admin { background: var(--admin-glow); color: var(--admin-accent); border: 1px solid var(--admin-accent); }
+    .avatar-seller { background: var(--seller-glow); color: var(--seller-accent); border: 1px solid var(--seller-accent); }
+    .mode-info-title { font-size: 15px; font-weight: 800; line-height: 1.1; }
+    .mode-info-sub { font-size: 11px; color: var(--muted); }
+
+    .exit-btn {
+      background: var(--card-light); border: 1px solid var(--border); color: var(--text);
+      padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;
     }
 
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 12px;
+    .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+    .section-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Cards & Grids */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px; }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+    .stat-value { font-size: 19px; font-weight: 800; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* Text & Badges */
+    .text-success { color: #34d399; }
+    .text-warning { color: #fbbf24; }
+    .text-danger { color: #f87171; }
+    .text-primary { color: #60a5fa; }
+    .text-purple { color: #c084fc; }
+
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+    .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+    /* Inputs & Buttons */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
+    input, select {
+      width: 100%; background: #0b1120; border: 1px solid var(--border);
+      color: #fff; padding: 12px; border-radius: 12px; font-size: 15px;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--primary); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--primary); color: #fff; border: none; padding: 13px 16px;
+      border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; width: 100%;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-sm { padding: 8px 12px; font-size: 12px; border-radius: 9px; width: auto; }
+    .btn-seller { background: var(--seller-accent); color: #042f2e; }
+    .btn-admin { background: var(--admin-accent); color: #000; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* Seller Quick Stepper & Pills */
+    .type-toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .type-pill {
+      background: #0b1120; border: 2px solid var(--border); color: var(--muted);
+      padding: 12px 8px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .type-pill.active-pronta { border-color: var(--seller-accent); background: var(--seller-glow); color: #fff; }
+    .type-pill.active-encomenda { border-color: var(--admin-accent); background: var(--admin-glow); color: #fff; }
+
+    .qty-stepper { display: flex; align-items: center; gap: 8px; }
+    .qty-btn {
+      width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--card-light); color: #fff; font-size: 20px; font-weight: 800; cursor: pointer;
     }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      background: linear-gradient(
-        180deg,
-        #0b1c33 0%,
-        #07101e 42%
-      );
+    /* Sub-tabs */
+    .sub-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
+    .sub-tab {
+      background: var(--card); border: 1px solid var(--border); color: var(--muted);
+      padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
+    }
+    .sub-tab.active { background: var(--admin-accent); color: #000; border-color: var(--admin-accent); }
+
+    /* Bottom Nav */
+    nav.bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 45;
+      background: rgba(11, 17, 32, 0.96); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+      padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+    }
+    .nav-item {
+      background: none; border: none; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700; cursor: pointer; flex: 1;
+    }
+    .nav-item.active-admin { color: var(--admin-accent); }
+    .nav-item.active-seller { color: var(--seller-accent); }
+    .nav-icon { font-size: 19px; }
+
+    /* Progress Bar */
+    .progress-wrap { background: #0b1120; height: 11px; border-radius: 999px; overflow: hidden; margin: 8px 0; border: 1px solid var(--border); }
+    .progress-bar { background: linear-gradient(90deg, #10b981, #3b82f6); height: 100%; width: 0%; transition: width 0.3s; }
+
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .item-row:last-child { border-bottom: none; }
+    .item-title { font-weight: 700; font-size: 14px; }
+    .item-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .callout-box {
+      background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--admin-accent);
+      padding: 11px 12px; border-radius: 8px; font-size: 12px; color: #fde68a; margin-bottom: 14px; line-height: 1.4;
     }
 
-    /* CABEÇALHO */
-
-    header {
-      background: rgba(8, 20, 38, .98);
-      padding: 13px 16px;
-      position: relative;
-      z-index: 3;
-      border-bottom: 1px solid #1d4773;
-      box-shadow: 0 5px 22px #0004;
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 100;
+      display: none; align-items: flex-end; justify-content: center;
     }
-
-    header strong {
-      display: block;
-      font-size: 20px;
-      letter-spacing: .4px;
-      color: #fff;
-      line-height: 1.2;
+    .modal-content {
+      background: var(--card); width: 100%; max-width: 600px;
+      border-radius: 22px 22px 0 0; padding: 20px 16px 34px;
+      max-height: 90vh; overflow-y: auto; border-top: 1px solid var(--border);
     }
-
-    header small {
-      display: block;
-      color: #91b6d8;
-      margin-top: 5px;
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .brand-logo {
-      width: 54px;
-      height: 54px;
-      min-width: 54px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #000;
-      border: 1px solid #174b85;
-    }
-
-    .brand-symbol {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-    }
-
-    .brand-name {
-      min-width: 0;
-    }
-
-    .brand-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #102d4a;
-      color: #8bdcff;
-      border: 1px solid #20517b;
-      border-radius: 20px;
-      padding: 6px 9px;
-      font-size: 10px;
-      font-weight: 700;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .brand-status::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      background: #00cfff;
-      border-radius: 50%;
-    }
-
-    /* CONTEÚDO */
-
-    .wrap {
-      width: 100%;
-      max-width: 750px;
-      margin: 0 auto;
-      padding:
-        24px
-        14px
-        calc(125px + env(safe-area-inset-bottom));
-    }
-
-    main > section {
-      min-width: 0;
-    }
-
-    #home {
-      padding-top: 4px;
-    }
-
-    #home > h2:first-child {
-      margin-top: 0;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .pill {
-      background: #183a5b;
-      color: #a6e5ff;
-      border-radius: 25px;
-      padding: 5px 9px;
-      font-size: 11px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .card {
-      background: linear-gradient(
-        145deg,
-        #142b46,
-        #102137
-      );
-      border: 1px solid var(--border);
-      border-radius: 17px;
-      padding: 17px;
-      margin-bottom: 13px;
-      box-shadow: 0 5px 18px #0002;
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
-
-    .card small {
-      color: #aec9e2;
-    }
-
-    .num {
-      font-size: 25px;
-      font-weight: 800;
-      margin-top: 8px;
-      overflow-wrap: anywhere;
-      color: #fff;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    .accent {
-      color: #45d6ff;
-    }
-
-    h2 {
-      font-size: 20px;
-      margin: 12px 0 17px;
-      color: #fff;
-      letter-spacing: -.3px;
-      line-height: 1.3;
-    }
-
-    h3 {
-      color: #f0f7ff;
-      line-height: 1.3;
-    }
-
-    label {
-      display: block;
-      color: #bed4e8;
-      font-size: 13px;
-      margin: 13px 0 7px;
-      font-weight: 600;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      background: #09182a;
-      color: #fff;
-      border: 1px solid #365a7b;
-      border-radius: 12px;
-      padding: 14px;
-      font: inherit;
-      font-size: 16px;
-      outline: none;
-      min-height: 47px;
-      max-width: 100%;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 0 3px #00cfff20;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: #7993ae;
-    }
-
-    button {
-      border: 0;
-      background: linear-gradient(
-        135deg,
-        #007bff,
-        #00a7ff
-      );
-      color: white;
-      border-radius: 12px;
-      padding: 14px 16px;
-      font: inherit;
-      font-weight: 800;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 13px;
-      min-height: 47px;
-      box-shadow: 0 4px 12px #006dff20;
-      touch-action: manipulation;
-    }
-
-    button:active {
-      transform: scale(.99);
-    }
-
-    button.secondary {
-      background: #203b59;
-      color: #e6f4ff;
-      border: 1px solid #315677;
-      box-shadow: none;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    /* NAVEGAÇÃO INFERIOR */
-
-    .nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #08182b;
-      border-top: 1px solid #24517d;
-      display: flex;
-      justify-content: center;
-      z-index: 20;
-      padding-bottom: env(safe-area-inset-bottom);
-      box-shadow: 0 -5px 22px #0005;
-    }
-
-    .nav button {
-      flex: 1;
-      min-width: 0;
-      background: transparent;
-      color: #91aac5;
-      border-radius: 0;
-      padding: 12px 2px 10px;
-      margin: 0;
-      font-size: 11px;
-      font-weight: 700;
-      max-width: 150px;
-      min-height: 62px;
-      box-shadow: none;
-      border-top: 3px solid transparent;
-    }
-
-    .nav button.active {
-      color: #35cfff;
-      border-top-color: #00bfff;
-      background: linear-gradient(
-        180deg,
-        #10345a,
-        transparent
-      );
-    }
-
-    .nav-icon {
-      display: block;
-      font-size: 22px;
-      line-height: 25px;
-      margin-bottom: 3px;
-    }
-
-    /* ELEMENTOS DO SISTEMA */
-
-    .item {
-      padding: 14px 0;
-      border-bottom: 1px solid #294560;
-      overflow-wrap: anywhere;
-    }
-
-    .item:last-child {
-      border: 0;
-    }
-
-    .flex {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .tiny {
-      font-size: 12px;
-    }
-
-    .tag {
-      font-size: 11px;
-      color: #91b9db;
-    }
-
-    section {
-      min-width: 0;
-    }
-
-    /* PAINEL PRINCIPAL */
-
-    .wave-inicio {
-      width: 100%;
-      margin: 0 0 25px;
-    }
-
-    .wave-vender {
-      display: block;
-      width: 100%;
-      background: linear-gradient(
-        135deg,
-        #006eff,
-        #00bbff
-      );
-      border-radius: 17px;
-      min-height: 78px;
-      font-size: 20px;
-      margin: 6px 0 24px;
-      padding: 16px 12px;
-      box-shadow: 0 6px 22px #007bff40;
-      text-align: center;
-    }
-
-    .wave-vender small {
-      display: block;
-      margin-top: 6px;
-      font-size: 12px;
-      font-weight: 400;
-      color: #e2f6ff;
-    }
-
-    .wave-titulo-atalhos {
-      margin: 0 0 17px;
-      font-size: 20px;
-    }
-
-    .wave-atalhos {
-      display: grid;
-      grid-template-columns: repeat(
-        3,
-        minmax(0, 1fr)
-      );
-      gap: 10px;
-      margin-bottom: 25px;
-    }
-
-    .wave-atalhos button {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: #142b46;
-      border: 1px solid #28527d;
-      border-radius: 14px;
-      min-height: 92px;
-      padding: 12px 5px;
-      margin: 0;
-      font-size: 27px;
-      box-shadow: none;
-      text-align: center;
-    }
-
-    .wave-atalhos button span {
-      display: block;
-      margin: 0;
-      font-size: 11px;
-      font-weight: 700;
-      color: #eaf5ff;
-      overflow-wrap: anywhere;
-      line-height: 1.3;
-    }
-
-    .wave-atalhos button:active {
-      background: #1b4672;
-    }
-
-    /* RESUMO FINANCEIRO */
-
-    #home .grid {
-      gap: 10px;
-    }
-
-    #home .grid .card {
-      padding: 14px;
-      margin-bottom: 8px;
-    }
-
-    #home .num {
-      font-size: 21px;
-      line-height: 1.25;
-    }
-
-    /* TELAS MENORES */
-
-    @media (max-width: 370px) {
-      header {
-        padding: 11px 12px;
-      }
-
-      .brand {
-        gap: 8px;
-      }
-
-      .brand-logo {
-        width: 45px;
-        height: 45px;
-        min-width: 45px;
-      }
-
-      header strong {
-        font-size: 17px;
-      }
-
-      header small {
-        font-size: 10px;
-      }
-
-      .brand-status {
-        font-size: 9px;
-        padding: 5px 7px;
-      }
-
-      .wrap {
-        padding-left: 11px;
-        padding-right: 11px;
-      }
-
-      .card {
-        padding: 13px;
-      }
-
-      .num {
-        font-size: 21px;
-      }
-
-      .nav button {
-        font-size: 10px;
-      }
-
-      .wave-atalhos {
-        gap: 7px;
-      }
-
-      .wave-atalhos button {
-        min-height: 84px;
-      }
-
-      .wave-atalhos button span {
-        font-size: 10px;
-      }
-    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-close { background: var(--card-light); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; }
   </style>
 </head>
-
 <body>
 
-  <!-- CABEÇALHO -->
+  <!-- ================================================================= -->
+  <!-- TELA 0: PORTAL DE ENTRADA (SEPARAÇÃO VISUAL DE VENDEDOR X ADMIN)  -->
+  <!-- ================================================================= -->
+  <div id="screen-login">
+    <div class="login-hero">
+      <div class="login-logo">👟</div>
+      <h1>SneakerERP</h1>
+      <p>Escolha seu perfil de acesso para abrir seu painel exclusivo</p>
+    </div>
 
-  <header>
-    <div class="flex">
-      <div class="brand">
+    <!-- PORTAL DO VENDEDOR -->
+    <div class="portal-card seller-portal">
+      <span class="portal-tag tag-seller">🏷️ Modelo de Tela: Vendedor</span>
+      <div class="portal-title">Área de Vendas & Estoque</div>
+      <div class="portal-desc">
+        Tela limpa e rápida para lançar vendas, aplicar promoções, reservar pares no estoque e acompanhar apenas suas metas e comissões (sem exibir custos ou contas bancárias da loja).
+      </div>
+      <div class="seller-grid-btns" id="login-sellers-buttons"></div>
+    </div>
 
-        <img
-          src="logo.PNG"
-          alt="Logo Wave Store"
-          class="brand-logo"
-          onerror="this.style.display='none';document.getElementById('brand-fallback').style.display='flex'"
-        >
+    <!-- PORTAL DO ADMINISTRADOR -->
+    <div class="portal-card admin-portal">
+      <span class="portal-tag tag-admin">👑 Modelo de Tela: Administrador</span>
+      <div class="portal-title">Gestão Financeira & Geral</div>
+      <div class="portal-desc">
+        Painel gerencial completo: saldos bancários, dinheiro vivo, custo retido de encomendas, produtos mais lucrativos, fornecedores, promoções e equipe.
+      </div>
+      <button class="admin-login-btn" onclick="openAdminPinModal()">
+        🔒 Entrar como Administrador
+      </button>
+    </div>
+  </div>
 
-        <span
-          id="brand-fallback"
-          class="brand-logo brand-symbol"
-          style="display:none"
-        >🌊</span>
 
-        <div class="brand-name">
-          <strong>WAVE STORE</strong>
-          <small>Gestão inteligente da loja</small>
+  <!-- ================================================================= -->
+  <!-- MODELO DE TELA 1: APLICATIVO EXCLUSIVO DO VENDEDOR (TEMA VERDE)    -->
+  <!-- ================================================================= -->
+  <div id="shell-seller" class="app-shell">
+    <div class="top-bar top-bar-seller">
+      <div class="mode-badge">
+        <div class="mode-avatar avatar-seller" id="seller-header-initial">G</div>
+        <div>
+          <div class="mode-info-title" id="seller-header-name">Vendedor</div>
+          <div class="mode-info-sub" id="seller-header-comm">Painel de Vendas Exclusivo</div>
         </div>
+      </div>
+      <button class="exit-btn" onclick="goHomePortal()">⇄ Trocar Perfil</button>
+    </div>
 
+    <div class="container">
+      <!-- ABA VENDEDOR 1: FRENTE DE CAIXA RÁPIDO -->
+      <div id="seller-view-pos" class="seller-section">
+        <div class="section-title">⚡ Lançar Venda Rápida</div>
+
+        <div class="card">
+          <label style="font-size:12px; color:var(--muted); font-weight:700; display:block; margin-bottom:8px;">1. MODALIDADE DO PEDIDO</label>
+          <div class="type-toggle-grid">
+            <div class="type-pill active-pronta" id="pill-pronta" onclick="setPosOrderType('pronta_entrega')">
+              ⚡ Pronta Entrega<br><span style="font-size:10px; font-weight:500;">Sai do estoque agora</span>
+            </div>
+            <div class="type-pill" id="pill-encomenda" onclick="setPosOrderType('encomenda')">
+              📦 Sob Encomenda<br><span style="font-size:10px; font-weight:500;">Pago antecipado</span>
+            </div>
+          </div>
+          <input type="hidden" id="pos-order-type" value="pronta_entrega" />
+
+          <div class="form-group">
+            <label>2. ESCOLHA O TÊNIS / PRODUTO</label>
+            <select id="pos-product" onchange="updatePosCalc()"></select>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>3. QUANTIDADE</label>
+              <div class="qty-stepper">
+                <button class="qty-btn" onclick="stepPosQty(-1)">−</button>
+                <input type="number" id="pos-qty" value="1" min="1" style="text-align:center; font-weight:800;" oninput="updatePosCalc()" />
+                <button class="qty-btn" onclick="stepPosQty(1)">+</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>PROMOÇÃO ATIVA</label>
+              <select id="pos-promo" onchange="updatePosCalc()"></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>4. VALOR TOTAL DA VENDA (R$)</label>
+            <input type="number" id="pos-total-price" step="0.01" style="font-size:18px; font-weight:800; color:#34d399;" oninput="updatePosSplit()" />
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Recebido Agora (R$)</label>
+              <input type="number" id="pos-paid-now" step="0.01" oninput="updatePosRemaining()" />
+            </div>
+            <div class="form-group">
+              <label>Fica a Receber (R$)</label>
+              <input type="number" id="pos-paid-later" step="0.01" readonly style="color:#fbbf24; font-weight:800;" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Forma / Conta de Entrada</label>
+              <select id="pos-account"></select>
+            </div>
+            <div class="form-group">
+              <label>Cliente & Numeração</label>
+              <input type="text" id="pos-client" placeholder="Ex: Pedro (Tam 40)" />
+            </div>
+          </div>
+
+          <div class="card" style="background:#0b1120; margin-bottom:14px; border-color:rgba(16,185,129,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:13px; color:var(--muted);">🎉 Sua comissão nesta venda:</span>
+              <span style="font-size:18px; font-weight:800; color:#34d399;" id="pos-commission-preview">R$ 0,00</span>
+            </div>
+          </div>
+
+          <button class="btn btn-seller" onclick="submitSale()">✅ Confirmar Venda</button>
+        </div>
       </div>
 
-      <span class="brand-status">
-        GESTÃO
-      </span>
+      <!-- ABA VENDEDOR 2: VITRINE DE ESTOQUE & RESERVAS -->
+      <div id="seller-view-stock" class="seller-section" style="display:none;">
+        <div class="section-title">👟 Vitrine de Estoque</div>
+        <div class="callout-box" style="border-left-color:var(--seller-accent); color:#a7f3d0; background:rgba(16,185,129,0.1);">
+          Consulte os pares disponíveis e clique em <strong>🔒 Reservar</strong> para segurar o par do seu cliente enquanto ele faz o Pix.
+        </div>
+        <div id="seller-stock-list"></div>
+
+        <div class="section-title" style="margin-top:22px;">🔒 Reservas de Clientes</div>
+        <div id="seller-reservations-list"></div>
+      </div>
+
+      <!-- ABA VENDEDOR 3: MINHAS METAS, VENDAS E COMISSÃO -->
+      <div id="seller-view-goals" class="seller-section" style="display:none;">
+        <div class="section-title">🏆 Minha Meta & Comissões</div>
+
+        <div class="card" style="border-color:rgba(16,185,129,0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div class="stat-label">Progresso da Minha Meta</div>
+              <div class="stat-value" id="seller-goal-text">R$ 0 / R$ 0</div>
+            </div>
+            <span class="badge badge-green" style="font-size:14px;" id="seller-goal-pct">0%</span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar" id="seller-goal-bar"></div>
+          </div>
+          <div class="stat-sub" id="seller-goal-remaining"></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="stat-card">
+            <div class="stat-label">Minhas Vendas</div>
+            <div class="stat-value text-primary" id="seller-total-sold">R$ 0,00</div>
+            <div class="stat-sub" id="seller-sales-count">0 vendas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Comissão Acumulada</div>
+            <div class="stat-value text-success" id="seller-total-comm">R$ 0,00</div>
+            <div class="stat-sub" id="seller-comm-rate">Comissão</div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">📋 Meu Extrato de Vendas</div>
+        <div id="seller-sales-history"></div>
+      </div>
     </div>
-  </header>
 
-  <!-- TELAS DO SISTEMA -->
+    <!-- MENU INFERIOR EXCLUSIVO DO VENDEDOR -->
+    <nav class="bottom-nav">
+      <button class="nav-item active-seller" id="snav-pos" onclick="switchSellerTab('pos')">
+        <span class="nav-icon">⚡</span><span>Vender Rápido</span>
+      </button>
+      <button class="nav-item" id="snav-stock" onclick="switchSellerTab('stock')">
+        <span class="nav-icon">👟</span><span>Estoque & Reservar</span>
+      </button>
+      <button class="nav-item" id="snav-goals" onclick="switchSellerTab('goals')">
+        <span class="nav-icon">🏆</span><span>Minhas Comissões</span>
+      </button>
+    </nav>
+  </div>
 
-  <main class="wrap">
-    <section id="home"></section>
 
-    <section
-      id="sell"
-      class="hidden"
-    ></section>
+  <!-- ================================================================= -->
+  <!-- MODELO DE TELA 2: APLICATIVO EXCLUSIVO DO ADMIN (TEMA DOURADO)     -->
+  <!-- ================================================================= -->
+  <div id="shell-admin" class="app-shell">
+    <div class="top-bar top-bar-admin">
+      <div class="mode-badge">
+        <div class="mode-avatar avatar-admin">👑</div>
+        <div>
+          <div class="mode-info-title">Painel da Diretoria</div>
+          <div class="mode-info-sub">Visão Financeira, Custos & Equipe</div>
+        </div>
+      </div>
+      <button class="exit-btn" onclick="goHomePortal()">⇄ Trocar Perfil</button>
+    </div>
 
-    <section
-      id="stock"
-      class="hidden"
-    ></section>
+    <div class="container">
+      <!-- ABA ADMIN 1: DASHBOARD & RANKINGS -->
+      <div id="admin-view-dash" class="admin-section">
+        <div class="section-title">
+          <span>📊 Balanço Real & Lucro</span>
+          <button class="btn btn-sm btn-outline" onclick="openPinSettingsModal()">🔑 Senha Admin</button>
+        </div>
 
-    <section
-      id="receive"
-      class="hidden"
-    ></section>
+        <div class="callout-box">
+          💡 <strong>Proteção de Caixa (Encomendas):</strong> O valor de custo dos tênis vendidos sob encomenda fica separado em <em>"Reservado p/ Fornecedor"</em> até você realizar a compra.
+        </div>
 
-    <section
-      id="more"
-      class="hidden"
-    ></section>
-  </main>
+        <div class="grid-2">
+          <div class="stat-card">
+            <div class="stat-label">Saldo Bruto (Contas+Caixa)</div>
+            <div class="stat-value text-primary" id="dash-total-balance">R$ 0,00</div>
+            <div class="stat-sub">Total em posse da loja</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Reservado p/ Fornecedor</div>
+            <div class="stat-value text-warning" id="dash-reserved-cost">R$ 0,00</div>
+            <div class="stat-sub">Custo de encomendas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Saldo Livre Real</div>
+            <div class="stat-value text-success" id="dash-free-balance">R$ 0,00</div>
+            <div class="stat-sub">Livre p/ usar sem desfalque</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">A Receber Depois</div>
+            <div class="stat-value text-purple" id="dash-receivables">R$ 0,00</div>
+            <div class="stat-sub">Pendente de clientes</div>
+          </div>
+        </div>
 
-  <!-- MENU INFERIOR -->
+        <div class="card" style="border-color:rgba(16,185,129,0.35);">
+          <div class="stat-label">Lucro Líquido Real (Vendas − Custos − Comissões)</div>
+          <div class="stat-value text-success" style="font-size:25px;" id="dash-net-profit">R$ 0,00</div>
+          <div class="stat-sub" id="dash-sales-count">0 vendas registradas</div>
+        </div>
 
-  <nav class="nav" id="nav">
+        <div class="section-title" style="margin-top:20px;">🔥 Ranking: Mais Vendidos</div>
+        <div class="card" id="ranking-best-sellers"></div>
 
-    <button
-      type="button"
-      data-tab="home"
-      class="active"
-    >
-      <span class="nav-icon">⌂</span>
-      Painel
-    </button>
+        <div class="section-title" style="margin-top:20px;">💎 Ranking: Mais Lucrativos</div>
+        <div class="card" id="ranking-most-profitable"></div>
+      </div>
 
-    <button
-      type="button"
-      data-tab="sell"
-    >
-      <span class="nav-icon">＋</span>
-      Venda
-    </button>
+      <!-- ABA ADMIN 2: CARTEIRA, ENCOMENDAS & A RECEBER -->
+      <div id="admin-view-wallet" class="admin-section" style="display:none;">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="switchWalletSub('accounts', this)">🏦 Contas & Dinheiro</button>
+          <button class="sub-tab" onclick="switchWalletSub('preorders', this)">📦 Encomendas (<span id="badge-preorders-count">0</span>)</button>
+          <button class="sub-tab" onclick="switchWalletSub('receivables', this)">⏳ A Receber (<span id="badge-rec-count">0</span>)</button>
+        </div>
 
-    <button
-      type="button"
-      data-tab="stock"
-    >
-      <span class="nav-icon">▣</span>
-      Estoque
-    </button>
+        <div id="wallet-sub-accounts">
+          <div class="section-title">
+            <span>Contas Bancárias & Espécie</span>
+            <button class="btn btn-sm btn-admin" onclick="openAccountModal()">+ Nova Conta</button>
+          </div>
+          <div id="accounts-list"></div>
+        </div>
 
-    <button
-      type="button"
-      data-tab="receive"
-    >
-      <span class="nav-icon">◷</span>
-      A receber
-    </button>
+        <div id="wallet-sub-preorders" style="display:none;">
+          <div class="callout-box">
+            Estes pedidos foram pagos pelos clientes sob encomenda. Quando você pagar o fornecedor, toque no botão abaixo para descontar o custo da conta bancária e liberar a retenção!
+          </div>
+          <div id="preorders-list"></div>
+        </div>
 
-    <button
-      type="button"
-      data-tab="more"
-    >
-      <span class="nav-icon">☷</span>
-      Mais
-    </button>
+        <div id="wallet-sub-receivables" style="display:none;">
+          <div class="section-title">Valores a Receber de Clientes</div>
+          <div id="receivables-list"></div>
+        </div>
+      </div>
 
-  </nav>
+      <!-- ABA ADMIN 3: CATÁLOGO, CUSTOS, PROMOÇÕES & FORNECEDORES -->
+      <div id="admin-view-catalog" class="admin-section" style="display:none;">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="switchCatalogSub('products', this)">👟 Produtos & Custos</button>
+          <button class="sub-tab" onclick="switchCatalogSub('promos', this)">🏷️ Promoções (3 por 120)</button>
+          <button class="sub-tab" onclick="switchCatalogSub('suppliers', this)">🚚 Fornecedores</button>
+        </div>
 
-  <!-- ATALHOS DO PAINEL -->
+        <div id="cat-sub-products">
+          <div class="section-title">
+            <span>Produtos (Custo vs Venda)</span>
+            <button class="btn btn-sm btn-admin" onclick="openProductModal()">+ Produto</button>
+          </div>
+          <div id="admin-products-list"></div>
+        </div>
+
+        <div id="cat-sub-promos" style="display:none;">
+          <div class="section-title">
+            <span>Promoções Maleáveis</span>
+            <button class="btn btn-sm btn-admin" onclick="openPromoModal()">+ Criar Promo</button>
+          </div>
+          <div class="callout-box">
+            Configure combos maleáveis (ex: <strong>3 por R$ 120</strong>). Quando o vendedor digitar a quantidade no caixa, o sistema aplica sozinho!
+          </div>
+          <div id="admin-promos-list"></div>
+        </div>
+
+        <div id="cat-sub-suppliers" style="display:none;">
+          <div class="section-title">
+            <span>Fornecedores Cadastrados</span>
+            <button class="btn btn-sm btn-admin" onclick="openSupplierModal()">+ Fornecedor</button>
+          </div>
+          <div id="admin-suppliers-list"></div>
+        </div>
+      </div>
+
+      <!-- ABA ADMIN 4: EQUIPE DE VENDEDORES -->
+      <div id="admin-view-team" class="admin-section" style="display:none;">
+        <div class="section-title">
+          <span>👥 Vendedores, Metas & Comissões</span>
+          <button class="btn btn-sm btn-admin" onclick="openSellerModal()">+ Vendedor</button>
+        </div>
+        <div class="callout-box">
+          Adicione ou remova vendedores. Todo vendedor adicionado aqui ganha automaticamente um botão próprio na tela inicial do aplicativo!
+        </div>
+        <div id="admin-sellers-list"></div>
+      </div>
+    </div>
+
+    <!-- MENU INFERIOR EXCLUSIVO DO ADMINISTRADOR -->
+    <nav class="bottom-nav">
+      <button class="nav-item active-admin" id="anav-dash" onclick="switchAdminTab('dash')">
+        <span class="nav-icon">📊</span><span>Lucro & Ranking</span>
+      </button>
+      <button class="nav-item" id="anav-wallet" onclick="switchAdminTab('wallet')">
+        <span class="nav-icon">💰</span><span>Carteira</span>
+      </button>
+      <button class="nav-item" id="anav-catalog" onclick="switchAdminTab('catalog')">
+        <span class="nav-icon">👟</span><span>Custos & Promo</span>
+      </button>
+      <button class="nav-item" id="anav-team" onclick="switchAdminTab('team')">
+        <span class="nav-icon">👥</span><span>Vendedores</span>
+      </button>
+    </nav>
+  </div>
+
+
+  <!-- MODAL UNIVERSAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Título</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
 
   <script>
-    (() => {
-      const home = document.getElementById("home");
+    // ================= BANCO DE DADOS LOCAL =================
+    const defaultDB = {
+      adminPin: '1234',
+      activeSellerId: 1,
+      accounts: [
+        { id: 1, name: 'Conta Bancária Principal (Pix)', type: 'Banco', balance: 3450.00 },
+        { id: 2, name: 'Caixa em Dinheiro (Espécie)', type: 'Dinheiro', balance: 620.00 }
+      ],
+      suppliers: [
+        { id: 1, name: 'Atacado SneakerBR (Importados)', contact: '(11) 98888-1111' },
+        { id: 2, name: 'Fábrica Sul Calçados (Direto)', contact: '(51) 99999-2222' }
+      ],
+      products: [
+        { id: 1, name: 'Nike Air Force 1 Branco', size: '38 ao 43', supplierId: 1, cost: 130.00, price: 290.00, stock: 5, reserved: 1 },
+        { id: 2, name: 'Adidas Campus 00s Cinza', size: '36 ao 42', supplierId: 1, cost: 145.00, price: 320.00, stock: 3, reserved: 0 },
+        { id: 3, name: 'Vans Old Skool Preto', size: '35 ao 42', supplierId: 2, cost: 90.00, price: 210.00, stock: 8, reserved: 0 },
+        { id: 4, name: 'Kit Meias Cano Alto (Pacote)', size: 'Único', supplierId: 2, cost: 18.00, price: 50.00, stock: 25, reserved: 0 }
+      ],
+      promos: [
+        { id: 1, name: 'Promo 3 Kits de Meia por R$ 120', productId: 4, minQty: 3, bundlePrice: 120.00, active: true },
+        { id: 2, name: 'Combo 2 Vans Old Skool por R$ 360', productId: 3, minQty: 2, bundlePrice: 360.00, active: true }
+      ],
+      sellers: [
+        { id: 1, name: 'Gisele', commRate: 10, goal: 5000.00 },
+        { id: 2, name: 'Matheus', commRate: 8, goal: 4000.00 }
+      ],
+      reservations: [
+        { id: 101, productId: 1, sellerId: 1, client: 'Carla Mendes (Tam 39)', qty: 1, date: 'Hoje' }
+      ],
+      sales: [
+        {
+          id: 501,
+          date: '02/11/2026',
+          productId: 2,
+          sellerId: 1,
+          client: 'Bruno Rocha (Tam 41)',
+          qty: 1,
+          totalPrice: 320.00,
+          paidNow: 320.00,
+          paidLater: 0,
+          unitCost: 145.00,
+          totalCost: 145.00,
+          commission: 32.00,
+          accountId: 1,
+          orderType: 'encomenda',
+          supplierOrdered: false
+        },
+        {
+          id: 502,
+          date: '03/11/2026',
+          productId: 1,
+          sellerId: 1,
+          client: 'Diego Martins (Tam 40)',
+          qty: 1,
+          totalPrice: 290.00,
+          paidNow: 190.00,
+          paidLater: 100.00,
+          unitCost: 130.00,
+          totalCost: 130.00,
+          commission: 29.00,
+          accountId: 1,
+          orderType: 'pronta_entrega',
+          supplierOrdered: true
+        }
+      ]
+    };
 
-      if (!home) return;
+    let db = JSON.parse(localStorage.getItem('sneaker_erp_v1')) || defaultDB;
+    if (!db.adminPin) db.adminPin = '1234';
 
-      const atalhos = [
-        ["📦", "Estoque", "stock"],
-        ["🛍️", "Compras", "compras"],
-        ["💰", "Caixa", "historico"],
-        ["🧾", "Despesas", "despesas"],
-        ["💳", "Repasses", "repasses"],
-        ["📈", "Investimentos", "investimentos"],
-        ["📊", "Relatórios", "relatorios"],
-        ["🕒", "A receber", "receive"],
-        ["📋", "Histórico", "historico"],
-        ["👤", "Minha conta", "conta"]
-      ];
+    function saveDB() {
+      localStorage.setItem('sneaker_erp_v1', JSON.stringify(db));
+      renderAll();
+    }
 
-      function voltarAoTopo() {
-        window.scrollTo({
-          top: 0,
-          behavior: "instant"
-        });
+    function formatBRL(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // ================= NAVEGAÇÃO ENTRE OS MODELOS DE TELA =================
+    function goHomePortal() {
+      document.getElementById('screen-login').style.display = 'flex';
+      document.getElementById('shell-seller').style.display = 'none';
+      document.getElementById('shell-admin').style.display = 'none';
+      renderLoginScreen();
+    }
+
+    function enterSellerMode(sellerId) {
+      db.activeSellerId = Number(sellerId);
+      saveDB();
+      document.getElementById('screen-login').style.display = 'none';
+      document.getElementById('shell-admin').style.display = 'none';
+      document.getElementById('shell-seller').style.display = 'block';
+      switchSellerTab('pos');
+    }
+
+    function openAdminPinModal() {
+      openModal('🔒 Acesso Restrito: Admin', `
+        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+          Digite a senha de Administrador para abrir o modelo de tela gerencial (Padrão inicial: <strong>${db.adminPin}</strong>):
+        </p>
+        <div class="form-group">
+          <input type="password" id="input-admin-pin" placeholder="Digite a senha..." style="text-align:center; font-size:20px; letter-spacing:4px;" />
+        </div>
+        <button class="btn btn-admin" onclick="verifyAdminPin()">Entrar no Painel Admin</button>
+      `);
+    }
+
+    function verifyAdminPin() {
+      const typed = document.getElementById('input-admin-pin').value.trim();
+      if (typed === String(db.adminPin)) {
+        closeModal();
+        document.getElementById('screen-login').style.display = 'none';
+        document.getElementById('shell-seller').style.display = 'none';
+        document.getElementById('shell-admin').style.display = 'block';
+        switchAdminTab('dash');
+      } else {
+        alert('Senha incorreta!');
       }
+    }
 
-      function abrirAtalho(destino) {
-        if (
-          ["sell", "stock", "receive"].includes(destino)
-        ) {
-          const botao = document.querySelector(
-            `#nav button[data-tab="${destino}"]`
-          );
+    function openPinSettingsModal() {
+      openModal('🔑 Alterar Senha do Admin', `
+        <div class="form-group">
+          <label>Nova Senha / PIN de Administrador</label>
+          <input type="text" id="new-admin-pin" value="${db.adminPin}" />
+        </div>
+        <button class="btn btn-admin" onclick="saveNewPin()">Salvar Nova Senha</button>
+      `);
+    }
 
-          if (botao) {
-            botao.click();
-            voltarAoTopo();
-          }
+    function saveNewPin() {
+      const p = document.getElementById('new-admin-pin').value.trim();
+      if (!p) return alert('Digite uma senha válida.');
+      db.adminPin = p;
+      closeModal();
+      saveDB();
+      alert('Senha atualizada!');
+    }
 
-          return;
-        }
+    function switchSellerTab(tab) {
+      document.querySelectorAll('.seller-section').forEach(el => el.style.display = 'none');
+      document.getElementById(`seller-view-${tab}`).style.display = 'block';
+      ['pos','stock','goals'].forEach(t => {
+        document.getElementById(`snav-${t}`).classList.toggle('active-seller', t === tab);
+      });
+      renderAll();
+    }
 
-        const botaoMais = document.querySelector(
-          '#nav button[data-tab="more"]'
-        );
+    function switchAdminTab(tab) {
+      document.querySelectorAll('.admin-section').forEach(el => el.style.display = 'none');
+      document.getElementById(`admin-view-${tab}`).style.display = 'block';
+      ['dash','wallet','catalog','team'].forEach(t => {
+        document.getElementById(`anav-${t}`).classList.toggle('active-admin', t === tab);
+      });
+      renderAll();
+    }
 
-        if (!botaoMais) return;
+    function switchWalletSub(sub, btn) {
+      document.querySelectorAll('#admin-view-wallet .sub-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('wallet-sub-accounts').style.display = sub === 'accounts' ? 'block' : 'none';
+      document.getElementById('wallet-sub-preorders').style.display = sub === 'preorders' ? 'block' : 'none';
+      document.getElementById('wallet-sub-receivables').style.display = sub === 'receivables' ? 'block' : 'none';
+    }
 
-        botaoMais.click();
+    function switchCatalogSub(sub, btn) {
+      document.querySelectorAll('#admin-view-catalog .sub-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('cat-sub-products').style.display = sub === 'products' ? 'block' : 'none';
+      document.getElementById('cat-sub-promos').style.display = sub === 'promos' ? 'block' : 'none';
+      document.getElementById('cat-sub-suppliers').style.display = sub === 'suppliers' ? 'block' : 'none';
+    }
 
-        const botaoPagina = document.querySelector(
-          `#menuMais [data-abrir="${destino}"]`
-        );
+    // ================= RENDERIZAÇÃO GERAL =================
+    function renderLoginScreen() {
+      const container = document.getElementById('login-sellers-buttons');
+      if (!container) return;
+      container.innerHTML = db.sellers.map(s => `
+        <button class="seller-login-btn" onclick="enterSellerMode(${s.id})">
+          <span>👤</span> <span>${s.name}</span>
+        </button>
+      `).join('');
+    }
 
-        if (botaoPagina) {
-          botaoPagina.click();
-        }
+    function renderAll() {
+      renderLoginScreen();
+      renderAdminDashboard();
+      renderAdminWallet();
+      renderAdminCatalog();
+      renderAdminSellers();
+      renderSellerHeaderAndPOS();
+      renderSellerStock();
+      renderSellerGoals();
+    }
 
-        voltarAoTopo();
-      }
+    // ================= RENDER ADMIN =================
+    function renderAdminDashboard() {
+      const totalBalance = db.accounts.reduce((acc, a) => acc + Number(a.balance), 0);
+      const pendingPreorders = db.sales.filter(s => s.orderType === 'encomenda' && !s.supplierOrdered);
+      const reservedCost = pendingPreorders.reduce((acc, s) => acc + Number(s.totalCost), 0);
+      const freeBalance = totalBalance - reservedCost;
+      const receivables = db.sales.reduce((acc, s) => acc + Number(s.paidLater), 0);
+      const netProfit = db.sales.reduce((acc, s) => acc + (Number(s.totalPrice) - Number(s.totalCost) - Number(s.commission)), 0);
 
-      function montarAtalhos() {
-        if (
-          !home ||
-          home.querySelector(".wave-inicio")
-        ) {
-          return;
-        }
+      document.getElementById('dash-total-balance').innerText = formatBRL(totalBalance);
+      document.getElementById('dash-reserved-cost').innerText = formatBRL(reservedCost);
+      document.getElementById('dash-free-balance').innerText = formatBRL(freeBalance);
+      document.getElementById('dash-receivables').innerText = formatBRL(receivables);
+      document.getElementById('dash-net-profit').innerText = formatBRL(netProfit);
+      document.getElementById('dash-sales-count').innerText = `${db.sales.length} vendas registradas no sistema`;
 
-        const titulo = home.querySelector("h2");
-
-        if (
-          !titulo ||
-          !titulo.textContent.includes("Olá,")
-        ) {
-          return;
-        }
-
-        const painel = document.createElement("div");
-        painel.className = "wave-inicio";
-
-        /* BOTÃO NOVA VENDA */
-
-        const vender = document.createElement("button");
-        vender.type = "button";
-        vender.className = "wave-vender";
-
-        vender.innerHTML =
-          '＋ NOVA VENDA' +
-          '<small>Registrar venda de produtos</small>';
-
-        vender.onclick = () => {
-          abrirAtalho("sell");
-        };
-
-        painel.appendChild(vender);
-
-        /* TÍTULO DOS ATALHOS */
-
-        const tituloAtalhos =
-          document.createElement("h3");
-
-        tituloAtalhos.className =
-          "wave-titulo-atalhos";
-
-        tituloAtalhos.textContent =
-          "Acesso rápido";
-
-        painel.appendChild(tituloAtalhos);
-
-        /* GRADE DE ATALHOS */
-
-        const grade =
-          document.createElement("div");
-
-        grade.className = "wave-atalhos";
-
-        for (
-          const [icone, nome, destino] of atalhos
-        ) {
-          const botao =
-            document.createElement("button");
-
-          botao.type = "button";
-
-          const simbolo =
-            document.createTextNode(icone);
-
-          const texto =
-            document.createElement("span");
-
-          texto.textContent = nome;
-
-          botao.append(simbolo, texto);
-
-          botao.onclick = () => {
-            abrirAtalho(destino);
-          };
-
-          grade.appendChild(botao);
-        }
-
-        painel.appendChild(grade);
-
-        titulo.insertAdjacentElement(
-          "afterend",
-          painel
-        );
-      }
-
-      /* ATUALIZAÇÃO DO PAINEL */
-
-      const observador = new MutationObserver(() => {
-        if (
-          home.querySelector(".wave-inicio")
-        ) {
-          return;
-        }
-
-        montarAtalhos();
+      const statsByProd = {};
+      db.products.forEach(p => { statsByProd[p.id] = { name: p.name, qty: 0, profit: 0, revenue: 0 }; });
+      db.sales.forEach(s => {
+        if (!statsByProd[s.productId]) statsByProd[s.productId] = { name: 'Item Removido', qty: 0, profit: 0, revenue: 0 };
+        statsByProd[s.productId].qty += Number(s.qty);
+        statsByProd[s.productId].revenue += Number(s.totalPrice);
+        statsByProd[s.productId].profit += (Number(s.totalPrice) - Number(s.totalCost) - Number(s.commission));
       });
 
-      observador.observe(home, {
-        childList: true
+      const listArr = Object.values(statsByProd).filter(x => x.qty > 0);
+      const byQty = [...listArr].sort((a,b) => b.qty - a.qty);
+      const byProfit = [...listArr].sort((a,b) => b.profit - a.profit);
+
+      document.getElementById('ranking-best-sellers').innerHTML = byQty.length ? byQty.map((it, i) => `
+        <div class="item-row">
+          <div>
+            <div class="item-title">${i+1}º ${it.name}</div>
+            <div class="item-sub">Faturamento: ${formatBRL(it.revenue)}</div>
+          </div>
+          <span class="badge badge-blue">${it.qty} vendidos</span>
+        </div>
+      `).join('') : '<div class="item-sub">Sem vendas ainda.</div>';
+
+      document.getElementById('ranking-most-profitable').innerHTML = byProfit.length ? byProfit.map((it, i) => `
+        <div class="item-row">
+          <div>
+            <div class="item-title">${i+1}º ${it.name}</div>
+            <div class="item-sub">${it.qty} unidades vendidas</div>
+          </div>
+          <span class="badge badge-green">Lucro: ${formatBRL(it.profit)}</span>
+        </div>
+      `).join('') : '<div class="item-sub">Sem vendas ainda.</div>';
+    }
+
+    function renderAdminWallet() {
+      document.getElementById('accounts-list').innerHTML = db.accounts.map(a => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <span class="badge ${a.type==='Banco'?'badge-blue':'badge-green'}">${a.type}</span>
+            <div class="item-title" style="margin-top:4px;">${a.name}</div>
+            <div class="stat-value" style="margin-top:4px;">${formatBRL(a.balance)}</div>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick="openEditBalanceModal(${a.id})">Ajustar</button>
+        </div>
+      `).join('');
+
+      const pendingPreorders = db.sales.filter(s => s.orderType === 'encomenda' && !s.supplierOrdered);
+      document.getElementById('badge-preorders-count').innerText = pendingPreorders.length;
+
+      document.getElementById('preorders-list').innerHTML = pendingPreorders.length ? pendingPreorders.map(s => {
+        const prod = db.products.find(p => p.id === s.productId) || { name: 'Produto' };
+        const sup = db.suppliers.find(sp => sp.id === prod.supplierId) || { name: 'Fornecedor' };
+        return `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+              <div>
+                <span class="badge badge-amber">Encomenda Pendente</span>
+                <div class="item-title" style="margin-top:6px;">${s.qty}x ${prod.name}</div>
+                <div class="item-sub">Cliente: <strong>${s.client}</strong> (${s.date})</div>
+                <div class="item-sub">Fornecedor: ${sup.name}</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="stat-label">Custo Retido</div>
+                <div class="stat-value text-warning">${formatBRL(s.totalCost)}</div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-admin" style="width:100%; margin-top:12px;" onclick="confirmSupplierPurchase(${s.id})">
+              🚚 Pagar Fornecedor (${formatBRL(s.totalCost)}) & Liberar
+            </button>
+          </div>
+        `;
+      }).join('') : '<div class="card"><div class="item-sub">Nenhuma encomenda pendente de compra.</div></div>';
+
+      const pendingRec = db.sales.filter(s => Number(s.paidLater) > 0);
+      document.getElementById('badge-rec-count').innerText = pendingRec.length;
+
+      document.getElementById('receivables-list').innerHTML = pendingRec.length ? pendingRec.map(s => {
+        const prod = db.products.find(p => p.id === s.productId) || { name: 'Produto' };
+        return `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+              <div>
+                <div class="item-title">${s.client}</div>
+                <div class="item-sub">${s.qty}x ${prod.name} (${s.date})</div>
+                <div class="item-sub">Pago: ${formatBRL(s.paidNow)} de ${formatBRL(s.totalPrice)}</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="stat-label">A Receber</div>
+                <div class="stat-value text-purple">${formatBRL(s.paidLater)}</div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-seller" style="width:100%; margin-top:10px;" onclick="receivePendingPayment(${s.id})">
+              💵 Dar Baixa (${formatBRL(s.paidLater)})
+            </button>
+          </div>
+        `;
+      }).join('') : '<div class="card"><div class="item-sub">Nenhum valor pendente a receber.</div></div>';
+    }
+
+    function renderAdminCatalog() {
+      document.getElementById('admin-products-list').innerHTML = db.products.map(p => {
+        const sup = db.suppliers.find(s => s.id === p.supplierId) || { name: 'Sem fornecedor' };
+        return `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+              <div>
+                <div class="item-title">${p.name}</div>
+                <div class="item-sub">Tam: ${p.size} | Forn: ${sup.name}</div>
+                <div style="margin-top:6px;">
+                  <span class="badge badge-blue">Estoque: ${p.stock}</span>
+                  ${p.reserved > 0 ? `<span class="badge badge-amber">Reservado: ${p.reserved}</span>` : ''}
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div class="item-title text-success">Venda: ${formatBRL(p.price)}</div>
+                <div class="item-sub text-warning">Custo: ${formatBRL(p.cost)}</div>
+                <div class="item-sub">Lucro Bruto: ${formatBRL(p.price - p.cost)}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn btn-sm btn-outline" onclick="openProductModal(${p.id})">✏️ Editar</button>
+              <button class="btn btn-sm btn-outline" onclick="quickAddStock(${p.id})">+1 Estoque</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('admin-promos-list').innerHTML = db.promos.length ? db.promos.map(pr => {
+        const prod = db.products.find(p => p.id === pr.productId) || { name: 'Item' };
+        return `
+          <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span class="badge ${pr.active?'badge-green':'badge-red'}">${pr.active?'Ativa':'Pausada'}</span>
+              <div class="item-title" style="margin-top:4px;">${pr.name}</div>
+              <div class="item-sub">${prod.name} → <strong>${pr.minQty} por ${formatBRL(pr.bundlePrice)}</strong></div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm btn-outline" onclick="openPromoModal(${pr.id})">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deletePromo(${pr.id})">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="card"><div class="item-sub">Sem promoções ativas.</div></div>';
+
+      document.getElementById('admin-suppliers-list').innerHTML = db.suppliers.map(s => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="item-title">${s.name}</div>
+            <div class="item-sub">${s.contact}</div>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="deleteSupplier(${s.id})">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    function renderAdminSellers() {
+      document.getElementById('admin-sellers-list').innerHTML = db.sellers.map(s => {
+        const mySales = db.sales.filter(x => x.sellerId === s.id);
+        const sold = mySales.reduce((a, b) => a + Number(b.totalPrice), 0);
+        const comm = mySales.reduce((a, b) => a + Number(b.commission), 0);
+        const pct = s.goal > 0 ? Math.min(100, Math.round((sold / s.goal) * 100)) : 0;
+        return `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+              <div>
+                <div class="item-title">👤 ${s.name}</div>
+                <div class="item-sub">Comissão: <strong>${s.commRate}%</strong> | Meta: <strong>${formatBRL(s.goal)}</strong></div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-sm btn-outline" onclick="openSellerModal(${s.id})">✏️</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteSeller(${s.id})">🗑️</button>
+              </div>
+            </div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+            <div style="display:flex; justify-content:space-between; font-size:12px;">
+              <span>Vendido: <strong>${formatBRL(sold)}</strong> (${pct}%)</span>
+              <span class="text-success">Comissão: <strong>${formatBRL(comm)}</strong></span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ================= RENDER VENDEDOR EXCLUSIVO =================
+    let posReady = false;
+
+    function renderSellerHeaderAndPOS() {
+      const seller = db.sellers.find(s => s.id === db.activeSellerId) || db.sellers[0];
+      if (seller) {
+        document.getElementById('seller-header-initial').innerText = seller.name.charAt(0).toUpperCase();
+        document.getElementById('seller-header-name').innerText = `Olá, ${seller.name}!`;
+        document.getElementById('seller-header-comm').innerText = `Sua comissão ativa: ${seller.commRate}% por venda`;
+      }
+
+      const prodSelect = document.getElementById('pos-product');
+      const prevVal = prodSelect.value;
+      prodSelect.innerHTML = db.products.map(p => `
+        <option value="${p.id}">${p.name} (${p.stock} disp. • ${formatBRL(p.price)})</option>
+      `).join('');
+      if (prevVal && db.products.some(p => p.id == prevVal)) prodSelect.value = prevVal;
+
+      const accSelect = document.getElementById('pos-account');
+      accSelect.innerHTML = db.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+
+      updatePosPromoOptions();
+      if (!posReady) {
+        updatePosCalc();
+        posReady = true;
+      }
+    }
+
+    function setPosOrderType(type) {
+      document.getElementById('pos-order-type').value = type;
+      document.getElementById('pill-pronta').className = 'type-pill ' + (type === 'pronta_entrega' ? 'active-pronta' : '');
+      document.getElementById('pill-encomenda').className = 'type-pill ' + (type === 'encomenda' ? 'active-encomenda' : '');
+      updatePosCalc();
+    }
+
+    function stepPosQty(delta) {
+      const inp = document.getElementById('pos-qty');
+      const next = Math.max(1, Number(inp.value || 1) + delta);
+      inp.value = next;
+      updatePosCalc();
+    }
+
+    function updatePosPromoOptions() {
+      const prodId = Number(document.getElementById('pos-product').value);
+      const promoSelect = document.getElementById('pos-promo');
+      const applicable = db.promos.filter(pr => pr.active && pr.productId === prodId);
+      promoSelect.innerHTML = `<option value="">Preço Normal</option>` +
+        applicable.map(pr => `<option value="${pr.id}">🏷️ ${pr.name}</option>`).join('');
+    }
+
+    function updatePosCalc() {
+      const prodId = Number(document.getElementById('pos-product').value);
+      const prod = db.products.find(p => p.id === prodId);
+      if (!prod) return;
+      updatePosPromoOptions();
+
+      const qty = Math.max(1, Number(document.getElementById('pos-qty').value || 1));
+      const matchingPromo = db.promos.find(pr => pr.active && pr.productId === prodId && qty >= pr.minQty);
+      const promoSelect = document.getElementById('pos-promo');
+      if (matchingPromo) promoSelect.value = matchingPromo.id;
+
+      const promo = db.promos.find(pr => pr.id === Number(promoSelect.value));
+      let total = qty * prod.price;
+      if (promo && qty >= promo.minQty) {
+        const bundles = Math.floor(qty / promo.minQty);
+        const rem = qty % promo.minQty;
+        total = (bundles * promo.bundlePrice) + (rem * prod.price);
+      }
+
+      document.getElementById('pos-total-price').value = total.toFixed(2);
+      document.getElementById('pos-paid-now').value = total.toFixed(2);
+      document.getElementById('pos-paid-later').value = "0.00";
+      updatePosPreview();
+    }
+
+    function updatePosSplit() {
+      const total = Number(document.getElementById('pos-total-price').value || 0);
+      document.getElementById('pos-paid-now').value = total.toFixed(2);
+      document.getElementById('pos-paid-later').value = "0.00";
+      updatePosPreview();
+    }
+
+    function updatePosRemaining() {
+      const total = Number(document.getElementById('pos-total-price').value || 0);
+      const now = Number(document.getElementById('pos-paid-now').value || 0);
+      document.getElementById('pos-paid-later').value = Math.max(0, total - now).toFixed(2);
+      updatePosPreview();
+    }
+
+    function updatePosPreview() {
+      const seller = db.sellers.find(s => s.id === db.activeSellerId) || db.sellers[0];
+      const total = Number(document.getElementById('pos-total-price').value || 0);
+      const comm = seller ? (total * (seller.commRate / 100)) : 0;
+      document.getElementById('pos-commission-preview').innerText = `+ ${formatBRL(comm)}`;
+    }
+
+    function submitSale() {
+      const orderType = document.getElementById('pos-order-type').value;
+      const prodId = Number(document.getElementById('pos-product').value);
+      const prod = db.products.find(p => p.id === prodId);
+      const qty = Math.max(1, Number(document.getElementById('pos-qty').value || 1));
+      const totalPrice = Number(document.getElementById('pos-total-price').value || 0);
+      const paidNow = Number(document.getElementById('pos-paid-now').value || 0);
+      const paidLater = Number(document.getElementById('pos-paid-later').value || 0);
+      const accountId = Number(document.getElementById('pos-account').value);
+      const client = document.getElementById('pos-client').value.trim() || 'Cliente Loja';
+
+      if (!prod) return;
+      if (orderType === 'pronta_entrega' && prod.stock < qty) {
+        return alert(`Estoque insuficiente (${prod.stock} un.). Selecione "📦 Sob Encomenda" acima para vender sob encomenda!`);
+      }
+
+      const seller = db.sellers.find(s => s.id === db.activeSellerId) || db.sellers[0];
+      const commission = seller ? Number((totalPrice * (seller.commRate / 100)).toFixed(2)) : 0;
+      const totalCost = Number((prod.cost * qty).toFixed(2));
+
+      if (orderType === 'pronta_entrega') prod.stock -= qty;
+      const acc = db.accounts.find(a => a.id === accountId);
+      if (acc) acc.balance += paidNow;
+
+      db.sales.unshift({
+        id: Date.now(),
+        date: new Date().toLocaleDateString('pt-BR'),
+        productId: prod.id,
+        sellerId: seller ? seller.id : 1,
+        client,
+        qty,
+        totalPrice,
+        paidNow,
+        paidLater,
+        unitCost: prod.cost,
+        totalCost,
+        commission,
+        accountId,
+        orderType,
+        supplierOrdered: orderType === 'pronta_entrega'
       });
 
-      montarAtalhos();
+      document.getElementById('pos-client').value = '';
+      document.getElementById('pos-qty').value = '1';
+      saveDB();
+      updatePosCalc();
+      alert(`🎉 Venda registrada! Sua comissão de ${formatBRL(commission)} já foi somada na sua meta.`);
+    }
 
-      /* AJUSTA A ROLAGEM AO TROCAR DE ABA */
+    function renderSellerStock() {
+      document.getElementById('seller-stock-list').innerHTML = db.products.map(p => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="item-title">${p.name}</div>
+            <div class="item-sub">Numeração: ${p.size}</div>
+            <div style="margin-top:6px; display:flex; gap:6px; align-items:center;">
+              <span class="badge ${p.stock>0?'badge-green':'badge-red'}">${p.stock} disponíveis</span>
+              ${p.reserved>0 ? `<span class="badge badge-amber">${p.reserved} reservados</span>` : ''}
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="item-title text-success" style="font-size:16px; margin-bottom:6px;">${formatBRL(p.price)}</div>
+            <button class="btn btn-sm btn-outline" onclick="openReserveModal(${p.id})" ${p.stock<=0?'disabled':''}>🔒 Reservar</button>
+          </div>
+        </div>
+      `).join('');
 
-      const navegacao =
-        document.getElementById("nav");
+      document.getElementById('seller-reservations-list').innerHTML = db.reservations.length ? db.reservations.map(r => {
+        const prod = db.products.find(p => p.id === r.productId) || { name: 'Item' };
+        const sel = db.sellers.find(s => s.id === r.sellerId) || { name: 'Vendedor' };
+        return `
+          <div class="card">
+            <span class="badge badge-amber">Reservado por ${sel.name}</span>
+            <div class="item-title" style="margin-top:4px;">${r.qty}x ${prod.name}</div>
+            <div class="item-sub">Cliente: <strong>${r.client}</strong></div>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn btn-sm btn-seller" onclick="convertReservationToSale(${r.id})">✅ Confirmar Venda</button>
+              <button class="btn btn-sm btn-danger" onclick="cancelReservation(${r.id})">✕ Liberar</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="card"><div class="item-sub">Nenhum par reservado no momento.</div></div>';
+    }
 
-      if (navegacao) {
-        navegacao.addEventListener(
-          "click",
-          (evento) => {
-            const botao = evento.target.closest(
-              "button[data-tab]"
-            );
+    function renderSellerGoals() {
+      const seller = db.sellers.find(s => s.id === db.activeSellerId) || db.sellers[0];
+      if (!seller) return;
 
-            if (!botao) return;
+      const mySales = db.sales.filter(s => s.sellerId === seller.id);
+      const totalSold = mySales.reduce((acc, s) => acc + Number(s.totalPrice), 0);
+      const totalComm = mySales.reduce((acc, s) => acc + Number(s.commission), 0);
+      const pct = seller.goal > 0 ? Math.min(100, Math.round((totalSold / seller.goal) * 100)) : 0;
+      const rem = Math.max(0, seller.goal - totalSold);
 
-            requestAnimationFrame(() => {
-              voltarAoTopo();
-            });
-          }
-        );
+      document.getElementById('seller-goal-text').innerText = `${formatBRL(totalSold)} / ${formatBRL(seller.goal)}`;
+      document.getElementById('seller-goal-pct').innerText = `${pct}%`;
+      document.getElementById('seller-goal-bar').style.width = `${pct}%`;
+      document.getElementById('seller-goal-remaining').innerText = rem > 0
+        ? `Faltam ${formatBRL(rem)} para você atingir 100% da sua meta!`
+        : `🔥 Meta batida! Parabéns pelo resultado, ${seller.name}!`;
+
+      document.getElementById('seller-total-sold').innerText = formatBRL(totalSold);
+      document.getElementById('seller-sales-count').innerText = `${mySales.length} vendas feitas por você`;
+      document.getElementById('seller-total-comm').innerText = formatBRL(totalComm);
+      document.getElementById('seller-comm-rate').innerText = `Taxa: ${seller.commRate}% sobre vendas`;
+
+      document.getElementById('seller-sales-history').innerHTML = mySales.length ? mySales.map(s => {
+        const prod = db.products.find(p => p.id === s.productId) || { name: 'Produto' };
+        return `
+          <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span class="badge ${s.orderType==='encomenda'?'badge-amber':'badge-blue'}">${s.orderType==='encomenda'?'Sob Encomenda':'Pronta Entrega'}</span>
+              <div class="item-title" style="margin-top:4px;">${s.qty}x ${prod.name}</div>
+              <div class="item-sub">${s.client} • ${s.date}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="item-title">${formatBRL(s.totalPrice)}</div>
+              <div class="item-sub text-success" style="font-weight:700;">+ ${formatBRL(s.commission)}</div>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="card"><div class="item-sub">Nenhuma venda registrada neste perfil ainda.</div></div>';
+    }
+
+    // ================= MODAIS & OPERAÇÕES =================
+    function openModal(title, html) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('modal-overlay').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    function confirmSupplierPurchase(saleId) {
+      const sale = db.sales.find(s => s.id === saleId);
+      if (!sale) return;
+      const opts = db.accounts.map(a => `<option value="${a.id}" ${a.id===sale.accountId?'selected':''}>${a.name} (${formatBRL(a.balance)})</option>`).join('');
+      openModal('🚚 Comprar Mercadoria no Fornecedor', `
+        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+          O custo de <strong>${formatBRL(sale.totalCost)}</strong> sairá da conta escolhida e deixará de ficar retido.
+        </p>
+        <div class="form-group"><label>Conta de saída</label><select id="m-sup-acc">${opts}</select></div>
+        <button class="btn btn-admin" onclick="executeSupplierPurchase(${sale.id})">Confirmar Baixa de Custo</button>
+      `);
+    }
+
+    function executeSupplierPurchase(saleId) {
+      const sale = db.sales.find(s => s.id === saleId);
+      const acc = db.accounts.find(a => a.id === Number(document.getElementById('m-sup-acc').value));
+      if (sale && acc) {
+        acc.balance -= Number(sale.totalCost);
+        sale.supplierOrdered = true;
+        closeModal();
+        saveDB();
       }
-    })();
+    }
+
+    function receivePendingPayment(saleId) {
+      const sale = db.sales.find(s => s.id === saleId);
+      if (!sale) return;
+      const opts = db.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+      openModal('💵 Receber Valor Pendente', `
+        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+          Receber <strong>${formatBRL(sale.paidLater)}</strong> de <strong>${sale.client}</strong>:
+        </p>
+        <div class="form-group"><label>Entrou em qual conta?</label><select id="m-rec-acc">${opts}</select></div>
+        <button class="btn btn-seller" onclick="executeReceivePayment(${sale.id})">Confirmar Entrada</button>
+      `);
+    }
+
+    function executeReceivePayment(saleId) {
+      const sale = db.sales.find(s => s.id === saleId);
+      const acc = db.accounts.find(a => a.id === Number(document.getElementById('m-rec-acc').value));
+      if (sale && acc) {
+        acc.balance += Number(sale.paidLater);
+        sale.paidNow += Number(sale.paidLater);
+        sale.paidLater = 0;
+        closeModal();
+        saveDB();
+      }
+    }
+
+    function openAccountModal() {
+      openModal('Nova Conta / Caixa', `
+        <div class="form-group"><label>Nome</label><input type="text" id="m-acc-name" placeholder="Ex: Pix Inter, Dinheiro..." /></div>
+        <div class="form-group"><label>Tipo</label><select id="m-acc-type"><option value="Banco">Banco / Pix</option><option value="Dinheiro">Dinheiro Vivo</option></select></div>
+        <div class="form-group"><label>Saldo Atual (R$)</label><input type="number" id="m-acc-bal" value="0" step="0.01" /></div>
+        <button class="btn btn-admin" onclick="saveNewAccount()">Salvar</button>
+      `);
+    }
+    function saveNewAccount() {
+      const name = document.getElementById('m-acc-name').value.trim();
+      if (!name) return;
+      db.accounts.push({ id: Date.now(), name, type: document.getElementById('m-acc-type').value, balance: Number(document.getElementById('m-acc-bal').value || 0) });
+      closeModal(); saveDB();
+    }
+
+    function openEditBalanceModal(accId) {
+      const acc = db.accounts.find(a => a.id === accId);
+      if (!acc) return;
+      openModal(`Ajustar: ${acc.name}`, `
+        <div class="form-group"><label>Saldo (R$)</label><input type="number" id="m-edit-bal" value="${acc.balance}" step="0.01" /></div>
+        <button class="btn btn-admin" onclick="saveEditedBalance(${acc.id})">Salvar</button>
+      `);
+    }
+    function saveEditedBalance(accId) {
+      const acc = db.accounts.find(a => a.id === accId);
+      if (acc) { acc.balance = Number(document.getElementById('m-edit-bal').value || 0); closeModal(); saveDB(); }
+    }
+
+    function openProductModal(prodId = null) {
+      const p = db.products.find(x => x.id === prodId) || { name: '', size: '38 ao 43', supplierId: db.suppliers[0]?.id || 1, cost: '', price: '', stock: 0 };
+      const supOpts = db.suppliers.map(s => `<option value="${s.id}" ${s.id===p.supplierId?'selected':''}>${s.name}</option>`).join('');
+      openModal(prodId ? 'Editar Produto' : 'Cadastrar Produto', `
+        <div class="form-group"><label>Modelo</label><input type="text" id="m-prod-name" value="${p.name}" /></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Numeração</label><input type="text" id="m-prod-size" value="${p.size}" /></div>
+          <div class="form-group"><label>Estoque</label><input type="number" id="m-prod-stock" value="${p.stock}" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Custo Fornecedor (R$)</label><input type="number" id="m-prod-cost" value="${p.cost}" step="0.01" /></div>
+          <div class="form-group"><label>Preço de Venda (R$)</label><input type="number" id="m-prod-price" value="${p.price}" step="0.01" /></div>
+        </div>
+        <div class="form-group"><label>Fornecedor</label><select id="m-prod-sup">${supOpts}</select></div>
+        <button class="btn btn-admin" onclick="saveProduct(${prodId || 'null'})">Salvar Produto</button>
+      `);
+    }
+    function saveProduct(prodId) {
+      const name = document.getElementById('m-prod-name').value.trim();
+      if (!name) return;
+      const data = {
+        name,
+        size: document.getElementById('m-prod-size').value.trim(),
+        stock: Number(document.getElementById('m-prod-stock').value || 0),
+        cost: Number(document.getElementById('m-prod-cost').value || 0),
+        price: Number(document.getElementById('m-prod-price').value || 0),
+        supplierId: Number(document.getElementById('m-prod-sup').value)
+      };
+      if (prodId) {
+        const p = db.products.find(x => x.id === prodId);
+        if (p) Object.assign(p, data);
+      } else {
+        db.products.push({ id: Date.now(), reserved: 0, ...data });
+      }
+      closeModal(); saveDB();
+    }
+    function quickAddStock(id) { const p = db.products.find(x => x.id === id); if (p) { p.stock += 1; saveDB(); } }
+    function deleteProduct(id) { if (confirm('Excluir produto?')) { db.products = db.products.filter(p => p.id !== id); saveDB(); } }
+
+    function openPromoModal(promoId = null) {
+      const pr = db.promos.find(x => x.id === promoId) || { name: '', productId: db.products[0]?.id || 1, minQty: 3, bundlePrice: 120, active: true };
+      const prodOpts = db.products.map(p => `<option value="${p.id}" ${p.id===pr.productId?'selected':''}>${p.name}</option>`).join('');
+      openModal(promoId ? 'Editar Promoção' : 'Nova Promoção', `
+        <div class="form-group"><label>Título (Ex: 3 por 120)</label><input type="text" id="m-pr-name" value="${pr.name}" /></div>
+        <div class="form-group"><label>Produto</label><select id="m-pr-prod">${prodOpts}</select></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Quantidade</label><input type="number" id="m-pr-qty" value="${pr.minQty}" /></div>
+          <div class="form-group"><label>Valor do Combo (R$)</label><input type="number" id="m-pr-price" value="${pr.bundlePrice}" step="0.01" /></div>
+        </div>
+        <div class="form-group"><label>Status</label><select id="m-pr-active"><option value="true" ${pr.active?'selected':''}>Ativa</option><option value="false" ${!pr.active?'selected':''}>Pausada</option></select></div>
+        <button class="btn btn-admin" onclick="savePromo(${promoId || 'null'})">Salvar Promoção</button>
+      `);
+    }
+    function savePromo(promoId) {
+      const name = document.getElementById('m-pr-name').value.trim();
+      if (!name) return;
+      const data = {
+        name,
+        productId: Number(document.getElementById('m-pr-prod').value),
+        minQty: Number(document.getElementById('m-pr-qty').value || 1),
+        bundlePrice: Number(document.getElementById('m-pr-price').value || 0),
+        active: document.getElementById('m-pr-active').value === 'true'
+      };
+      if (promoId) { const pr = db.promos.find(x => x.id === promoId); if (pr) Object.assign(pr, data); }
+      else { db.promos.push({ id: Date.now(), ...data }); }
+      closeModal(); saveDB();
+    }
+    function deletePromo(id) { db.promos = db.promos.filter(p => p.id !== id); saveDB(); }
+
+    function openSupplierModal() {
+      openModal('Novo Fornecedor', `
+        <div class="form-group"><label>Nome</label><input type="text" id="m-sup-name" /></div>
+        <div class="form-group"><label>Contato / WhatsApp</label><input type="text" id="m-sup-contact" /></div>
+        <button class="btn btn-admin" onclick="saveSupplier()">Salvar</button>
+      `);
+    }
+    function saveSupplier() {
+      const name = document.getElementById('m-sup-name').value.trim();
+      if (!name) return;
+      db.suppliers.push({ id: Date.now(), name, contact: document.getElementById('m-sup-contact').value.trim() });
+      closeModal(); saveDB();
+    }
+    function deleteSupplier(id) { db.suppliers = db.suppliers.filter(s => s.id !== id); saveDB(); }
+
+    function openSellerModal(sellerId = null) {
+      const s = db.sellers.find(x => x.id === sellerId) || { name: '', commRate: 10, goal: 5000 };
+      openModal(sellerId ? 'Editar Vendedor' : 'Novo Vendedor', `
+        <div class="form-group"><label>Nome</label><input type="text" id="m-sel-name" value="${s.name}" /></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Comissão (%)</label><input type="number" id="m-sel-comm" value="${s.commRate}" step="0.5" /></div>
+          <div class="form-group"><label>Meta (R$)</label><input type="number" id="m-sel-goal" value="${s.goal}" step="100" /></div>
+        </div>
+        <button class="btn btn-admin" onclick="saveSeller(${sellerId || 'null'})">Salvar Vendedor</button>
+      `);
+    }
+    function saveSeller(sellerId) {
+      const name = document.getElementById('m-sel-name').value.trim();
+      if (!name) return;
+      const commRate = Number(document.getElementById('m-sel-comm').value || 0);
+      const goal = Number(document.getElementById('m-sel-goal').value || 0);
+      if (sellerId) { const s = db.sellers.find(x => x.id === sellerId); if (s) Object.assign(s, { name, commRate, goal }); }
+      else { db.sellers.push({ id: Date.now(), name, commRate, goal }); }
+      closeModal(); saveDB();
+    }
+    function deleteSeller(id) {
+      if (db.sellers.length <= 1) return alert('Mantenha ao menos 1 vendedor.');
+      db.sellers = db.sellers.filter(s => s.id !== id);
+      saveDB();
+    }
+
+    function openReserveModal(prodId) {
+      const p = db.products.find(x => x.id === prodId);
+      if (!p) return;
+      openModal(`🔒 Reservar: ${p.name}`, `
+        <div class="form-group"><label>Cliente & Tamanho</label><input type="text" id="m-res-client" placeholder="Ex: Mariana (Tam 37)" /></div>
+        <div class="form-group"><label>Quantidade (Máx: ${p.stock})</label><input type="number" id="m-res-qty" value="1" min="1" max="${p.stock}" /></div>
+        <button class="btn btn-seller" onclick="saveReservation(${p.id})">Confirmar Reserva</button>
+      `);
+    }
+    function saveReservation(prodId) {
+      const p = db.products.find(x => x.id === prodId);
+      const qty = Math.max(1, Number(document.getElementById('m-res-qty').value || 1));
+      if (!p || p.stock < qty) return alert('Estoque insuficiente.');
+      p.stock -= qty;
+      p.reserved = (p.reserved || 0) + qty;
+      db.reservations.unshift({
+        id: Date.now(), productId: p.id, sellerId: db.activeSellerId,
+        client: document.getElementById('m-res-client').value.trim() || 'Cliente',
+        qty, date: new Date().toLocaleDateString('pt-BR')
+      });
+      closeModal(); saveDB();
+    }
+    function cancelReservation(id) {
+      const r = db.reservations.find(x => x.id === id);
+      if (!r) return;
+      const p = db.products.find(x => x.id === r.productId);
+      if (p) { p.stock += r.qty; p.reserved = Math.max(0, (p.reserved || 0) - r.qty); }
+      db.reservations = db.reservations.filter(x => x.id !== id);
+      saveDB();
+    }
+    function convertReservationToSale(id) {
+      const r = db.reservations.find(x => x.id === id);
+      if (!r) return;
+      const p = db.products.find(x => x.id === r.productId);
+      const s = db.sellers.find(x => x.id === r.sellerId) || db.sellers[0];
+      if (!p) return;
+      const totalPrice = p.price * r.qty;
+      const commission = s ? Number((totalPrice * (s.commRate / 100)).toFixed(2)) : 0;
+      p.reserved = Math.max(0, (p.reserved || 0) - r.qty);
+      if (db.accounts[0]) db.accounts[0].balance += totalPrice;
+      db.sales.unshift({
+        id: Date.now(), date: new Date().toLocaleDateString('pt-BR'),
+        productId: p.id, sellerId: s ? s.id : 1, client: r.client, qty: r.qty,
+        totalPrice, paidNow: totalPrice, paidLater: 0, unitCost: p.cost, totalCost: p.cost * r.qty,
+        commission, accountId: db.accounts[0]?.id || 1, orderType: 'pronta_entrega', supplierOrdered: true
+      });
+      db.reservations = db.reservations.filter(x => x.id !== id);
+      saveDB();
+      alert('✅ Reserva transformada em venda concluída!');
+    }
+
+    renderAll();
   </script>
-
-  <!-- SISTEMA ORIGINAL DA WAVE STORE -->
-
-  <script src="app.js"></script>
-
 </body>
 </html>
