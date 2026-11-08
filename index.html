@@ -1,1439 +1,835 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="SneakerERP Pro" />
-  <title>SneakerERP Pro - Gestão & Vendas</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050b16">
+  <link rel="manifest" href="manifest.json">
+  <title>Wave Store • Gestão</title>
+
   <style>
     :root {
-      --bg: #090d16;
-      --card: #131b2e;
-      --card-light: #1e293b;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --border: #1e293b;
-      --admin-accent: #f59e0b;
-      --admin-glow: rgba(245, 158, 11, 0.15);
-      --seller-accent: #10b981;
-      --seller-glow: rgba(16, 185, 129, 0.15);
-      --primary: #3b82f6;
-      --danger: #ef4444;
-      --purple: #a855f7;
-      --radius: 16px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f0f7ff;
+      background: #07101e;
+      color-scheme: dark;
 
-    /* ================= TELA DE LOGIN INDIVIDUAL ================= */
-    #screen-login {
-      min-height: 100vh; padding: 24px 20px; display: flex; flex-direction: column;
-      justify-content: center; max-width: 480px; margin: 0 auto;
-    }
-    .login-hero { text-align: center; margin-bottom: 24px; }
-    .login-logo {
-      width: 72px; height: 72px; border-radius: 22px;
-      background: linear-gradient(135deg, #3b82f6, #10b981);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 36px; margin-bottom: 12px; box-shadow: 0 12px 30px rgba(16,185,129,0.25);
-    }
-    .login-hero h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-    .login-hero p { color: var(--muted); font-size: 13px; margin-top: 4px; }
-
-    .login-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 700; }
-    input, select, textarea {
-      width: 100%; background: #090d16; border: 1px solid var(--border);
-      color: #fff; padding: 13px; border-radius: 12px; font-size: 15px;
-    }
-    input:focus, select:focus { outline: none; border-color: var(--primary); }
-
-    .btn-login {
-      width: 100%; background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff; border: none; padding: 14px; border-radius: 12px;
-      font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 6px;
-    }
-    .btn-login:active { transform: scale(0.98); }
-
-    .login-switcher {
-      display: flex; gap: 8px; margin-bottom: 16px; background: #090d16; padding: 4px; border-radius: 12px; border: 1px solid var(--border);
-    }
-    .login-tab-btn {
-      flex: 1; background: transparent; border: none; color: var(--muted); padding: 10px; font-size: 13px; font-weight: 700; border-radius: 9px; cursor: pointer;
-    }
-    .login-tab-btn.active { background: var(--card-light); color: #fff; }
-
-    /* ================= LAYOUT INTERNO DOS APPS ================= */
-    .app-shell { display: none; padding-bottom: 95px; }
-    .top-bar {
-      position: sticky; top: 0; z-index: 40;
-      padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
-      backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);
-    }
-    .top-bar-admin { background: rgba(19, 27, 46, 0.92); border-bottom-color: rgba(245, 158, 11, 0.3); }
-    .top-bar-seller { background: rgba(19, 27, 46, 0.92); border-bottom-color: rgba(16, 185, 129, 0.3); }
-
-    .mode-badge { display: flex; align-items: center; gap: 10px; }
-    .mode-avatar {
-      width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 16px;
-    }
-    .avatar-admin { background: var(--admin-glow); color: var(--admin-accent); border: 1px solid var(--admin-accent); }
-    .avatar-seller { background: var(--seller-glow); color: var(--seller-accent); border: 1px solid var(--seller-accent); }
-    .mode-info-title { font-size: 15px; font-weight: 800; line-height: 1.1; }
-    .mode-info-sub { font-size: 11px; color: var(--muted); }
-
-    .exit-btn {
-      background: var(--card-light); border: 1px solid var(--border); color: var(--text);
-      padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+      --bg: #07101e;
+      --panel: #11223a;
+      --border: #254362;
+      --blue: #008cff;
+      --cyan: #00cfff;
+      --muted: #a8bed7;
     }
 
-    .container { padding: 16px; max-width: 600px; margin: 0 auto; }
-    .section-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px; }
-    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
-    .stat-value { font-size: 19px; font-weight: 800; }
-    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-    .text-success { color: #34d399; }
-    .text-warning { color: #fbbf24; }
-    .text-danger { color: #f87171; }
-    .text-primary { color: #60a5fa; }
-    .text-purple { color: #c084fc; }
-
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-    .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-    .badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-    .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      background: var(--primary); color: #fff; border: none; padding: 13px 16px;
-      border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; width: 100%;
-    }
-    .btn:active { transform: scale(0.98); }
-    .btn-sm { padding: 8px 12px; font-size: 12px; border-radius: 9px; width: auto; }
-    .btn-seller { background: var(--seller-accent); color: #042f2e; }
-    .btn-admin { background: var(--admin-accent); color: #000; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-whatsapp { background: #25d366; color: #fff; }
-
-    /* Sub-tabs */
-    .sub-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
-    .sub-tab {
-      background: var(--card); border: 1px solid var(--border); color: var(--muted);
-      padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
-    }
-    .sub-tab.active { background: var(--admin-accent); color: #000; border-color: var(--admin-accent); }
-
-    /* Bottom Nav */
-    nav.bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 45;
-      background: rgba(19, 27, 46, 0.96); backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border); display: flex; justify-content: space-around;
-      padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
-    }
-    .nav-item {
-      background: none; border: none; color: var(--muted);
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      font-size: 10px; font-weight: 700; cursor: pointer; flex: 1;
-    }
-    .nav-item.active-admin { color: var(--admin-accent); }
-    .nav-item.active-seller { color: var(--seller-accent); }
-    .nav-icon { font-size: 19px; }
-
-    .progress-wrap { background: #090d16; height: 11px; border-radius: 999px; overflow: hidden; margin: 8px 0; border: 1px solid var(--border); }
-    .progress-bar { background: linear-gradient(90deg, #10b981, #3b82f6); height: 100%; width: 0%; transition: width 0.3s; }
-
-    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .item-row:last-child { border-bottom: none; }
-    .item-title { font-weight: 700; font-size: 14px; }
-    .item-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-    .callout-box {
-      background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--admin-accent);
-      padding: 11px 12px; border-radius: 8px; font-size: 12px; color: #fde68a; margin-bottom: 14px; line-height: 1.4;
+    * {
+      box-sizing: border-box;
     }
 
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100;
-      display: none; align-items: flex-end; justify-content: center;
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 12px;
     }
-    .modal-content {
-      background: var(--card); width: 100%; max-width: 600px;
-      border-radius: 22px 22px 0 0; padding: 20px 16px 34px;
-      max-height: 90vh; overflow-y: auto; border-top: 1px solid var(--border);
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      background: linear-gradient(
+        180deg,
+        #0b1c33 0%,
+        #07101e 42%
+      );
     }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .modal-close { background: var(--card-light); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+
+    /* CABEÇALHO */
+
+    header {
+      background: rgba(8, 20, 38, .98);
+      padding: 13px 16px;
+      position: relative;
+      z-index: 3;
+      border-bottom: 1px solid #1d4773;
+      box-shadow: 0 5px 22px #0004;
+    }
+
+    header strong {
+      display: block;
+      font-size: 20px;
+      letter-spacing: .4px;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    header small {
+      display: block;
+      color: #91b6d8;
+      margin-top: 5px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .brand-logo {
+      width: 54px;
+      height: 54px;
+      min-width: 54px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #000;
+      border: 1px solid #174b85;
+    }
+
+    .brand-symbol {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+    }
+
+    .brand-name {
+      min-width: 0;
+    }
+
+    .brand-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #102d4a;
+      color: #8bdcff;
+      border: 1px solid #20517b;
+      border-radius: 20px;
+      padding: 6px 9px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .brand-status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: #00cfff;
+      border-radius: 50%;
+    }
+
+    /* CONTEÚDO */
+
+    .wrap {
+      width: 100%;
+      max-width: 750px;
+      margin: 0 auto;
+      padding:
+        24px
+        14px
+        calc(125px + env(safe-area-inset-bottom));
+    }
+
+    main > section {
+      min-width: 0;
+    }
+
+    #home {
+      padding-top: 4px;
+    }
+
+    #home > h2:first-child {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .pill {
+      background: #183a5b;
+      color: #a6e5ff;
+      border-radius: 25px;
+      padding: 5px 9px;
+      font-size: 11px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: linear-gradient(
+        145deg,
+        #142b46,
+        #102137
+      );
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 17px;
+      margin-bottom: 13px;
+      box-shadow: 0 5px 18px #0002;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .card small {
+      color: #aec9e2;
+    }
+
+    .num {
+      font-size: 25px;
+      font-weight: 800;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+      color: #fff;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .accent {
+      color: #45d6ff;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 12px 0 17px;
+      color: #fff;
+      letter-spacing: -.3px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      color: #f0f7ff;
+      line-height: 1.3;
+    }
+
+    label {
+      display: block;
+      color: #bed4e8;
+      font-size: 13px;
+      margin: 13px 0 7px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      background: #09182a;
+      color: #fff;
+      border: 1px solid #365a7b;
+      border-radius: 12px;
+      padding: 14px;
+      font: inherit;
+      font-size: 16px;
+      outline: none;
+      min-height: 47px;
+      max-width: 100%;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px #00cfff20;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #7993ae;
+    }
+
+    button {
+      border: 0;
+      background: linear-gradient(
+        135deg,
+        #007bff,
+        #00a7ff
+      );
+      color: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 13px;
+      min-height: 47px;
+      box-shadow: 0 4px 12px #006dff20;
+      touch-action: manipulation;
+    }
+
+    button:active {
+      transform: scale(.99);
+    }
+
+    button.secondary {
+      background: #203b59;
+      color: #e6f4ff;
+      border: 1px solid #315677;
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* NAVEGAÇÃO INFERIOR */
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #08182b;
+      border-top: 1px solid #24517d;
+      display: flex;
+      justify-content: center;
+      z-index: 20;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -5px 22px #0005;
+    }
+
+    .nav button {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      color: #91aac5;
+      border-radius: 0;
+      padding: 12px 2px 10px;
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      max-width: 150px;
+      min-height: 62px;
+      box-shadow: none;
+      border-top: 3px solid transparent;
+    }
+
+    .nav button.active {
+      color: #35cfff;
+      border-top-color: #00bfff;
+      background: linear-gradient(
+        180deg,
+        #10345a,
+        transparent
+      );
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 22px;
+      line-height: 25px;
+      margin-bottom: 3px;
+    }
+
+    /* ELEMENTOS DO SISTEMA */
+
+    .item {
+      padding: 14px 0;
+      border-bottom: 1px solid #294560;
+      overflow-wrap: anywhere;
+    }
+
+    .item:last-child {
+      border: 0;
+    }
+
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .tiny {
+      font-size: 12px;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: #91b9db;
+    }
+
+    section {
+      min-width: 0;
+    }
+
+    /* PAINEL PRINCIPAL */
+
+    .wave-inicio {
+      width: 100%;
+      margin: 0 0 25px;
+    }
+
+    .wave-vender {
+      display: block;
+      width: 100%;
+      background: linear-gradient(
+        135deg,
+        #006eff,
+        #00bbff
+      );
+      border-radius: 17px;
+      min-height: 78px;
+      font-size: 20px;
+      margin: 6px 0 24px;
+      padding: 16px 12px;
+      box-shadow: 0 6px 22px #007bff40;
+      text-align: center;
+    }
+
+    .wave-vender small {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #e2f6ff;
+    }
+
+    .wave-titulo-atalhos {
+      margin: 0 0 17px;
+      font-size: 20px;
+    }
+
+    .wave-atalhos {
+      display: grid;
+      grid-template-columns: repeat(
+        3,
+        minmax(0, 1fr)
+      );
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .wave-atalhos button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #142b46;
+      border: 1px solid #28527d;
+      border-radius: 14px;
+      min-height: 92px;
+      padding: 12px 5px;
+      margin: 0;
+      font-size: 27px;
+      box-shadow: none;
+      text-align: center;
+    }
+
+    .wave-atalhos button span {
+      display: block;
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #eaf5ff;
+      overflow-wrap: anywhere;
+      line-height: 1.3;
+    }
+
+    .wave-atalhos button:active {
+      background: #1b4672;
+    }
+
+    /* RESUMO FINANCEIRO */
+
+    #home .grid {
+      gap: 10px;
+    }
+
+    #home .grid .card {
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+
+    #home .num {
+      font-size: 21px;
+      line-height: 1.25;
+    }
+
+    /* TELAS MENORES */
+
+    @media (max-width: 370px) {
+      header {
+        padding: 11px 12px;
+      }
+
+      .brand {
+        gap: 8px;
+      }
+
+      .brand-logo {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+      }
+
+      header strong {
+        font-size: 17px;
+      }
+
+      header small {
+        font-size: 10px;
+      }
+
+      .brand-status {
+        font-size: 9px;
+        padding: 5px 7px;
+      }
+
+      .wrap {
+        padding-left: 11px;
+        padding-right: 11px;
+      }
+
+      .card {
+        padding: 13px;
+      }
+
+      .num {
+        font-size: 21px;
+      }
+
+      .nav button {
+        font-size: 10px;
+      }
+
+      .wave-atalhos {
+        gap: 7px;
+      }
+
+      .wave-atalhos button {
+        min-height: 84px;
+      }
+
+      .wave-atalhos button span {
+        font-size: 10px;
+      }
+    }
   </style>
 </head>
+
 <body>
 
-  <!-- ================================================================= -->
-  <!-- TELA DE LOGIN COM SENHA INDIVIDUAL (VENDEDOR OU ADMIN)            -->
-  <!-- ================================================================= -->
-  <div id="screen-login">
-    <div class="login-hero">
-      <div class="login-logo">👟</div>
-      <h1>SneakerERP Pro</h1>
-      <p>Sistema de Gestão & Encomendas de Calçados</p>
+  <!-- CABEÇALHO -->
+
+  <header>
+    <div class="flex">
+      <div class="brand">
+
+        <img
+          src="logo.PNG"
+          alt="Logo Wave Store"
+          class="brand-logo"
+          onerror="this.style.display='none';document.getElementById('brand-fallback').style.display='flex'"
+        >
+
+        <span
+          id="brand-fallback"
+          class="brand-logo brand-symbol"
+          style="display:none"
+        >🌊</span>
+
+        <div class="brand-name">
+          <strong>WAVE STORE</strong>
+          <small>Gestão inteligente da loja</small>
+        </div>
+
+      </div>
+
+      <span class="brand-status">
+        GESTÃO
+      </span>
     </div>
+  </header>
 
-    <div class="login-card">
-      <div class="login-switcher">
-        <button class="login-tab-btn active" id="ltab-seller" onclick="switchLoginTab('seller')">🏷️ Sou Vendedor(a)</button>
-        <button class="login-tab-btn" id="ltab-admin" onclick="switchLoginTab('admin')">👑 Sou Administrador</button>
-      </div>
+  <!-- TELAS DO SISTEMA -->
 
-      <!-- FORMULÁRIO LOGIN VENDEDOR -->
-      <div id="login-form-seller">
-        <div class="form-group">
-          <label>Selecione seu Nome</label>
-          <select id="login-seller-select"></select>
-        </div>
-        <div class="form-group">
-          <label>Sua Senha Individual</label>
-          <input type="password" id="login-seller-pass" placeholder="Digite sua senha..." />
-        </div>
-        <button class="btn-login btn-seller" onclick="doSellerLogin()">Entrar como Vendedor(a)</button>
-      </div>
+  <main class="wrap">
+    <section id="home"></section>
 
-      <!-- FORMULÁRIO LOGIN ADMIN -->
-      <div id="login-form-admin" style="display:none;">
-        <div class="form-group">
-          <label>Senha de Administrador</label>
-          <input type="password" id="login-admin-pass" placeholder="Senha mestre (Padrão: 1234)..." />
-        </div>
-        <button class="btn-login btn-admin" onclick="doAdminLogin()">Entrar como Administrador</button>
-      </div>
-    </div>
-  </div>
+    <section
+      id="sell"
+      class="hidden"
+    ></section>
 
+    <section
+      id="stock"
+      class="hidden"
+    ></section>
 
-  <!-- ================================================================= -->
-  <!-- APP DO VENDEDOR (TEMA VERDE)                                      -->
-  <!-- ================================================================= -->
-  <div id="shell-seller" class="app-shell">
-    <div class="top-bar top-bar-seller">
-      <div class="mode-badge">
-        <div class="mode-avatar avatar-seller" id="seller-header-initial">G</div>
-        <div>
-          <div class="mode-info-title" id="seller-header-name">Vendedor</div>
-          <div class="mode-info-sub" id="seller-header-comm">Painel de Vendas</div>
-        </div>
-      </div>
-      <button class="exit-btn" onclick="logout()">Sair</button>
-    </div>
+    <section
+      id="receive"
+      class="hidden"
+    ></section>
 
-    <div class="container">
-      <!-- PDV / VENDER -->
-      <div id="seller-view-pos" class="seller-section">
-        <div class="section-title">⚡ Frente de Caixa & Encomenda</div>
+    <section
+      id="more"
+      class="hidden"
+    ></section>
+  </main>
 
-        <div class="card">
-          <div class="form-group">
-            <label>Modalidade da Venda</label>
-            <select id="pos-order-type" onchange="updatePosCalc()">
-              <option value="pronta_entrega">⚡ Pronta Entrega (Baixa do Estoque)</option>
-              <option value="encomenda">📦 Sob Encomenda (Reserva custo p/ fornecedor)</option>
-            </select>
-          </div>
+  <!-- MENU INFERIOR -->
 
-          <div class="form-group">
-            <label>Produto / Tênis</label>
-            <select id="pos-product" onchange="updatePosCalc()"></select>
-          </div>
+  <nav class="nav" id="nav">
 
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Quantidade</label>
-              <input type="number" id="pos-qty" value="1" min="1" oninput="updatePosCalc()" />
-            </div>
-            <div class="form-group">
-              <label>Promoção Ativa</label>
-              <select id="pos-promo" onchange="updatePosCalc()"></select>
-            </div>
-          </div>
+    <button
+      type="button"
+      data-tab="home"
+      class="active"
+    >
+      <span class="nav-icon">⌂</span>
+      Painel
+    </button>
 
-          <div class="form-group">
-            <label>Valor Total (R$) - Editável</label>
-            <input type="number" id="pos-total-price" step="0.01" style="font-size:18px; font-weight:800; color:#34d399;" oninput="updatePosSplit()" />
-          </div>
+    <button
+      type="button"
+      data-tab="sell"
+    >
+      <span class="nav-icon">＋</span>
+      Venda
+    </button>
 
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Forma de Pagamento</label>
-              <select id="pos-payment-method" onchange="checkCardFee()">
-                <option value="Pix">Pix / Transferência</option>
-                <option value="Dinheiro">Dinheiro em Espécie</option>
-                <option value="CartaoCredito">Cartão de Crédito</option>
-                <option value="CartaoDebito">Cartão de Débito</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Conta de Entrada</label>
-              <select id="pos-account"></select>
-            </div>
-          </div>
+    <button
+      type="button"
+      data-tab="stock"
+    >
+      <span class="nav-icon">▣</span>
+      Estoque
+    </button>
 
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Pago Agora (R$)</label>
-              <input type="number" id="pos-paid-now" step="0.01" oninput="updatePosRemaining()" />
-            </div>
-            <div class="form-group">
-              <label>A Receber Depois (Fiado/Parcela)</label>
-              <input type="number" id="pos-paid-later" step="0.01" readonly style="color:#fbbf24; font-weight:bold;" />
-            </div>
-          </div>
+    <button
+      type="button"
+      data-tab="receive"
+    >
+      <span class="nav-icon">◷</span>
+      A receber
+    </button>
 
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Nome do Cliente</label>
-              <input type="text" id="pos-client" placeholder="Ex: Lucas Silva" />
-            </div>
-            <div class="form-group">
-              <label>WhatsApp do Cliente (Com DDD)</label>
-              <input type="text" id="pos-whatsapp" placeholder="Ex: 11999998888" />
-            </div>
-          </div>
+    <button
+      type="button"
+      data-tab="more"
+    >
+      <span class="nav-icon">☷</span>
+      Mais
+    </button>
 
-          <!-- Campos de Envio / Logística -->
-          <div class="form-group" style="background:#090d16; padding:10px; border-radius:10px; border:1px solid var(--border);">
-            <label style="color:var(--seller-accent);">📦 Endereço de Entrega ou Rastreio (Opcional)</label>
-            <input type="text" id="pos-shipping-info" placeholder="Endereço ou Código de Rastreio dos Correios" style="margin-top:6px;" />
-          </div>
+  </nav>
 
-          <div class="card" style="background:#090d16; margin-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; font-size:13px;">
-              <span>Sua Comissão:</span>
-              <strong class="text-success" id="pos-commission-preview">R$ 0,00</strong>
-            </div>
-          </div>
-
-          <button class="btn btn-seller" onclick="submitSale()">✅ Finalizar Venda & Gerar Recibo WhatsApp</button>
-        </div>
-      </div>
-
-      <!-- ESTOQUE & CRM CLIENTES -->
-      <div id="seller-view-stock" class="seller-section" style="display:none;">
-        <div class="sub-tabs">
-          <button class="sub-tab active" onclick="switchSellerSub('stock', this)">👟 Vitrine & Reservas</button>
-          <button class="sub-tab" onclick="switchSellerSub('crm', this)">📇 CRM Clientes</button>
-        </div>
-
-        <div id="ssub-stock">
-          <div class="section-title">👟 Estoque Disponível</div>
-          <div id="seller-stock-list"></div>
-          <div class="section-title" style="margin-top:20px;">🔒 Meus Pares Reservados</div>
-          <div id="seller-reservations-list"></div>
-        </div>
-
-        <div id="ssub-crm" style="display:none;">
-          <div class="section-title">
-            <span>📇 Base de Clientes</span>
-            <button class="btn btn-sm btn-seller" onclick="openClientModal()">+ Novo Cliente</button>
-          </div>
-          <div id="seller-clients-list"></div>
-        </div>
-      </div>
-
-      <!-- METAS & COMISSÕES -->
-      <div id="seller-view-goals" class="seller-section" style="display:none;">
-        <div class="section-title">🏆 Meu Desempenho</div>
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div class="stat-label">Meta Mensal</div>
-              <div class="stat-value" id="seller-goal-text">R$ 0 / R$ 0</div>
-            </div>
-            <span class="badge badge-green" id="seller-goal-pct">0%</span>
-          </div>
-          <div class="progress-wrap"><div class="progress-bar" id="seller-goal-bar"></div></div>
-          <div class="stat-sub" id="seller-goal-remaining"></div>
-        </div>
-
-        <div class="grid-2">
-          <div class="stat-card">
-            <div class="stat-label">Total Vendido</div>
-            <div class="stat-value text-primary" id="seller-total-sold">R$ 0,00</div>
-            <div class="stat-sub" id="seller-sales-count">0 vendas</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Minha Comissão</div>
-            <div class="stat-value text-success" id="seller-total-comm">R$ 0,00</div>
-            <div class="stat-sub" id="seller-comm-rate">Taxa</div>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:16px;">📋 Histórico das Minhas Vendas</div>
-        <div id="seller-sales-history"></div>
-      </div>
-    </div>
-
-    <!-- MENU INFERIOR VENDEDOR -->
-    <nav class="bottom-nav">
-      <button class="nav-item active-seller" id="snav-pos" onclick="switchSellerTab('pos')">
-        <span class="nav-icon">⚡</span><span>Vender</span>
-      </button>
-      <button class="nav-item" id="snav-stock" onclick="switchSellerTab('stock')">
-        <span class="nav-icon">👟</span><span>Estoque & CRM</span>
-      </button>
-      <button class="nav-item" id="snav-goals" onclick="switchSellerTab('goals')">
-        <span class="nav-icon">🏆</span><span>Metas</span>
-      </button>
-    </nav>
-  </div>
-
-
-  <!-- ================================================================= -->
-  <!-- APP DO ADMINISTRADOR (TEMA DOURADO)                               -->
-  <!-- ================================================================= -->
-  <div id="shell-admin" class="app-shell">
-    <div class="top-bar top-bar-admin">
-      <div class="mode-badge">
-        <div class="mode-avatar avatar-admin">👑</div>
-        <div>
-          <div class="mode-info-title">Painel Executivo</div>
-          <div class="mode-info-sub">Financeiro, Despesas & Equipe</div>
-        </div>
-      </div>
-      <button class="exit-btn" onclick="logout()">Sair</button>
-    </div>
-
-    <div class="container">
-      <!-- DASHBOARD & LUCRO -->
-      <div id="admin-view-dash" class="admin-section">
-        <div class="section-title">
-          <span>📊 Balanço & Lucro Real</span>
-          <button class="btn btn-sm btn-outline" onclick="openAdminSettingsModal()">⚙️ Ajustes</button>
-        </div>
-
-        <div class="callout-box">
-          💡 O lucro líquido já desconta automaticamente os custos dos produtos, comissões de vendedores e taxas de maquininha configuradas!
-        </div>
-
-        <div class="grid-2">
-          <div class="stat-card">
-            <div class="stat-label">Saldo Bruto Total</div>
-            <div class="stat-value text-primary" id="dash-total-balance">R$ 0,00</div>
-            <div class="stat-sub">Soma das contas e caixa</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Reservado p/ Fornecedor</div>
-            <div class="stat-value text-warning" id="dash-reserved-cost">R$ 0,00</div>
-            <div class="stat-sub">Custo de encomendas</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Saldo Livre Real</div>
-            <div class="stat-value text-success" id="dash-free-balance">R$ 0,00</div>
-            <div class="stat-sub">Disponível sem comprometer</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">A Receber (Fiado/Clientes)</div>
-            <div class="stat-value text-purple" id="dash-receivables">R$ 0,00</div>
-            <div class="stat-sub">Pendente de recebimento</div>
-          </div>
-        </div>
-
-        <div class="card" style="border-color:rgba(16,185,129,0.4);">
-          <div class="stat-label">Lucro Líquido Acumulado (Vendas − Custos − Comissões − Despesas)</div>
-          <div class="stat-value text-success" style="font-size:24px;" id="dash-net-profit">R$ 0,00</div>
-          <div class="stat-sub" id="dash-sales-count">0 vendas realizadas</div>
-        </div>
-
-        <div class="section-title" style="margin-top:20px;">🔥 Ranking: Mais Vendidos</div>
-        <div class="card" id="ranking-best-sellers"></div>
-      </div>
-
-      <!-- CARTEIRA & DESPESAS -->
-      <div id="admin-view-wallet" class="admin-section" style="display:none;">
-        <div class="sub-tabs">
-          <button class="sub-tab active" onclick="switchWalletSub('accounts', this)">🏦 Contas</button>
-          <button class="sub-tab" onclick="switchWalletSub('preorders', this)">📦 Encomendas (<span id="badge-preorders-count">0</span>)</button>
-          <button class="sub-tab" onclick="switchWalletSub('expenses', this)">💸 Despesas Operacionais</button>
-        </div>
-
-        <div id="wsub-accounts">
-          <div class="section-title">
-            <span>Contas Bancárias & Dinheiro</span>
-            <button class="btn btn-sm btn-admin" onclick="openAccountModal()">+ Conta</button>
-          </div>
-          <div id="accounts-list"></div>
-        </div>
-
-        <div id="wsub-preorders" style="display:none;">
-          <div class="callout-box">
-            Acompanhe o status e pague os fornecedores das encomendas pendentes.
-          </div>
-          <div id="preorders-list"></div>
-        </div>
-
-        <div id="wsub-expenses" style="display:none;">
-          <div class="section-title">
-            <span>Despesas da Loja (Sacolas, Anúncios, etc.)</span>
-            <button class="btn btn-sm btn-admin" onclick="openExpenseModal()">+ Despesa</button>
-          </div>
-          <div id="expenses-list"></div>
-        </div>
-      </div>
-
-      <!-- CATÁLOGO & FORNECEDORES -->
-      <div id="admin-view-catalog" class="admin-section" style="display:none;">
-        <div class="sub-tabs">
-          <button class="sub-tab active" onclick="switchCatalogSub('products', this)">👟 Produtos</button>
-          <button class="sub-tab" onclick="switchCatalogSub('promos', this)">🏷️ Promoções</button>
-          <button class="sub-tab" onclick="switchCatalogSub('suppliers', this)">🚚 Fornecedores</button>
-        </div>
-
-        <div id="csub-products">
-          <div class="section-title">
-            <span>Catálogo de Produtos</span>
-            <button class="btn btn-sm btn-admin" onclick="openProductModal()">+ Produto</button>
-          </div>
-          <div id="admin-products-list"></div>
-        </div>
-
-        <div id="csub-promos" style="display:none;">
-          <div class="section-title">
-            <span>Promoções Maleáveis</span>
-            <button class="btn btn-sm btn-admin" onclick="openPromoModal()">+ Promo</button>
-          </div>
-          <div id="admin-promos-list"></div>
-        </div>
-
-        <div id="csub-suppliers" style="display:none;">
-          <div class="section-title">
-            <span>Fornecedores</span>
-            <button class="btn btn-sm btn-admin" onclick="openSupplierModal()">+ Fornecedor</button>
-          </div>
-          <div id="admin-suppliers-list"></div>
-        </div>
-      </div>
-
-      <!-- EQUIPE & SENHAS -->
-      <div id="admin-view-team" class="admin-section" style="display:none;">
-        <div class="section-title">
-          <span>👥 Equipe, Senhas & Metas</span>
-          <button class="btn btn-sm btn-admin" onclick="openSellerModal()">+ Vendedor(a)</button>
-        </div>
-        <div class="callout-box">
-          Cadastre novos vendedores e defina a senha individual de cada um para acesso seguro.
-        </div>
-        <div id="admin-sellers-list"></div>
-      </div>
-    </div>
-
-    <!-- MENU INFERIOR ADMIN -->
-    <nav class="bottom-nav">
-      <button class="nav-item active-admin" id="anav-dash" onclick="switchAdminTab('dash')">
-        <span class="nav-icon">📊</span><span>Balanço</span>
-      </button>
-      <button class="nav-item" id="anav-wallet" onclick="switchAdminTab('wallet')">
-        <span class="nav-icon">💰</span><span>Carteira & Gastos</span>
-      </button>
-      <button class="nav-item" id="anav-catalog" onclick="switchAdminTab('catalog')">
-        <span class="nav-icon">👟</span><span>Catálogo</span>
-      </button>
-      <button class="nav-item" id="anav-team" onclick="switchAdminTab('team')">
-        <span class="nav-icon">👥</span><span>Equipe & Senhas</span>
-      </button>
-    </nav>
-  </div>
-
-
-  <!-- MODAL UNIVERSAL -->
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modal-title">Título</h3>
-        <button class="modal-close" onclick="closeModal()">✕</button>
-      </div>
-      <div id="modal-body"></div>
-    </div>
-  </div>
+  <!-- ATALHOS DO PAINEL -->
 
   <script>
-    // ================= BANCO DE DADOS LOCAL =================
-    const defaultDB = {
-      adminPass: '1234',
-      cardFeeCredit: 3.99, // % taxa maquininha crédito
-      cardFeeDebit: 1.99,  // % taxa maquininha débito
-      currentUser: null,
-      currentUserRole: null, // 'admin' ou 'seller'
-      accounts: [
-        { id: 1, name: 'Conta Bancária Principal (Pix)', type: 'Banco', balance: 4500.00 },
-        { id: 2, name: 'Caixa em Dinheiro (Espécie)', type: 'Dinheiro', balance: 850.00 }
-      ],
-      suppliers: [
-        { id: 1, name: 'Atacado SneakerBR (Importados)', contact: '(11) 98888-1111' },
-        { id: 2, name: 'Fábrica Sul Calçados', contact: '(51) 99999-2222' }
-      ],
-      products: [
-        { id: 1, name: 'Nike Air Force 1 Branco', size: '38 ao 43', supplierId: 1, cost: 130.00, price: 290.00, stock: 6, reserved: 1 },
-        { id: 2, name: 'Adidas Campus 00s Cinza', size: '36 ao 42', supplierId: 1, cost: 145.00, price: 320.00, stock: 4, reserved: 0 },
-        { id: 3, name: 'Kit Meias Cano Alto (Pack 3)', size: 'Único', supplierId: 2, cost: 18.00, price: 50.00, stock: 30, reserved: 0 }
-      ],
-      promos: [
-        { id: 1, name: 'Promo 3 Kits de Meia por R$ 120', productId: 3, minQty: 3, bundlePrice: 120.00, active: true }
-      ],
-      sellers: [
-        { id: 1, name: 'Gisele', pass: '1111', commRate: 10, goal: 5000.00 },
-        { id: 2, name: 'Matheus', pass: '2222', commRate: 8, goal: 4000.00 }
-      ],
-      clients: [
-        { id: 1, name: 'Carla Mendes', phone: '11988887777', size: '39', notes: 'Prefere modelos brancos' },
-        { id: 2, name: 'Bruno Rocha', phone: '11977776666', size: '41', notes: 'Cliente frequente' }
-      ],
-      expenses: [
-        { id: 1, name: 'Pacotes de Envio & Sacolas', amount: 150.00, date: '01/11/2026' },
-        { id: 2, name: 'Anúncios Instagram Ads', amount: 300.00, date: '03/11/2026' }
-      ],
-      reservations: [
-        { id: 101, productId: 1, sellerId: 1, client: 'Carla Mendes', qty: 1, date: 'Hoje' }
-      ],
-      sales: [
-        {
-          id: 501,
-          date: '02/11/2026',
-          productId: 2,
-          sellerId: 1,
-          client: 'Bruno Rocha',
-          whatsapp: '11977776666',
-          qty: 1,
-          totalPrice: 320.00,
-          paidNow: 320.00,
-          paidLater: 0,
-          paymentMethod: 'Pix',
-          cardFeeAmount: 0,
-          unitCost: 145.00,
-          totalCost: 145.00,
-          commission: 32.00,
-          accountId: 1,
-          orderType: 'encomenda',
-          supplierOrdered: false,
-          shippingInfo: 'Rua das Flores, 123 - SP'
+    (() => {
+      const home = document.getElementById("home");
+
+      if (!home) return;
+
+      const atalhos = [
+        ["📦", "Estoque", "stock"],
+        ["🛍️", "Compras", "compras"],
+        ["💰", "Caixa", "historico"],
+        ["🧾", "Despesas", "despesas"],
+        ["💳", "Repasses", "repasses"],
+        ["📈", "Investimentos", "investimentos"],
+        ["📊", "Relatórios", "relatorios"],
+        ["🕒", "A receber", "receive"],
+        ["📋", "Histórico", "historico"],
+        ["👤", "Minha conta", "conta"]
+      ];
+
+      function voltarAoTopo() {
+        window.scrollTo({
+          top: 0,
+          behavior: "instant"
+        });
+      }
+
+      function abrirAtalho(destino) {
+        if (
+          ["sell", "stock", "receive"].includes(destino)
+        ) {
+          const botao = document.querySelector(
+            `#nav button[data-tab="${destino}"]`
+          );
+
+          if (botao) {
+            botao.click();
+            voltarAoTopo();
+          }
+
+          return;
         }
-      ]
-    };
 
-    let db = JSON.parse(localStorage.getItem('sneaker_erp_pro_v3')) || defaultDB;
-    if (!db.cardFeeCredit) db.cardFeeCredit = 3.99;
-    if (!db.cardFeeDebit) db.cardFeeDebit = 1.99;
+        const botaoMais = document.querySelector(
+          '#nav button[data-tab="more"]'
+        );
 
-    function saveDB() {
-      localStorage.setItem('sneaker_erp_pro_v3', JSON.stringify(db));
-      renderAll();
-    }
+        if (!botaoMais) return;
 
-    function formatBRL(val) {
-      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+        botaoMais.click();
 
-    // ================= SISTEMA DE LOGIN INDIVIDUAL =================
-    function renderLoginScreen() {
-      const select = document.getElementById('login-seller-select');
-      select.innerHTML = db.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-    }
+        const botaoPagina = document.querySelector(
+          `#menuMais [data-abrir="${destino}"]`
+        );
 
-    function switchLoginTab(tab) {
-      document.getElementById('ltab-seller').classList.toggle('active', tab === 'seller');
-      document.getElementById('ltab-admin').classList.toggle('active', tab === 'admin');
-      document.getElementById('login-form-seller').style.display = tab === 'seller' ? 'block' : 'none';
-      document.getElementById('login-form-admin').style.display = tab === 'admin' ? 'block' : 'none';
-    }
+        if (botaoPagina) {
+          botaoPagina.click();
+        }
 
-    function doSellerLogin() {
-      const sellerId = Number(document.getElementById('login-seller-select').value);
-      const pass = document.getElementById('login-seller-pass').value.trim();
-      const seller = db.sellers.find(s => s.id === sellerId);
+        voltarAoTopo();
+      }
 
-      if (!seller) return alert('Selecione um vendedor.');
-      if (seller.pass !== pass) return alert('Senha incorreta! Verifique sua senha individual.');
+      function montarAtalhos() {
+        if (
+          !home ||
+          home.querySelector(".wave-inicio")
+        ) {
+          return;
+        }
 
-      db.currentUser = seller.id;
-      db.currentUserRole = 'seller';
-      document.getElementById('screen-login').style.display = 'none';
-      document.getElementById('shell-seller').style.display = 'block';
-      document.getElementById('login-seller-pass').value = '';
-      switchSellerTab('pos');
-    }
+        const titulo = home.querySelector("h2");
 
-    function doAdminLogin() {
-      const pass = document.getElementById('login-admin-pass').value.trim();
-      if (pass !== String(db.adminPass)) return alert('Senha de Administrador incorreta!');
+        if (
+          !titulo ||
+          !titulo.textContent.includes("Olá,")
+        ) {
+          return;
+        }
 
-      db.currentUserRole = 'admin';
-      document.getElementById('screen-login').style.display = 'none';
-      document.getElementById('shell-admin').style.display = 'block';
-      document.getElementById('login-admin-pass').value = '';
-      switchAdminTab('dash');
-    }
+        const painel = document.createElement("div");
+        painel.className = "wave-inicio";
 
-    function logout() {
-      db.currentUser = null;
-      db.currentUserRole = null;
-      document.getElementById('shell-seller').style.display = 'none';
-      document.getElementById('shell-admin').style.display = 'none';
-      document.getElementById('screen-login').style.display = 'flex';
-      renderLoginScreen();
-    }
+        /* BOTÃO NOVA VENDA */
 
-    // ================= NAVEGAÇÃO INTERNA =================
-    function switchSellerTab(tab) {
-      document.querySelectorAll('.seller-section').forEach(el => el.style.display = 'none');
-      document.getElementById(`seller-view-${tab}`).style.display = 'block';
-      ['pos','stock','goals'].forEach(t => {
-        document.getElementById(`snav-${t}`).classList.toggle('active-seller', t === tab);
+        const vender = document.createElement("button");
+        vender.type = "button";
+        vender.className = "wave-vender";
+
+        vender.innerHTML =
+          '＋ NOVA VENDA' +
+          '<small>Registrar venda de produtos</small>';
+
+        vender.onclick = () => {
+          abrirAtalho("sell");
+        };
+
+        painel.appendChild(vender);
+
+        /* TÍTULO DOS ATALHOS */
+
+        const tituloAtalhos =
+          document.createElement("h3");
+
+        tituloAtalhos.className =
+          "wave-titulo-atalhos";
+
+        tituloAtalhos.textContent =
+          "Acesso rápido";
+
+        painel.appendChild(tituloAtalhos);
+
+        /* GRADE DE ATALHOS */
+
+        const grade =
+          document.createElement("div");
+
+        grade.className = "wave-atalhos";
+
+        for (
+          const [icone, nome, destino] of atalhos
+        ) {
+          const botao =
+            document.createElement("button");
+
+          botao.type = "button";
+
+          const simbolo =
+            document.createTextNode(icone);
+
+          const texto =
+            document.createElement("span");
+
+          texto.textContent = nome;
+
+          botao.append(simbolo, texto);
+
+          botao.onclick = () => {
+            abrirAtalho(destino);
+          };
+
+          grade.appendChild(botao);
+        }
+
+        painel.appendChild(grade);
+
+        titulo.insertAdjacentElement(
+          "afterend",
+          painel
+        );
+      }
+
+      /* ATUALIZAÇÃO DO PAINEL */
+
+      const observador = new MutationObserver(() => {
+        if (
+          home.querySelector(".wave-inicio")
+        ) {
+          return;
+        }
+
+        montarAtalhos();
       });
-      renderAll();
-    }
 
-    function switchAdminTab(tab) {
-      document.querySelectorAll('.admin-section').forEach(el => el.style.display = 'none');
-      document.getElementById(`admin-view-${tab}`).style.display = 'block';
-      ['dash','wallet','catalog','team'].forEach(t => {
-        document.getElementById(`anav-${t}`).classList.toggle('active-admin', t === tab);
+      observador.observe(home, {
+        childList: true
       });
-      renderAll();
-    }
 
-    function switchSellerSub(sub, btn) {
-      document.querySelectorAll('#seller-view-stock .sub-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('ssub-stock').style.display = sub === 'stock' ? 'block' : 'none';
-      document.getElementById('ssub-crm').style.display = sub === 'crm' ? 'block' : 'none';
-    }
+      montarAtalhos();
 
-    function switchWalletSub(sub, btn) {
-      document.querySelectorAll('#admin-view-wallet .sub-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('wsub-accounts').style.display = sub === 'accounts' ? 'block' : 'none';
-      document.getElementById('wsub-preorders').style.display = sub === 'preorders' ? 'block' : 'none';
-      document.getElementById('wsub-expenses').style.display = sub === 'expenses' ? 'block' : 'none';
-    }
+      /* AJUSTA A ROLAGEM AO TROCAR DE ABA */
 
-    function switchCatalogSub(sub, btn) {
-      document.querySelectorAll('#admin-view-catalog .sub-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('csub-products').style.display = sub === 'products' ? 'block' : 'none';
-      document.getElementById('csub-promos').style.display = sub === 'promos' ? 'block' : 'none';
-      document.getElementById('csub-suppliers').style.display = sub === 'suppliers' ? 'block' : 'none';
-    }
+      const navegacao =
+        document.getElementById("nav");
 
-    // ================= RENDER GERAL =================
-    function renderAll() {
-      renderLoginScreen();
-      renderAdminDashboard();
-      renderAdminWallet();
-      renderAdminCatalog();
-      renderAdminSellers();
-      renderSellerPOS();
-      renderSellerStockAndCRM();
-      renderSellerGoals();
-    }
+      if (navegacao) {
+        navegacao.addEventListener(
+          "click",
+          (evento) => {
+            const botao = evento.target.closest(
+              "button[data-tab]"
+            );
 
-    // ================= RENDER ADMIN =================
-    function renderAdminDashboard() {
-      const totalBalance = db.accounts.reduce((a, b) => a + Number(b.balance), 0);
-      const pendingPre = db.sales.filter(s => s.orderType === 'encomenda' && !s.supplierOrdered);
-      const reservedCost = pendingPre.reduce((a, b) => a + Number(b.totalCost), 0);
-      const freeBalance = totalBalance - reservedCost;
-      const receivables = db.sales.reduce((a, b) => a + Number(b.paidLater), 0);
-      const totalExpenses = db.expenses.reduce((a, b) => a + Number(b.amount), 0);
+            if (!botao) return;
 
-      // Lucro Líquido = Vendas - Custos - Comissões - Taxas de Cartão - Despesas Operacionais
-      const grossProfit = db.sales.reduce((a, s) => a + (Number(s.totalPrice) - Number(s.totalCost) - Number(s.commission) - Number(s.cardFeeAmount || 0)), 0);
-      const netProfit = grossProfit - totalExpenses;
-
-      document.getElementById('dash-total-balance').innerText = formatBRL(totalBalance);
-      document.getElementById('dash-reserved-cost').innerText = formatBRL(reservedCost);
-      document.getElementById('dash-free-balance').innerText = formatBRL(freeBalance);
-      document.getElementById('dash-receivables').innerText = formatBRL(receivables);
-      document.getElementById('dash-net-profit').innerText = formatBRL(netProfit);
-      document.getElementById('dash-sales-count').innerText = `${db.sales.length} vendas registradas`;
-
-      // Rankings
-      const stats = {};
-      db.products.forEach(p => stats[p.id] = { name: p.name, qty: 0, rev: 0 });
-      db.sales.forEach(s => {
-        if (!stats[s.productId]) stats[s.productId] = { name: 'Item', qty: 0, rev: 0 };
-        stats[s.productId].qty += Number(s.qty);
-        stats[s.productId].rev += Number(s.totalPrice);
-      });
-      const topList = Object.values(stats).filter(x => x.qty > 0).sort((a,b) => b.qty - a.qty);
-
-      document.getElementById('ranking-best-sellers').innerHTML = topList.length ? topList.map((it, i) => `
-        <div class="item-row">
-          <div>
-            <div class="item-title">${i+1}º ${it.name}</div>
-            <div class="item-sub">Faturamento: ${formatBRL(it.rev)}</div>
-          </div>
-          <span class="badge badge-blue">${it.qty} un. vendidas</span>
-        </div>
-      `).join('') : '<div class="item-sub">Nenhuma venda ainda.</div>';
-    }
-
-    function renderAdminWallet() {
-      document.getElementById('accounts-list').innerHTML = db.accounts.map(a => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <span class="badge ${a.type==='Banco'?'badge-blue':'badge-green'}">${a.type}</span>
-            <div class="item-title" style="margin-top:4px;">${a.name}</div>
-            <div class="stat-value" style="margin-top:4px;">${formatBRL(a.balance)}</div>
-          </div>
-          <button class="btn btn-sm btn-outline" onclick="openEditBalanceModal(${a.id})">Ajustar</button>
-        </div>
-      `).join('');
-
-      const pendingPreorders = db.sales.filter(s => s.orderType === 'encomenda' && !s.supplierOrdered);
-      document.getElementById('badge-preorders-count').innerText = pendingPreorders.length;
-
-      document.getElementById('preorders-list').innerHTML = pendingPreorders.length ? pendingPreorders.map(s => {
-        const prod = db.products.find(p => p.id === s.productId) || { name: 'Produto' };
-        const sup = db.suppliers.find(sp => sp.id === prod.supplierId) || { name: 'Fornecedor' };
-        return `
-          <div class="card">
-            <div style="display:flex; justify-content:space-between;">
-              <div>
-                <span class="badge badge-amber">Encomenda Pendente</span>
-                <div class="item-title" style="margin-top:6px;">${s.qty}x ${prod.name}</div>
-                <div class="item-sub">Cliente: <strong>${s.client}</strong> (${s.date})</div>
-                <div class="item-sub">Fornecedor: ${sup.name}</div>
-                ${s.shippingInfo ? `<div class="item-sub text-primary">Envio: ${s.shippingInfo}</div>` : ''}
-              </div>
-              <div style="text-align:right;">
-                <div class="stat-label">Custo Retido</div>
-                <div class="stat-value text-warning">${formatBRL(s.totalCost)}</div>
-              </div>
-            </div>
-            <button class="btn btn-sm btn-admin" style="width:100%; margin-top:12px;" onclick="confirmSupplierPurchase(${s.id})">
-              🚚 Pagar Fornecedor (${formatBRL(s.totalCost)}) & Liberar
-            </button>
-          </div>
-        `;
-      }).join('') : '<div class="card"><div class="item-sub">Nenhuma encomenda pendente.</div></div>';
-
-      document.getElementById('expenses-list').innerHTML = db.expenses.length ? db.expenses.map(e => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="item-title">💸 ${e.name}</div>
-            <div class="item-sub">Data: ${e.date}</div>
-          </div>
-          <div style="text-align:right;">
-            <div class="item-title text-danger">-${formatBRL(e.amount)}</div>
-            <button class="btn btn-sm btn-outline" style="margin-top:4px;" onclick="deleteExpense(${e.id})">Excluir</button>
-          </div>
-        </div>
-      `).join('') : '<div class="card"><div class="item-sub">Nenhuma despesa registrada.</div></div>';
-    }
-
-    function renderAdminCatalog() {
-      document.getElementById('admin-products-list').innerHTML = db.products.map(p => {
-        const sup = db.suppliers.find(s => s.id === p.supplierId) || { name: 'Sem fornecedor' };
-        return `
-          <div class="card">
-            <div style="display:flex; justify-content:space-between;">
-              <div>
-                <div class="item-title">${p.name}</div>
-                <div class="item-sub">Tam: ${p.size} | Forn: ${sup.name}</div>
-                <div style="margin-top:6px;"><span class="badge badge-blue">Estoque: ${p.stock}</span></div>
-              </div>
-              <div style="text-align:right;">
-                <div class="item-title text-success">Venda: ${formatBRL(p.price)}</div>
-                <div class="item-sub text-warning">Custo: ${formatBRL(p.cost)}</div>
-              </div>
-            </div>
-            <div style="margin-top:10px; display:flex; gap:8px;">
-              <button class="btn btn-sm btn-outline" onclick="openProductModal(${p.id})">✏️ Editar</button>
-              <button class="btn btn-sm btn-outline" onclick="quickAddStock(${p.id})">+1 Estoque</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('admin-promos-list').innerHTML = db.promos.length ? db.promos.map(pr => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="item-title">${pr.name}</div>
-            <div class="item-sub">Leve ${pr.minQty} por <strong>${formatBRL(pr.bundlePrice)}</strong></div>
-          </div>
-          <button class="btn btn-sm btn-danger" onclick="deletePromo(${pr.id})">🗑️</button>
-        </div>
-      `).join('') : '<div class="card"><div class="item-sub">Sem promoções.</div></div>';
-
-      document.getElementById('admin-suppliers-list').innerHTML = db.suppliers.map(s => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="item-title">${s.name}</div>
-            <div class="item-sub">${s.contact}</div>
-          </div>
-          <button class="btn btn-sm btn-danger" onclick="deleteSupplier(${s.id})">🗑️</button>
-        </div>
-      `).join('');
-    }
-
-    function renderAdminSellers() {
-      document.getElementById('admin-sellers-list').innerHTML = db.sellers.map(s => {
-        const mySales = db.sales.filter(x => x.sellerId === s.id);
-        const sold = mySales.reduce((a, b) => a + Number(b.totalPrice), 0);
-        return `
-          <div class="card">
-            <div style="display:flex; justify-content:space-between;">
-              <div>
-                <div class="item-title">👤 ${s.name}</div>
-                <div class="item-sub">Senha: <code>${s.pass}</code> | Comissão: <strong>${s.commRate}%</strong> | Meta: <strong>${formatBRL(s.goal)}</strong></div>
-              </div>
-              <div style="display:flex; gap:6px;">
-                <button class="btn btn-sm btn-outline" onclick="openSellerModal(${s.id})">✏️</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteSeller(${s.id})">🗑️</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // ================= RENDER VENDEDOR =================
-    let posReady = false;
-
-    function renderSellerPOS() {
-      const seller = db.sellers.find(s => s.id === db.currentUser) || db.sellers[0];
-      if (seller) {
-        document.getElementById('seller-header-initial').innerText = seller.name.charAt(0).toUpperCase();
-        document.getElementById('seller-header-name').innerText = `Olá, ${seller.name}!`;
-        document.getElementById('seller-header-comm').innerText = `Comissão: ${seller.commRate}%`;
+            requestAnimationFrame(() => {
+              voltarAoTopo();
+            });
+          }
+        );
       }
-
-      const prodSelect = document.getElementById('pos-product');
-      const prevVal = prodSelect.value;
-      prodSelect.innerHTML = db.products.map(p => `
-        <option value="${p.id}">${p.name} (${p.stock} disp. • ${formatBRL(p.price)})</option>
-      `).join('');
-      if (prevVal && db.products.some(p => p.id == prevVal)) prodSelect.value = prevVal;
-
-      const accSelect = document.getElementById('pos-account');
-      accSelect.innerHTML = db.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
-
-      updatePosPromoOptions();
-      if (!posReady) {
-        updatePosCalc();
-        posReady = true;
-      }
-    }
-
-    function updatePosPromoOptions() {
-      const prodId = Number(document.getElementById('pos-product').value);
-      const promoSelect = document.getElementById('pos-promo');
-      const applicable = db.promos.filter(pr => pr.active && pr.productId === prodId);
-      promoSelect.innerHTML = `<option value="">Preço Normal</option>` +
-        applicable.map(pr => `<option value="${pr.id}">🏷️ ${pr.name}</option>`).join('');
-    }
-
-    function checkCardFee() {
-      updatePosCalc();
-    }
-
-    function updatePosCalc() {
-      const prodId = Number(document.getElementById('pos-product').value);
-      const prod = db.products.find(p => p.id === prodId);
-      if (!prod) return;
-
-      updatePosPromoOptions();
-      const qty = Math.max(1, Number(document.getElementById('pos-qty').value || 1));
-      const promo = db.promos.find(pr => pr.id === Number(document.getElementById('pos-promo').value));
-
-      let total = qty * prod.price;
-      if (promo && qty >= promo.minQty) {
-        const bundles = Math.floor(qty / promo.minQty);
-        const rem = qty % promo.minQty;
-        total = (bundles * promo.bundlePrice) + (rem * prod.price);
-      }
-
-      document.getElementById('pos-total-price').value = total.toFixed(2);
-      document.getElementById('pos-paid-now').value = total.toFixed(2);
-      document.getElementById('pos-paid-later').value = "0.00";
-      updatePosPreview();
-    }
-
-    function updatePosSplit() {
-      const total = Number(document.getElementById('pos-total-price').value || 0);
-      document.getElementById('pos-paid-now').value = total.toFixed(2);
-      document.getElementById('pos-paid-later').value = "0.00";
-      updatePosPreview();
-    }
-
-    function updatePosRemaining() {
-      const total = Number(document.getElementById('pos-total-price').value || 0);
-      const now = Number(document.getElementById('pos-paid-now').value || 0);
-      document.getElementById('pos-paid-later').value = Math.max(0, total - now).toFixed(2);
-      updatePosPreview();
-    }
-
-    function updatePosPreview() {
-      const seller = db.sellers.find(s => s.id === db.currentUser) || db.sellers[0];
-      const total = Number(document.getElementById('pos-total-price').value || 0);
-      const comm = seller ? (total * (seller.commRate / 100)) : 0;
-      document.getElementById('pos-commission-preview').innerText = `+ ${formatBRL(comm)}`;
-    }
-
-    function submitSale() {
-      const orderType = document.getElementById('pos-order-type').value;
-      const prodId = Number(document.getElementById('pos-product').value);
-      const prod = db.products.find(p => p.id === prodId);
-      const qty = Math.max(1, Number(document.getElementById('pos-qty').value || 1));
-      const totalPrice = Number(document.getElementById('pos-total-price').value || 0);
-      const paidNow = Number(document.getElementById('pos-paid-now').value || 0);
-      const paidLater = Number(document.getElementById('pos-paid-later').value || 0);
-      const paymentMethod = document.getElementById('pos-payment-method').value;
-      const accountId = Number(document.getElementById('pos-account').value);
-      const client = document.getElementById('pos-client').value.trim() || 'Cliente';
-      const whatsapp = document.getElementById('pos-whatsapp').value.trim();
-      const shippingInfo = document.getElementById('pos-shipping-info').value.trim();
-
-      if (!prod) return alert('Selecione um produto.');
-      if (orderType === 'pronta_entrega' && prod.stock < qty) {
-        return alert(`Estoque insuficiente (${prod.stock} un.).`);
-      }
-
-      // Calcular taxa de maquininha se for cartão
-      let cardFeeAmount = 0;
-      if (paymentMethod === 'CartaoCredito') {
-        cardFeeAmount = totalPrice * (db.cardFeeCredit / 100);
-      } else if (paymentMethod === 'CartaoDebito') {
-        cardFeeAmount = totalPrice * (db.cardFeeDebit / 100);
-      }
-
-      const seller = db.sellers.find(s => s.id === db.currentUser) || db.sellers[0];
-      const commission = seller ? Number((totalPrice * (seller.commRate / 100)).toFixed(2)) : 0;
-      const totalCost = Number((prod.cost * qty).toFixed(2));
-
-      if (orderType === 'pronta_entrega') prod.stock -= qty;
-      const acc = db.accounts.find(a => a.id === accountId);
-      if (acc) acc.balance += paidNow;
-
-      const saleObj = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString('pt-BR'),
-        productId: prod.id,
-        sellerId: seller.id,
-        client,
-        whatsapp,
-        qty,
-        totalPrice,
-        paidNow,
-        paidLater,
-        paymentMethod,
-        cardFeeAmount: Number(cardFeeAmount.toFixed(2)),
-        unitCost: prod.cost,
-        totalCost,
-        commission,
-        accountId,
-        orderType,
-        supplierOrdered: orderType === 'pronta_entrega',
-        shippingInfo
-      };
-
-      db.sales.unshift(saleObj);
-      saveDB();
-
-      // Perguntar se deseja gerar o comprovante WhatsApp
-      if (confirm('✅ Venda registrada com sucesso!\nDeseja gerar o comprovante pronto para enviar no WhatsApp do cliente?')) {
-        openWhatsAppReceiptModal(saleObj, prod.name);
-      } else {
-        alert('Venda finalizada!');
-        document.getElementById('pos-client').value = '';
-        document.getElementById('pos-whatsapp').value = '';
-        document.getElementById('pos-shipping-info').value = '';
-        updatePosCalc();
-      }
-    }
-
-    function openWhatsAppReceiptModal(sale, prodName) {
-      const seller = db.sellers.find(s => s.id === sale.sellerId)?.name || 'Equipe';
-      const text = `👟 *COMPROVANTE DE PEDIDO - SNEAKER ERP*\n\n` +
-        `Olá *${sale.client}*! Muito obrigado pela sua preferência.\n\n` +
-        `📦 *Item:* ${sale.qty}x ${prodName}\n` +
-        `💰 *Valor Total:* ${formatBRL(sale.totalPrice)}\n` +
-        `💳 *Pagamento:* ${sale.paymentMethod} (${sale.paidLater > 0 ? 'Parcial / Resta: ' + formatBRL(sale.paidLater) : 'Quitado'})\n` +
-        (sale.shippingInfo ? `🚚 *Envio/Rastreio:* ${sale.shippingInfo}\n` : '') +
-        `\n👤 *Vendedor(a):* ${seller}\n\n` +
-        `Qualquer dúvida estamos à disposição! 🚀`;
-
-      const encoded = encodeURIComponent(text);
-      const cleanPhone = sale.whatsapp.replace(/\D/g, '');
-      const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
-
-      openModal('📱 Comprovante para WhatsApp', `
-        <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
-          Copie a mensagem abaixo ou clique para abrir direto no WhatsApp do cliente:
-        </p>
-        <textarea style="height:140px; font-size:13px; background:#090d16;" readonly>${text}</textarea>
-        <div style="margin-top:12px; display:flex; gap:8px;">
-          <a class="btn btn-whatsapp" href="${waLink}" target="_blank" style="text-decoration:none; flex:1;">🚀 Enviar no WhatsApp</a>
-          <button class="btn btn-outline" onclick="closeModal(); location.reload();">Fechar</button>
-        </div>
-      `);
-    }
-
-    function renderSellerStockAndCRM() {
-      document.getElementById('seller-stock-list').innerHTML = db.products.map(p => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="item-title">${p.name}</div>
-            <div class="item-sub">Tam: ${p.size} | <strong>${formatBRL(p.price)}</strong></div>
-            <div style="margin-top:6px;"><span class="badge badge-green">${p.stock} disp.</span></div>
-          </div>
-          <button class="btn btn-sm btn-outline" onclick="openReserveModal(${p.id})">🔒 Reservar</button>
-        </div>
-      `).join('');
-
-      document.getElementById('seller-reservations-list').innerHTML = db.reservations.length ? db.reservations.map(r => {
-        const prod = db.products.find(p => p.id === r.productId) || { name: 'Item' };
-        return `
-          <div class="card">
-            <div class="item-title">${r.qty}x ${prod.name}</div>
-            <div class="item-sub">Cliente: <strong>${r.client}</strong></div>
-            <button class="btn btn-sm btn-seller" style="width:100%; margin-top:8px;" onclick="convertReservationToSale(${r.id})">✅ Converter em Venda</button>
-          </div>
-        `;
-      }).join('') : '<div class="card"><div class="item-sub">Nenhuma reserva.</div></div>';
-
-      document.getElementById('seller-clients-list').innerHTML = db.clients.map(c => `
-        <div class="card">
-          <div class="item-title">📇 ${c.name}</div>
-          <div class="item-sub">Tel: ${c.phone} | Numeração: <strong>${c.size}</strong></div>
-          <div class="item-sub">Obs: ${c.notes}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderSellerGoals() {
-      const seller = db.sellers.find(s => s.id === db.currentUser) || db.sellers[0];
-      if (!seller) return;
-
-      const mySales = db.sales.filter(s => s.sellerId === seller.id);
-      const totalSold = mySales.reduce((a, b) => a + Number(b.totalPrice), 0);
-      const totalComm = mySales.reduce((a, b) => a + Number(b.commission), 0);
-      const pct = seller.goal > 0 ? Math.min(100, Math.round((totalSold / seller.goal) * 100)) : 0;
-
-      document.getElementById('seller-goal-text').innerText = `${formatBRL(totalSold)} / ${formatBRL(seller.goal)}`;
-      document.getElementById('seller-goal-pct').innerText = `${pct}%`;
-      document.getElementById('seller-goal-bar').style.width = `${pct}%`;
-      document.getElementById('seller-goal-remaining').innerText = pct >= 100 ? '🎉 Meta batida!' : `Faltam ${formatBRL(seller.goal - totalSold)}`;
-
-      document.getElementById('seller-total-sold').innerText = formatBRL(totalSold);
-      document.getElementById('seller-sales-count').innerText = `${mySales.length} vendas`;
-      document.getElementById('seller-total-comm').innerText = formatBRL(totalComm);
-      document.getElementById('seller-comm-rate').innerText = `${seller.commRate}%`;
-
-      document.getElementById('seller-sales-history').innerHTML = mySales.length ? mySales.map(s => {
-        const prod = db.products.find(p => p.id === s.productId) || { name: 'Item' };
-        return `
-          <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div class="item-title">${s.qty}x ${prod.name}</div>
-              <div class="item-sub">Cliente: ${s.client} • ${s.date}</div>
-            </div>
-            <div style="text-align:right;">
-              <div class="item-title">${formatBRL(s.totalPrice)}</div>
-              <div class="item-sub text-success">+ ${formatBRL(s.commission)}</div>
-            </div>
-          </div>
-        `;
-      }).join('') : '<div class="card"><div class="item-sub">Nenhuma venda registrada.</div></div>';
-    }
-
-    // ================= MODAIS & OPERAÇÕES =================
-    function openModal(title, html) {
-      document.getElementById('modal-title').innerText = title;
-      document.getElementById('modal-body').innerHTML = html;
-      document.getElementById('modal-overlay').style.display = 'flex';
-    }
-    function closeModal() {
-      document.getElementById('modal-overlay').style.display = 'none';
-    }
-
-    function confirmSupplierPurchase(saleId) {
-      const sale = db.sales.find(s => s.id === saleId);
-      if (!sale) return;
-      const opts = db.accounts.map(a => `<option value="${a.id}">${a.name} (${formatBRL(a.balance)})</option>`).join('');
-      openModal('🚚 Pagar Fornecedor', `
-        <div class="form-group"><label>Conta de saída</label><select id="m-sup-acc">${opts}</select></div>
-        <button class="btn btn-admin" onclick="executeSupplierPurchase(${sale.id})">Confirmar Pagamento</button>
-      `);
-    }
-    function executeSupplierPurchase(saleId) {
-      const sale = db.sales.find(s => s.id === saleId);
-      const acc = db.accounts.find(a => a.id === Number(document.getElementById('m-sup-acc').value));
-      if (sale && acc) {
-        acc.balance -= Number(sale.totalCost);
-        sale.supplierOrdered = true;
-        closeModal(); saveDB();
-      }
-    }
-
-    function openClientModal() {
-      openModal('Cadastrar Cliente (CRM)', `
-        <div class="form-group"><label>Nome</label><input type="text" id="m-cli-name" /></div>
-        <div class="grid-2">
-          <div class="form-group"><label>WhatsApp</label><input type="text" id="m-cli-phone" /></div>
-          <div class="form-group"><label>Numeração</label><input type="text" id="m-cli-size" placeholder="Ex: 38" /></div>
-        </div>
-        <div class="form-group"><label>Observações</label><input type="text" id="m-cli-notes" placeholder="Ex: Prefere modelos esportivos" /></div>
-        <button class="btn btn-seller" onclick="saveClient()">Salvar Cliente</button>
-      `);
-    }
-    function saveClient() {
-      const name = document.getElementById('m-cli-name').value.trim();
-      if (!name) return;
-      db.clients.push({
-        id: Date.now(), name,
-        phone: document.getElementById('m-cli-phone').value.trim(),
-        size: document.getElementById('m-cli-size').value.trim(),
-        notes: document.getElementById('m-cli-notes').value.trim()
-      });
-      closeModal(); saveDB();
-    }
-
-    function openExpenseModal() {
-      openModal('Nova Despesa da Loja', `
-        <div class="form-group"><label>Descrição da Despesa</label><input type="text" id="m-exp-name" placeholder="Ex: Sacolas, Anúncios..." /></div>
-        <div class="form-group"><label>Valor (R$)</label><input type="number" id="m-exp-val" step="0.01" /></div>
-        <button class="btn btn-admin" onclick="saveExpense()">Salvar Despesa</button>
-      `);
-    }
-    function saveExpense() {
-      const name = document.getElementById('m-exp-name').value.trim();
-      const amount = Number(document.getElementById('m-exp-val').value || 0);
-      if (!name || amount <= 0) return;
-      db.expenses.push({ id: Date.now(), name, amount, date: new Date().toLocaleDateString('pt-BR') });
-      closeModal(); saveDB();
-    }
-    function deleteExpense(id) {
-      db.expenses = db.expenses.filter(e => e.id !== id);
-      saveDB();
-    }
-
-    function openAccountModal() {
-      openModal('Nova Conta', `
-        <div class="form-group"><label>Nome</label><input type="text" id="m-acc-name" /></div>
-        <div class="form-group"><label>Tipo</label><select id="m-acc-type"><option value="Banco">Banco</option><option value="Dinheiro">Dinheiro</option></select></div>
-        <div class="form-group"><label>Saldo Inicial</label><input type="number" id="m-acc-bal" step="0.01" value="0" /></div>
-        <button class="btn btn-admin" onclick="saveNewAccount()">Salvar</button>
-      `);
-    }
-    function saveNewAccount() {
-      const name = document.getElementById('m-acc-name').value.trim();
-      if (!name) return;
-      db.accounts.push({ id: Date.now(), name, type: document.getElementById('m-acc-type').value, balance: Number(document.getElementById('m-acc-bal').value || 0) });
-      closeModal(); saveDB();
-    }
-    function openEditBalanceModal(id) {
-      const a = db.accounts.find(x => x.id === id);
-      if (!a) return;
-      openModal(`Ajustar: ${a.name}`, `
-        <div class="form-group"><label>Novo Saldo</label><input type="number" id="m-edit-bal" value="${a.balance}" step="0.01" /></div>
-        <button class="btn btn-admin" onclick="saveEditedBalance(${a.id})">Atualizar</button>
-      `);
-    }
-    function saveEditedBalance(id) {
-      const a = db.accounts.find(x => x.id === id);
-      if (a) { a.balance = Number(document.getElementById('m-edit-bal').value || 0); closeModal(); saveDB(); }
-    }
-
-    function openProductModal(id = null) {
-      const p = db.products.find(x => x.id === id) || { name: '', size: '38', supplierId: 1, cost: '', price: '', stock: 0 };
-      const supOpts = db.suppliers.map(s => `<option value="${s.id}" ${s.id===p.supplierId?'selected':''}>${s.name}</option>`).join('');
-      openModal(id ? 'Editar Produto' : 'Novo Produto', `
-        <div class="form-group"><label>Modelo</label><input type="text" id="m-prod-name" value="${p.name}" /></div>
-        <div class="grid-2">
-          <div class="form-group"><label>Numeração</label><input type="text" id="m-prod-size" value="${p.size}" /></div>
-          <div class="form-group"><label>Estoque</label><input type="number" id="m-prod-stock" value="${p.stock}" /></div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group"><label>Custo (R$)</label><input type="number" id="m-prod-cost" value="${p.cost}" step="0.01" /></div>
-          <div class="form-group"><label>Venda (R$)</label><input type="number" id="m-prod-price" value="${p.price}" step="0.01" /></div>
-        </div>
-        <div class="form-group"><label>Fornecedor</label><select id="m-prod-sup">${supOpts}</select></div>
-        <button class="btn btn-admin" onclick="saveProduct(${id || 'null'})">Salvar</button>
-      `);
-    }
-    function saveProduct(id) {
-      const name = document.getElementById('m-prod-name').value.trim();
-      if (!name) return;
-      const data = {
-        name,
-        size: document.getElementById('m-prod-size').value.trim(),
-        stock: Number(document.getElementById('m-prod-stock').value || 0),
-        cost: Number(document.getElementById('m-prod-cost').value || 0),
-        price: Number(document.getElementById('m-prod-price').value || 0),
-        supplierId: Number(document.getElementById('m-prod-sup').value)
-      };
-      if (id) {
-        const p = db.products.find(x => x.id === id);
-        if (p) Object.assign(p, data);
-      } else {
-        db.products.push({ id: Date.now(), reserved: 0, ...data });
-      }
-      closeModal(); saveDB();
-    }
-    function quickAddStock(id) { const p = db.products.find(x => x.id === id); if (p) { p.stock += 1; saveDB(); } }
-    function deleteProduct(id) { if (confirm('Excluir?')) { db.products = db.products.filter(p => p.id !== id); saveDB(); } }
-
-    function openPromoModal() {
-      openModal('Nova Promoção', `
-        <div class="form-group"><label>Nome da Promo</label><input type="text" id="m-pr-name" placeholder="Ex: 3 por 120" /></div>
-        <div class="form-group"><label>Produto</label><select id="m-pr-prod">${db.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-        <div class="grid-2">
-          <div class="form-group"><label>Qtd. Mínima</label><input type="number" id="m-pr-qty" value="3" /></div>
-          <div class="form-group"><label>Preço do Combo (R$)</label><input type="number" id="m-pr-price" step="0.01" /></div>
-        </div>
-        <button class="btn btn-admin" onclick="savePromo()">Salvar Promoção</button>
-      `);
-    }
-    function savePromo() {
-      const name = document.getElementById('m-pr-name').value.trim();
-      if (!name) return;
-      db.promos.push({
-        id: Date.now(), name,
-        productId: Number(document.getElementById('m-pr-prod').value),
-        minQty: Number(document.getElementById('m-pr-qty').value || 3),
-        bundlePrice: Number(document.getElementById('m-pr-price').value || 0),
-        active: true
-      });
-      closeModal(); saveDB();
-    }
-    function deletePromo(id) { db.promos = db.promos.filter(p => p.id !== id); saveDB(); }
-
-    function openSupplierModal() {
-      openModal('Novo Fornecedor', `
-        <div class="form-group"><label>Nome</label><input type="text" id="m-sup-name" /></div>
-        <div class="form-group"><label>Contato</label><input type="text" id="m-sup-contact" /></div>
-        <button class="btn btn-admin" onclick="saveSupplier()">Salvar</button>
-      `);
-    }
-    function saveSupplier() {
-      const name = document.getElementById('m-sup-name').value.trim();
-      if (!name) return;
-      db.suppliers.push({ id: Date.now(), name, contact: document.getElementById('m-sup-contact').value.trim() });
-      closeModal(); saveDB();
-    }
-    function deleteSupplier(id) { db.suppliers = db.suppliers.filter(s => s.id !== id); saveDB(); }
-
-    function openSellerModal(id = null) {
-      const s = db.sellers.find(x => x.id === id) || { name: '', pass: '1234', commRate: 10, goal: 5000 };
-      openModal(id ? 'Editar Vendedor' : 'Novo Vendedor', `
-        <div class="form-group"><label>Nome</label><input type="text" id="m-sel-name" value="${s.name}" /></div>
-        <div class="form-group"><label>Senha Individual (PIN)</label><input type="text" id="m-sel-pass" value="${s.pass}" placeholder="Ex: 1234" /></div>
-        <div class="grid-2">
-          <div class="form-group"><label>Comissão (%)</label><input type="number" id="m-sel-comm" value="${s.commRate}" step="0.5" /></div>
-          <div class="form-group"><label>Meta (R$)</label><input type="number" id="m-sel-goal" value="${s.goal}" step="100" /></div>
-        </div>
-        <button class="btn btn-admin" onclick="saveSeller(${id || 'null'})">Salvar</button>
-      `);
-    }
-    function saveSeller(id) {
-      const name = document.getElementById('m-sel-name').value.trim();
-      const pass = document.getElementById('m-sel-pass').value.trim();
-      if (!name || !pass) return alert('Informe nome e senha.');
-      const data = {
-        name, pass,
-        commRate: Number(document.getElementById('m-sel-comm').value || 0),
-        goal: Number(document.getElementById('m-sel-goal').value || 0)
-      };
-      if (id) {
-        const s = db.sellers.find(x => x.id === id);
-        if (s) Object.assign(s, data);
-      } else {
-        db.sellers.push({ id: Date.now(), ...data });
-      }
-      closeModal(); saveDB();
-    }
-    function deleteSeller(id) {
-      if (db.sellers.length <= 1) return alert('Mantenha ao menos 1 vendedor.');
-      db.sellers = db.sellers.filter(s => s.id !== id);
-      saveDB();
-    }
-
-    function openAdminSettingsModal() {
-      openModal('⚙️ Configurações & Taxas', `
-        <div class="form-group"><label>Senha Mestre Admin</label><input type="text" id="m-set-pass" value="${db.adminPass}" /></div>
-        <div class="grid-2">
-          <div class="form-group"><label>Taxa Maquininha Crédito (%)</label><input type="number" id="m-set-fcc" value="${db.cardFeeCredit}" step="0.1" /></div>
-          <div class="form-group"><label>Taxa Maquininha Débito (%)</label><input type="number" id="m-set-fcd" value="${db.cardFeeDebit}" step="0.1" /></div>
-        </div>
-        <button class="btn btn-admin" onclick="saveAdminSettings()">Salvar Configurações</button>
-      `);
-    }
-    function saveAdminSettings() {
-      db.adminPass = document.getElementById('m-set-pass').value.trim() || '1234';
-      db.cardFeeCredit = Number(document.getElementById('m-set-fcc').value || 3.99);
-      db.cardFeeDebit = Number(document.getElementById('m-set-fcd').value || 1.99);
-      closeModal(); saveDB();
-      alert('Configurações atualizadas!');
-    }
-
-    function openReserveModal(id) {
-      const p = db.products.find(x => x.id === id);
-      if (!p) return;
-      openModal(`🔒 Reservar: ${p.name}`, `
-        <div class="form-group"><label>Nome do Cliente</label><input type="text" id="m-res-client" /></div>
-        <div class="form-group"><label>Qtd</label><input type="number" id="m-res-qty" value="1" min="1" max="${p.stock}" /></div>
-        <button class="btn btn-seller" onclick="saveReservation(${p.id})">Confirmar Reserva</button>
-      `);
-    }
-    function saveReservation(id) {
-      const p = db.products.find(x => x.id === id);
-      const qty = Math.max(1, Number(document.getElementById('m-res-qty').value || 1));
-      if (!p || p.stock < qty) return;
-      p.stock -= qty;
-      p.reserved = (p.reserved || 0) + qty;
-      db.reservations.unshift({
-        id: Date.now(), productId: p.id, sellerId: db.currentUser,
-        client: document.getElementById('m-res-client').value.trim() || 'Cliente',
-        qty, date: new Date().toLocaleDateString('pt-BR')
-      });
-      closeModal(); saveDB();
-    }
-    function convertReservationToSale(id) {
-      const r = db.reservations.find(x => x.id === id);
-      if (!r) return;
-      const p = db.products.find(x => x.id === r.productId);
-      const s = db.sellers.find(x => x.id === r.sellerId) || db.sellers[0];
-      if (!p) return;
-      const totalPrice = p.price * r.qty;
-      const commission = s ? Number((totalPrice * (s.commRate / 100)).toFixed(2)) : 0;
-      p.reserved = Math.max(0, (p.reserved || 0) - r.qty);
-      if (db.accounts[0]) db.accounts[0].balance += totalPrice;
-      db.sales.unshift({
-        id: Date.now(), date: new Date().toLocaleDateString('pt-BR'),
-        productId: p.id, sellerId: s.id, client: r.client, whatsapp: '', qty: r.qty,
-        totalPrice, paidNow: totalPrice, paidLater: 0, paymentMethod: 'Pix', cardFeeAmount: 0,
-        unitCost: p.cost, totalCost: p.cost * r.qty, commission, accountId: db.accounts[0]?.id || 1,
-        orderType: 'pronta_entrega', supplierOrdered: true, shippingInfo: ''
-      });
-      db.reservations = db.reservations.filter(x => x.id !== id);
-      saveDB();
-      alert('✅ Reserva convertida em venda!');
-    }
-
-    // Inicializar login
-    renderAll();
+    })();
   </script>
+
+  <!-- SISTEMA ORIGINAL DA WAVE STORE -->
+
+  <script src="app.js"></script>
+
 </body>
 </html>
