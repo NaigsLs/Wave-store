@@ -2,874 +2,669 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-
-  <title>Wave Store 3.0 - Testes</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b1110;
-      color: #ffffff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 25px 15px;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 480px;
-    }
-
-    .logo {
-      text-align: center;
-      font-size: 30px;
-      font-weight: bold;
-      color: #26d6a0;
-      margin: 25px 0 8px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #a1aba5;
-      margin-bottom: 26px;
-    }
-
-    .card {
-      padding: 22px;
-      border: 1px solid #293a34;
-      border-radius: 16px;
-      background: #151e1b;
-      margin-bottom: 15px;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 20px;
-    }
-
-    h3 {
-      margin: 0 0 10px;
-      font-size: 17px;
-    }
-
-    label {
-      display: block;
-      margin: 14px 0 6px;
-      color: #cbd5d1;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px;
-      background: #0b1110;
-      color: white;
-      border: 1px solid #405048;
-      border-radius: 9px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      background: #20c997;
-      color: #071310;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    button.secondary {
-      background: #303b36;
-      color: white;
-    }
-
-    .status {
-      padding: 12px;
-      border-radius: 9px;
-      background: #25352e;
-      margin-top: 15px;
-      overflow-wrap: anywhere;
-    }
-
-    .item {
-      padding: 12px 0;
-      border-bottom: 1px solid #34433b;
-    }
-
-    .produto {
-      background: #1c2924;
-      border: 1px solid #35483f;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 14px;
-    }
-
-    .produto p {
-      margin: 8px 0;
-    }
-
-    .preco-antigo {
-      color: #a1aba5;
-      text-decoration: line-through;
-    }
-
-    .preco-promocional {
-      color: #26d6a0;
-      font-size: 23px;
-      font-weight: bold;
-    }
-
-    .financeiro {
-      background: #26362f;
-      border-radius: 9px;
-      padding: 12px;
-      margin-top: 12px;
-    }
-
-    .ok {
-      color: #26d6a0;
-    }
-
-    .erro {
-      color: #ff8585;
-    }
-
-    .small {
-      color: #a1aba5;
-      font-size: 13px;
-    }
-
-    .estoque {
-      color: #cbd5d1;
-      font-weight: bold;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wave Store 3.0 - Desenvolvimento</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#0b1110;color:white;
+  font-family:Arial,sans-serif;padding:20px 14px
+}
+.app{max-width:500px;margin:auto}
+.logo{
+  color:#26d6a0;text-align:center;
+  font-size:29px;font-weight:bold;margin:25px 0 8px
+}
+.subtitle{
+  text-align:center;color:#a1aba5;margin-bottom:26px
+}
+.card{
+  background:#151e1b;border:1px solid #293a34;
+  border-radius:16px;padding:21px;margin-bottom:16px
+}
+h2{font-size:20px;margin:0 0 16px}
+h3{font-size:17px;margin:0 0 9px}
+label{
+  display:block;color:#cbd5d1;
+  margin:13px 0 6px;font-size:14px
+}
+input,select{
+  width:100%;padding:13px;background:#0b1110;
+  border:1px solid #405048;border-radius:9px;
+  color:#fff;font-size:16px
+}
+button{
+  width:100%;padding:14px;border:0;border-radius:10px;
+  background:#20c997;color:#071310;
+  font-weight:bold;font-size:15px;
+  cursor:pointer;margin-top:15px
+}
+button:disabled{opacity:.5;cursor:wait}
+.secondary{background:#303b36;color:white}
+.item{
+  padding:12px 0;border-bottom:1px solid #34433b
+}
+.produto{
+  background:#1c2924;border:1px solid #35483f;
+  border-radius:12px;padding:16px;margin-top:14px
+}
+.produto p{margin:9px 0}
+.antigo{color:#a1aba5;text-decoration:line-through}
+.promocao{color:#26d6a0;font-size:23px;font-weight:bold}
+.financeiro{
+  background:#26362f;padding:12px;
+  border-radius:9px;margin-top:12px
+}
+.small{font-size:13px;color:#a1aba5}
+.ok{color:#26d6a0}
+.erro{color:#ff8585}
+.status{
+  padding:12px;border-radius:9px;
+  background:#25352e;margin-top:14px;
+  overflow-wrap:anywhere
+}
+.linha{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+[hidden]{display:none!important}
+</style>
 </head>
-
 <body>
 <main class="app">
 
-  <div class="logo">WAVE STORE 3.0</div>
+<div class="logo">WAVE STORE 3.0</div>
+<div class="subtitle">Ambiente de desenvolvimento</div>
 
-  <div class="subtitle">
-    Ambiente de desenvolvimento
+<section id="login" class="card">
+  <h2>Entrar no aplicativo</h2>
+  <form id="formLogin">
+    <label for="email">E-mail</label>
+    <input id="email" type="email" required
+           autocomplete="username">
+
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" required
+           autocomplete="current-password">
+
+    <button id="btnEntrar" type="submit">Entrar</button>
+  </form>
+  <div id="mensagem" class="status"
+       role="status" hidden></div>
+</section>
+
+<section id="painel" hidden>
+
+  <div class="card">
+    <h2 id="tituloPainel">Painel</h2>
+    <p id="identificacao"></p>
+    <p class="small" id="descricao"></p>
   </div>
 
-  <!-- LOGIN -->
-  <section id="login" class="card">
+  <div class="card">
+    <h2>Teste de segurança RLS</h2>
+    <div id="resultados"></div>
+    <button id="btnTestar" type="button">
+      Testar permissões
+    </button>
+  </div>
 
-    <h2>Entrar no aplicativo</h2>
+  <div class="card" id="areaSocio" hidden>
+    <h2>Painel do Sócio</h2>
+    <div class="item">Administração da loja</div>
+    <div class="item">Gestão de vendedores</div>
+    <div class="item">Aprovações de vendas</div>
+    <div class="item">Financeiro e investimentos</div>
+    <div class="item">Cadastro de produtos</div>
+    <p class="small">Demais funcionalidades em desenvolvimento.</p>
+  </div>
 
-    <form id="formLogin">
+  <div class="card" id="areaVendedor" hidden>
+    <h2>Painel do Vendedor</h2>
+    <div class="item">Consultar produtos</div>
+    <div class="item">Solicitar vendas</div>
+    <div class="item">Reservar produtos</div>
+    <div class="item">Minhas solicitações</div>
+    <div class="item">Minhas comissões</div>
+    <p class="small">Demais funcionalidades em desenvolvimento.</p>
+  </div>
 
-      <label for="email">E-mail de teste</label>
-      <input
-        id="email"
-        type="email"
-        autocomplete="username"
-        required
-      >
+  <!-- CADASTRO EXCLUSIVO DOS SÓCIOS -->
+  <div class="card" id="areaCadastro" hidden>
+    <h2>Cadastrar produto</h2>
+    <p class="small">
+      Cadastro comercial. Custo e estoque serão
+      adicionados em uma etapa posterior.
+    </p>
 
-      <label for="senha">Senha</label>
-      <input
-        id="senha"
-        type="password"
-        autocomplete="current-password"
-        required
-      >
+    <form id="formProduto">
 
-      <button id="btnEntrar" type="submit">
-        Entrar
+      <label for="categoria">Categoria *</label>
+      <select id="categoria" required>
+        <option value="">Carregando...</option>
+      </select>
+
+      <label for="nomeProduto">Nome do produto *</label>
+      <input id="nomeProduto" maxlength="150"
+             placeholder="Ex.: Vans Knu Preto"
+             required>
+
+      <div class="linha">
+        <div>
+          <label for="marca">Marca</label>
+          <input id="marca" placeholder="Vans">
+        </div>
+        <div>
+          <label for="modelo">Modelo</label>
+          <input id="modelo" placeholder="Knu">
+        </div>
+      </div>
+
+      <div class="linha">
+        <div>
+          <label for="cor">Cor</label>
+          <input id="cor" placeholder="Preto">
+        </div>
+        <div>
+          <label for="tamanho">Tamanho</label>
+          <input id="tamanho" placeholder="40">
+        </div>
+      </div>
+
+      <label for="sku">Código SKU (opcional)</label>
+      <input id="sku" maxlength="80"
+             placeholder="Ex.: VANS-KNU-PRETO-40">
+
+      <div class="linha">
+        <div>
+          <label for="preco">Preço normal (R$) *</label>
+          <input id="preco" type="number" min="0.01"
+                 step="0.01" required>
+        </div>
+        <div>
+          <label for="precoPromo">Preço promocional</label>
+          <input id="precoPromo" type="number" min="0"
+                 step="0.01" placeholder="Opcional">
+        </div>
+      </div>
+
+      <button type="submit" id="btnSalvarProduto">
+        Salvar produto
       </button>
-
     </form>
 
-    <div
-      id="mensagem"
-      class="status"
-      role="status"
-      aria-live="polite"
-      hidden
-    ></div>
+    <div id="mensagemProduto" class="status"
+         role="status" hidden></div>
+  </div>
 
-  </section>
+  <!-- PRODUTOS -->
+  <div class="card">
+    <h2>Produtos da Wave Store</h2>
+    <p class="small">Conectados ao Supabase DEV.</p>
 
-  <!-- ÁREA APÓS LOGIN -->
-  <section id="painel" hidden>
-
-    <div class="card">
-
-      <h2 id="tituloPainel">
-        Painel
-      </h2>
-
-      <p id="identificacao"></p>
-
-      <p
-        id="descricao"
-        class="small"
-      ></p>
-
-    </div>
-
-    <!-- TESTE DE PERMISSÕES -->
-    <div class="card">
-
-      <h2>Segurança RLS</h2>
-
-      <div id="resultados"></div>
-
-      <button
-        id="btnTestar"
-        type="button"
-      >
-        Testar permissões
-      </button>
-
-    </div>
-
-    <!-- MENU DOS SÓCIOS -->
-    <div
-      class="card"
-      id="areaSocio"
-      hidden
-    >
-
-      <h2>Painel do Sócio</h2>
-
-      <div class="item">
-        Administração da loja
-      </div>
-
-      <div class="item">
-        Gestão de vendedores
-      </div>
-
-      <div class="item">
-        Aprovações de vendas
-      </div>
-
-      <div class="item">
-        Financeiro e investimentos
-      </div>
-
-      <div class="item">
-        Cadastro de produtos
-      </div>
-
-      <p class="small">
-        Funcionalidades em desenvolvimento.
-      </p>
-
-    </div>
-
-    <!-- MENU DOS VENDEDORES -->
-    <div
-      class="card"
-      id="areaVendedor"
-      hidden
-    >
-
-      <h2>Painel do Vendedor</h2>
-
-      <div class="item">
-        Consultar produtos
-      </div>
-
-      <div class="item">
-        Solicitar vendas
-      </div>
-
-      <div class="item">
-        Reservar produtos
-      </div>
-
-      <div class="item">
-        Minhas solicitações
-      </div>
-
-      <div class="item">
-        Minhas comissões
-      </div>
-
-      <p class="small">
-        Funcionalidades em desenvolvimento.
-      </p>
-
-    </div>
-
-    <!-- LISTAGEM DE PRODUTOS -->
-    <div class="card">
-
-      <h2>Produtos da Wave Store</h2>
-
-      <p class="small">
-        Produtos conectados ao Supabase DEV.
-      </p>
-
-      <button
-        id="btnProdutos"
-        type="button"
-      >
-        Atualizar produtos
-      </button>
-
-      <div
-        id="listaProdutos"
-        aria-live="polite"
-      >
-        Carregando produtos...
-      </div>
-
-    </div>
-
-    <!-- SAIR -->
-    <button
-      id="btnSair"
-      class="secondary"
-      type="button"
-    >
-      Sair da conta
+    <button id="btnProdutos" type="button">
+      Atualizar produtos
     </button>
 
-  </section>
+    <div id="listaProdutos" aria-live="polite"></div>
+  </div>
 
+  <button id="btnSair" class="secondary" type="button">
+    Sair da conta
+  </button>
+
+</section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
 <script>
+const URL_DEV =
+  "https://pqjbscalilelorhuweun.supabase.co";
 
-  // CONEXÃO EXCLUSIVA COM SUPABASE DEV
+const CHAVE_PUBLICA =
+  "sb_publishable_RLVavzsqb43ixZv0Kc07QA_7TXuft0w";
 
-  const URL_DEV =
-    "https://pqjbscalilelorhuweun.supabase.co";
+const LOJA_ID =
+  "b8afc8f7-c274-4c34-a05c-75696fed00da";
 
-  const CHAVE_PUBLICA =
-    "sb_publishable_RLVavzsqb43ixZv0Kc07QA_7TXuft0w";
-
-  const LOJA_ID =
-    "b8afc8f7-c274-4c34-a05c-75696fed00da";
-
-  const db = window.supabase.createClient(
-    URL_DEV,
-    CHAVE_PUBLICA,
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
+const db = window.supabase.createClient(
+  URL_DEV,
+  CHAVE_PUBLICA,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
     }
+  }
+);
+
+const el = id => document.getElementById(id);
+let perfilAtual = null;
+
+function moeda(valor) {
+  return Number(valor).toLocaleString("pt-BR", {
+    style:"currency",
+    currency:"BRL"
+  });
+}
+
+function mostrarMensagem(id, texto, erro = false) {
+  const campo = el(id);
+  campo.hidden = !texto;
+  campo.textContent = texto;
+  campo.className = "status" + (erro ? " erro" : "");
+}
+
+function texto(tag, conteudo, classe = "") {
+  const elemento = document.createElement(tag);
+  elemento.textContent = conteudo;
+  if (classe) elemento.className = classe;
+  return elemento;
+}
+
+async function consultarContagem(tabela) {
+  const { count, error } = await db
+    .from(tabela)
+    .select("*", { count:"exact", head:true });
+
+  if (error) throw error;
+  return count;
+}
+
+async function testarPermissoes() {
+  const saida = el("resultados");
+  saida.replaceChildren();
+
+  for (const tabela of [
+    "socios", "vendedores", "lojas",
+    "produtos", "custos_produtos", "estoque_saldos"
+  ]) {
+    const linha = texto("div", "", "item");
+    try {
+      const total = await consultarContagem(tabela);
+      linha.textContent = `${tabela}: ${total} registro(s)`;
+      linha.classList.add("ok");
+    } catch (erro) {
+      linha.textContent = `${tabela}: ${erro.message}`;
+      linha.classList.add("erro");
+    }
+    saida.appendChild(linha);
+  }
+}
+
+async function identificarPerfil(usuarioId) {
+  const socio = await db
+    .from("socios")
+    .select("nome,papel")
+    .eq("usuario_id", usuarioId)
+    .eq("loja_id", LOJA_ID)
+    .maybeSingle();
+
+  if (socio.error) throw socio.error;
+
+  if (socio.data?.papel === "social") {
+    return { tipo:"socio", nome:socio.data.nome };
+  }
+
+  const vendedor = await db
+    .from("vendedores")
+    .select("nome")
+    .eq("usuario_id", usuarioId)
+    .eq("loja_id", LOJA_ID)
+    .eq("ativo", true)
+    .maybeSingle();
+
+  if (vendedor.error) throw vendedor.error;
+
+  if (vendedor.data) {
+    return {
+      tipo:"vendedor",
+      nome:vendedor.data.nome
+    };
+  }
+
+  return null;
+}
+
+async function carregarCategorias() {
+  const select = el("categoria");
+
+  const { data, error } = await db
+    .from("categorias")
+    .select("id,nome")
+    .eq("loja_id", LOJA_ID)
+    .eq("ativo", true)
+    .order("nome");
+
+  if (error) throw error;
+
+  select.replaceChildren();
+  select.appendChild(
+    new Option("Selecione a categoria", "")
   );
 
-  const el = id =>
-    document.getElementById(id);
-
-  let perfilAtual = null;
-
-  // FORMATAÇÃO DE MOEDA
-
-  function moeda(valor) {
-    return Number(valor).toLocaleString(
-      "pt-BR",
-      {
-        style: "currency",
-        currency: "BRL"
-      }
+  for (const categoria of data || []) {
+    select.appendChild(
+      new Option(categoria.nome, categoria.id)
     );
   }
+}
 
-  // MENSAGENS
+async function carregarProdutos() {
+  const lista = el("listaProdutos");
+  lista.textContent = "Carregando produtos...";
 
-  function mensagem(texto) {
-    const area = el("mensagem");
-
-    area.hidden = !texto;
-    area.textContent = texto;
-  }
-
-  // CONSULTAR QUANTIDADE DE REGISTROS
-
-  async function consultarContagem(tabela) {
-    const { count, error } = await db
-      .from(tabela)
-      .select("*", {
-        count: "exact",
-        head: true
-      });
-
-    if (error) {
-      throw error;
-    }
-
-    return count;
-  }
-
-  // TESTAR RLS
-
-  async function testarPermissoes() {
-
-    const saida = el("resultados");
-    saida.replaceChildren();
-
-    for (
-      const tabela of [
-        "socios",
-        "vendedores",
-        "lojas",
-        "produtos",
-        "custos_produtos",
-        "estoque_saldos"
-      ]
-    ) {
-
-      const linha =
-        document.createElement("div");
-
-      linha.className = "item";
-
-      try {
-
-        const total =
-          await consultarContagem(tabela);
-
-        linha.textContent =
-          tabela + ": " +
-          total + " registro(s)";
-
-        linha.classList.add("ok");
-
-      } catch (erro) {
-
-        linha.textContent =
-          tabela + ": erro - " +
-          erro.message;
-
-        linha.classList.add("erro");
-
-      }
-
-      saida.appendChild(linha);
-    }
-  }
-
-  // IDENTIFICAR SÓCIO OU VENDEDOR
-
-  async function identificarPerfil(usuarioId) {
-
-    const socio = await db
-      .from("socios")
-      .select("nome,papel")
-      .eq("usuario_id", usuarioId)
-      .eq("loja_id", LOJA_ID)
-      .maybeSingle();
-
-    if (socio.error) {
-      throw socio.error;
-    }
-
-    if (
-      socio.data &&
-      socio.data.papel === "social"
-    ) {
-      return {
-        tipo: "socio",
-        nome: socio.data.nome
-      };
-    }
-
-    const vendedor = await db
-      .from("vendedores")
-      .select("nome,ativo")
-      .eq("usuario_id", usuarioId)
+  try {
+    const { data:produtos, error } = await db
+      .from("produtos")
+      .select(
+        "id,nome,marca,modelo,cor,tamanho,preco,preco_promocional"
+      )
       .eq("loja_id", LOJA_ID)
       .eq("ativo", true)
-      .maybeSingle();
+      .order("nome");
 
-    if (vendedor.error) {
-      throw vendedor.error;
+    if (error) throw error;
+
+    lista.replaceChildren();
+
+    if (!produtos?.length) {
+      lista.textContent = "Nenhum produto cadastrado.";
+      return;
     }
 
-    if (vendedor.data) {
-      return {
-        tipo: "vendedor",
-        nome: vendedor.data.nome
-      };
-    }
+    for (const p of produtos) {
+      const card = texto("div", "", "produto");
 
-    return null;
-  }
+      card.appendChild(texto("h3", p.nome));
 
-  // CRIAR LINHA DE INFORMAÇÃO
+      const detalhes = [
+        p.marca,
+        p.modelo,
+        p.cor,
+        p.tamanho ? `Tamanho ${p.tamanho}` : ""
+      ].filter(Boolean).join(" | ");
 
-  function criarTexto(
-    elemento,
-    texto,
-    classe = ""
-  ) {
+      card.appendChild(texto("p", detalhes, "small"));
 
-    const campo =
-      document.createElement(elemento);
+      const promo = p.preco_promocional !== null;
 
-    campo.textContent = texto;
+      card.appendChild(texto(
+        "p",
+        "Preço normal: " + moeda(p.preco),
+        promo ? "antigo" : ""
+      ));
 
-    if (classe) {
-      campo.className = classe;
-    }
-
-    return campo;
-  }
-
-  // CARREGAR PRODUTOS
-
-  async function carregarProdutos() {
-
-    const lista = el("listaProdutos");
-
-    lista.textContent =
-      "Carregando produtos...";
-
-    try {
-
-      const { data: produtos, error } =
-        await db
-          .from("produtos")
-          .select(
-            "id,nome,marca,modelo,cor,tamanho,preco,preco_promocional"
-          )
-          .eq("loja_id", LOJA_ID)
-          .eq("ativo", true)
-          .order("nome");
-
-      if (error) {
-        throw error;
+      if (promo) {
+        card.appendChild(texto(
+          "p",
+          "Promoção: " + moeda(p.preco_promocional),
+          "promocao"
+        ));
       }
 
-      lista.replaceChildren();
+      const { data:estoque, error:erroEstoque } = await db
+        .from("estoque_saldos")
+        .select("quantidade")
+        .eq("produto_id", p.id)
+        .eq("loja_id", LOJA_ID)
+        .maybeSingle();
 
-      if (!produtos || produtos.length === 0) {
-        lista.textContent =
-          "Nenhum produto cadastrado.";
-        return;
-      }
+      if (erroEstoque) throw erroEstoque;
 
-      for (const produto of produtos) {
+      card.appendChild(texto(
+        "p",
+        "Estoque físico: " +
+          (estoque?.quantidade ?? 0) + " unidade(s)"
+      ));
 
-        const card =
-          document.createElement("div");
-
-        card.className = "produto";
-
-        // NOME
-
-        card.appendChild(
-          criarTexto(
-            "h3",
-            produto.nome
-          )
-        );
-
-        // DETALHES
-
-        const detalhes = [
-          produto.marca,
-          produto.modelo,
-          produto.cor,
-          produto.tamanho
-            ? "Tamanho " + produto.tamanho
-            : ""
-        ]
-        .filter(Boolean)
-        .join(" | ");
-
-        card.appendChild(
-          criarTexto(
-            "p",
-            detalhes,
-            "small"
-          )
-        );
-
-        // PREÇO
-
-        const temPromocao =
-          produto.preco_promocional !== null;
-
-        card.appendChild(
-          criarTexto(
-            "p",
-            "Preço normal: " +
-              moeda(produto.preco),
-            temPromocao ? "preco-antigo" : ""
-          )
-        );
-
-        if (temPromocao) {
-
-          card.appendChild(
-            criarTexto(
-              "p",
-              "Promoção: " +
-              moeda(produto.preco_promocional),
-              "preco-promocional"
-            )
-          );
-
-        }
-
-        // ESTOQUE
-
-        const {
-          data: estoque,
-          error: erroEstoque
-        } = await db
-          .from("estoque_saldos")
-          .select("quantidade")
-          .eq("produto_id", produto.id)
+      if (perfilAtual?.tipo === "socio") {
+        const { data:custo, error:erroCusto } = await db
+          .from("custos_produtos")
+          .select("custo_referencia")
+          .eq("produto_id", p.id)
           .eq("loja_id", LOJA_ID)
           .maybeSingle();
 
-        if (erroEstoque) {
-          throw erroEstoque;
+        if (erroCusto) throw erroCusto;
+
+        if (custo) {
+          const valorCusto = Number(custo.custo_referencia);
+          const valorVenda = promo
+            ? Number(p.preco_promocional)
+            : Number(p.preco);
+
+          const lucro = valorVenda - valorCusto;
+          const margem = valorVenda > 0
+            ? lucro / valorVenda * 100
+            : 0;
+
+          const info = texto("div", "", "financeiro");
+          info.appendChild(texto(
+            "p", "Custo: " + moeda(valorCusto)
+          ));
+          info.appendChild(texto(
+            "p", "Lucro bruto estimado: " + moeda(lucro)
+          ));
+          info.appendChild(texto(
+            "p", "Margem bruta: " + margem.toFixed(1) + "%"
+          ));
+          card.appendChild(info);
+        } else {
+          card.appendChild(texto(
+            "p", "Custo ainda não cadastrado.", "small"
+          ));
         }
+      }
 
-        const quantidade =
-          estoque?.quantidade ?? 0;
+      lista.appendChild(card);
+    }
+  } catch (erro) {
+    lista.textContent =
+      "Erro ao carregar produtos: " + erro.message;
+  }
+}
 
-        card.appendChild(
-          criarTexto(
-            "p",
-            "Estoque físico: " +
-            quantidade + " unidade(s)",
-            "estoque"
-          )
+function opcional(id) {
+  const valor = el(id).value.trim();
+  return valor || null;
+}
+
+// CADASTRO DE PRODUTOS
+el("formProduto").addEventListener(
+  "submit", async evento => {
+    evento.preventDefault();
+
+    if (perfilAtual?.tipo !== "socio") {
+      mostrarMensagem(
+        "mensagemProduto",
+        "Acesso não autorizado.",
+        true
+      );
+      return;
+    }
+
+    const botao = el("btnSalvarProduto");
+    botao.disabled = true;
+
+    mostrarMensagem(
+      "mensagemProduto", "Salvando produto..."
+    );
+
+    try {
+      const preco = Number(el("preco").value);
+
+      const promoTexto = el("precoPromo").value;
+      const precoPromo = promoTexto === ""
+        ? null
+        : Number(promoTexto);
+
+      if (!Number.isFinite(preco) || preco <= 0) {
+        throw new Error("Informe um preço válido.");
+      }
+
+      if (precoPromo !== null &&
+          (!Number.isFinite(precoPromo) ||
+           precoPromo < 0 ||
+           precoPromo > preco)) {
+        throw new Error(
+          "O preço promocional deve ser menor ou igual ao normal."
         );
+      }
 
-        // CUSTOS: SOMENTE SÓCIOS
+      const produto = {
+        loja_id:LOJA_ID,
+        categoria_id:el("categoria").value,
+        nome:el("nomeProduto").value.trim(),
+        marca:opcional("marca"),
+        modelo:opcional("modelo"),
+        cor:opcional("cor"),
+        tamanho:opcional("tamanho"),
+        sku:opcional("sku"),
+        preco:preco,
+        preco_promocional:precoPromo
+      };
 
-        if (perfilAtual?.tipo === "socio") {
+      if (!produto.categoria_id || !produto.nome) {
+        throw new Error("Preencha os campos obrigatórios.");
+      }
 
-          const {
-            data: custo,
-            error: erroCusto
-          } = await db
-            .from("custos_produtos")
-            .select("custo_referencia")
-            .eq("produto_id", produto.id)
-            .eq("loja_id", LOJA_ID)
-            .maybeSingle();
+      const { error } = await db
+        .from("produtos")
+        .insert(produto);
 
-          if (erroCusto) {
-            throw erroCusto;
-          }
-
-          if (custo) {
-
-            const valorCusto =
-              Number(custo.custo_referencia);
-
-            const valorVenda =
-              temPromocao
-                ? Number(
-                    produto.preco_promocional
-                  )
-                : Number(produto.preco);
-
-            const lucro =
-              valorVenda - valorCusto;
-
-            const margem =
-              valorVenda > 0
-                ? (lucro / valorVenda) * 100
-                : 0;
-
-            const financeiro =
-              document.createElement("div");
-
-            financeiro.className =
-              "financeiro";
-
-            financeiro.appendChild(
-              criarTexto(
-                "p",
-                "Custo: " +
-                  moeda(valorCusto)
-              )
-            );
-
-            financeiro.appendChild(
-              criarTexto(
-                "p",
-                "Lucro bruto estimado: " +
-                  moeda(lucro)
-              )
-            );
-
-            financeiro.appendChild(
-              criarTexto(
-                "p",
-                "Margem bruta: " +
-                  margem.toFixed(1) + "%"
-              )
-            );
-
-            card.appendChild(financeiro);
-          }
+      if (error) {
+        if (error.code === "23505") {
+          throw new Error(
+            "Já existe um produto com esse código SKU."
+          );
         }
+        throw error;
+      }
 
-        lista.appendChild(card);
+      el("formProduto").reset();
+
+      mostrarMensagem(
+        "mensagemProduto",
+        "Produto cadastrado com sucesso! " +
+        "Custo e estoque ainda não foram informados."
+      );
+
+      await carregarProdutos();
+      await testarPermissoes();
+
+    } catch (erro) {
+      mostrarMensagem(
+        "mensagemProduto",
+        "Erro: " + erro.message,
+        true
+      );
+    } finally {
+      botao.disabled = false;
+    }
+  }
+);
+
+// LOGIN
+el("formLogin").addEventListener(
+  "submit", async evento => {
+    evento.preventDefault();
+
+    const botao = el("btnEntrar");
+    botao.disabled = true;
+    mostrarMensagem("mensagem", "Verificando acesso...");
+
+    try {
+      const { data, error } =
+        await db.auth.signInWithPassword({
+          email:el("email").value.trim(),
+          password:el("senha").value
+        });
+
+      if (error) throw error;
+
+      const perfil = await identificarPerfil(data.user.id);
+
+      if (!perfil) {
+        await db.auth.signOut();
+        throw new Error(
+          "Usuário sem perfil autorizado nesta loja."
+        );
+      }
+
+      perfilAtual = perfil;
+
+      const socio = perfil.tipo === "socio";
+
+      el("tituloPainel").textContent = socio
+        ? "Painel do Sócio"
+        : "Painel do Vendedor";
+
+      el("identificacao").textContent = perfil.nome;
+      el("descricao").textContent = socio
+        ? "Perfil administrativo"
+        : "Perfil operacional limitado";
+
+      el("areaSocio").hidden = !socio;
+      el("areaVendedor").hidden = socio;
+      el("areaCadastro").hidden = !socio;
+
+      el("login").hidden = true;
+      el("painel").hidden = false;
+      el("senha").value = "";
+
+      await testarPermissoes();
+      await carregarProdutos();
+
+      if (socio) {
+        try {
+          await carregarCategorias();
+        } catch (erroCategorias) {
+          mostrarMensagem(
+            "mensagemProduto",
+            "Erro ao carregar categorias: " +
+              erroCategorias.message,
+            true
+          );
+        }
       }
 
     } catch (erro) {
-
-      lista.textContent =
-        "Erro ao carregar produtos: " +
-        erro.message;
-
+      mostrarMensagem(
+        "mensagem",
+        "Erro: " + erro.message,
+        true
+      );
+    } finally {
+      botao.disabled = false;
     }
   }
+);
 
-  // LOGIN
+el("btnProdutos").addEventListener(
+  "click", carregarProdutos
+);
 
-  el("formLogin").addEventListener(
-    "submit",
-    async evento => {
+el("btnTestar").addEventListener(
+  "click", testarPermissoes
+);
 
-      evento.preventDefault();
-
-      const botao = el("btnEntrar");
-
-      botao.disabled = true;
-
-      mensagem("Verificando acesso...");
-
-      try {
-
-        const { data, error } =
-          await db.auth.signInWithPassword({
-            email: el("email").value.trim(),
-            password: el("senha").value
-          });
-
-        if (error) {
-          throw error;
-        }
-
-        const perfil =
-          await identificarPerfil(data.user.id);
-
-        if (!perfil) {
-
-          await db.auth.signOut();
-
-          throw new Error(
-            "Usuário sem perfil autorizado nesta loja."
-          );
-
-        }
-
-        perfilAtual = perfil;
-
-        el("tituloPainel").textContent =
-          perfil.tipo === "socio"
-            ? "Painel do Sócio"
-            : "Painel do Vendedor";
-
-        el("identificacao").textContent =
-          perfil.nome;
-
-        el("descricao").textContent =
-          perfil.tipo === "socio"
-            ? "Perfil administrativo"
-            : "Perfil operacional limitado";
-
-        el("areaSocio").hidden =
-          perfil.tipo !== "socio";
-
-        el("areaVendedor").hidden =
-          perfil.tipo !== "vendedor";
-
-        el("login").hidden = true;
-        el("painel").hidden = false;
-
-        el("senha").value = "";
-
-        // CARREGAR INFORMAÇÕES
-        await testarPermissoes();
-        await carregarProdutos();
-
-      } catch (erro) {
-
-        mensagem(erro.message);
-
-      } finally {
-
-        botao.disabled = false;
-
-      }
-    }
-  );
-
-  // ATUALIZAR PERMISSÕES
-
-  el("btnTestar").addEventListener(
-    "click",
-    testarPermissoes
-  );
-
-  // ATUALIZAR PRODUTOS
-
-  el("btnProdutos").addEventListener(
-    "click",
-    carregarProdutos
-  );
-
-  // SAIR
-
-  el("btnSair").addEventListener(
-    "click",
-    async () => {
-
+el("btnSair").addEventListener(
+  "click", async () => {
+    try {
       await db.auth.signOut();
-
+    } finally {
       perfilAtual = null;
-
       el("painel").hidden = true;
       el("login").hidden = false;
-
+      el("senha").value = "";
+      el("formProduto").reset();
       el("resultados").replaceChildren();
       el("listaProdutos").replaceChildren();
-
-      el("senha").value = "";
-
-      mensagem("");
-
+      mostrarMensagem("mensagem", "");
+      mostrarMensagem("mensagemProduto", "");
     }
-  );
-
+  }
+);
 </script>
-
 </body>
 </html>
